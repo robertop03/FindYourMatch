@@ -7,10 +7,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.findyourmatch.navigation.CustomTopAppBar
+import com.example.findyourmatch.navigation.Footer
+import com.example.findyourmatch.navigation.NavGraph
 import com.example.findyourmatch.ui.theme.FindYourMatchTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,30 +19,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            FindYourMatchTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            FindYourMatchTheme (dynamicColor = false) {
+                val navController = rememberNavController()
+                Scaffold(
+                    topBar = { CustomTopAppBar(navController) },
+                    bottomBar = {Footer(navController)},
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
+                    NavGraph(navController, Modifier.padding(innerPadding))
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FindYourMatchTheme {
-        Greeting("Android")
-    }
-}
