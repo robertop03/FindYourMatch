@@ -5,9 +5,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.findyourmatch.ui.screens.*
 import kotlinx.serialization.Serializable
 
 sealed interface NavigationRoute {
+
     @Serializable
     data object Home : NavigationRoute
     @Serializable
@@ -15,7 +17,9 @@ sealed interface NavigationRoute {
     @Serializable
     data object Profile : NavigationRoute
     @Serializable
-    data object Notifiche : NavigationRoute
+    data object Notifications : NavigationRoute
+    @Serializable
+    data object CreateMatch : NavigationRoute
 }
 
 @Composable
@@ -37,8 +41,11 @@ fun NavGraph(
         composable<NavigationRoute.Profile> {
             Profile(navController)
         }
-        composable<NavigationRoute.Notifiche> {
+        composable<NavigationRoute.Notifications> {
             Notifiche(navController)
+        }
+        composable<NavigationRoute.CreateMatch> {
+            CreaPartita(navController)
         }
     }
 }
