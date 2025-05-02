@@ -9,9 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.example.findyourmatch.navigation.CustomTopAppBar
-import com.example.findyourmatch.navigation.Footer
+
 import com.example.findyourmatch.navigation.NavGraph
+import com.example.findyourmatch.ui.screens.CustomTopAppBar
+import com.example.findyourmatch.ui.screens.Footer
 import com.example.findyourmatch.ui.theme.FindYourMatchTheme
 
 class MainActivity : ComponentActivity() {
