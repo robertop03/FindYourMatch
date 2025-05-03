@@ -33,6 +33,8 @@ fun Footer(navController: NavHostController) {
     val isCreateMatchSelected = currentRoute == NavigationRoute.CreateMatch::class.qualifiedName
     val isNotificationSelected = currentRoute == NavigationRoute.Notifications::class.qualifiedName
     val isProfileSelected = currentRoute == NavigationRoute.Profile::class.qualifiedName
+    val isLoginSelected = currentRoute == NavigationRoute.Login::class.qualifiedName
+    val isCreateAccountSelected = currentRoute == NavigationRoute.CreateAccount::class.qualifiedName
 
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.primary,
@@ -61,9 +63,9 @@ fun Footer(navController: NavHostController) {
                 )
             }
 
-            IconButton(onClick = { navController.navigate(NavigationRoute.Profile) }) {
+            IconButton(onClick = { navController.navigate(NavigationRoute.Login) }) {
                 Icon(
-                    imageVector = if (isProfileSelected)
+                    imageVector = if (isProfileSelected || isLoginSelected || isCreateAccountSelected)
                         Icons.Filled.Person else Icons.Outlined.Person,
                     contentDescription = "Profile",
                     modifier = Modifier.size(45.dp)
