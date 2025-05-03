@@ -22,6 +22,10 @@ sealed interface NavigationRoute {
     data object CreateMatch : NavigationRoute
     @Serializable
     data object ChangePassword : NavigationRoute
+    @Serializable
+    data object Login : NavigationRoute
+    @Serializable
+    data object CreateAccount : NavigationRoute
 }
 
 @Composable
@@ -51,6 +55,12 @@ fun NavGraph(
         }
         composable<NavigationRoute.ChangePassword> {
             CambiaPassword(navController)
+        }
+        composable<NavigationRoute.Login> {
+            Login(navController)
+        }
+        composable<NavigationRoute.CreateAccount> {
+            CreaAccount(navController)
         }
     }
 }
