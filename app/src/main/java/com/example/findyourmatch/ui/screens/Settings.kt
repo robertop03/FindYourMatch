@@ -41,13 +41,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.findyourmatch.data.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.collectAsState
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,11 +60,8 @@ fun Settings(navController: NavHostController) {
 
     // States for settings
     val languages = listOf("Italiano", "English")
-    var selectedLanguage by remember { mutableStateOf(languages[0]) }
+
     var expanded by remember { mutableStateOf(false) }
-    var notificationsEnabled by remember { mutableStateOf(true) }
-    var fingerprintEnabled by remember { mutableStateOf(true) }
-    var maxDistance by remember { mutableFloatStateOf(50f) }
 
     // Snackbar state
     val snackbarHostState = remember { SnackbarHostState() }
@@ -68,6 +69,21 @@ fun Settings(navController: NavHostController) {
 
     // State for logout confirmation dialog
     var showLogoutDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val userSettings = remember { UserSettings(context) }
+
+    val savedLanguage by userSettings.language.collectAsState(initial = "Italiano")
+    val savedNotificationsEnabled by userSettings.notificationsEnabled.collectAsState(initial = true)
+    val savedFingerprintEnabled by userSettings.fingerprintEnabled.collectAsState(initial = true)
+    val savedMaxDistance by userSettings.maxDistance.collectAsState(initial = 50f)
+
+    var selectedLanguage by remember(savedLanguage) { mutableStateOf(savedLanguage) }
+    var notificationsEnabled by remember(savedNotificationsEnabled) { mutableStateOf(savedNotificationsEnabled) }
+    var fingerprintEnabled by remember(savedFingerprintEnabled) { mutableStateOf(savedFingerprintEnabled) }
+    var maxDistance by remember(savedMaxDistance) { mutableFloatStateOf(savedMaxDistance) }
+
+
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -210,6 +226,12 @@ fun Settings(navController: NavHostController) {
                 Button(
                     onClick = {
                         coroutineScope.launch {
+                            userSettings.saveSettings(
+                                language = selectedLanguage,
+                                notifications = notificationsEnabled,
+                                fingerprint = fingerprintEnabled,
+                                distance = maxDistance
+                            )
                             snackbarHostState.showSnackbar("Impostazioni salvate con successo!")
                         }
                     },
