@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
@@ -48,7 +49,7 @@ import com.example.findyourmatch.navigation.NavigationRoute
 fun Login(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -83,45 +84,57 @@ fun Login(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Email
+        // Email label
         Text(
             text = buildAnnotatedString {
                 append("Email")
                 withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
             },
-            fontSize = 14.sp
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
         )
+
+        // Email field
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             placeholder = { Text("esempio@gmail.com") },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .width(330.dp)
+                .align(Alignment.CenterHorizontally)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Password
+        // Password label
         Text(
             text = buildAnnotatedString {
                 append("Password")
                 withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
             },
-            fontSize = 14.sp
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
         )
+
+        // Password field
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             placeholder = { Text("deve essere di 8 caratteri") },
             singleLine = true,
-            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
-                val icon = if (confirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
-                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = icon, contentDescription = "Mostra/Nascondi password")
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .width(330.dp)
+                .align(Alignment.CenterHorizontally)
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -130,7 +143,8 @@ fun Login(navController: NavHostController) {
         Button(
             onClick = { /* login logic */ },
             modifier = Modifier
-                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally)
+                .width(330.dp)
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondary,
