@@ -35,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +54,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.findyourmatch.data.remote.createHttpClient
+import com.example.findyourmatch.data.remote.fetchEUCountries
+import com.example.findyourmatch.data.remote.fetchProvincesByCountry
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -68,23 +72,23 @@ fun CreaAccount(navController: NavHostController) {
     var cognome by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confermaPassword by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
     var confermaVisible by remember { mutableStateOf(false) }
     var dataNascita by remember { mutableStateOf("") }
     var sesso by remember { mutableStateOf("Maschio") }
     var stato by remember { mutableStateOf("Stato") }
-    var provincia by remember { mutableStateOf("") }
     var citta by remember { mutableStateOf("") }
     var via by remember { mutableStateOf("") }
     var civico by remember { mutableStateOf("") }
     var accettoCondizioni by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    var stati by remember { mutableStateOf(listOf<String>()) }
+    val httpClient = remember { createHttpClient() }
 
-    val stati = listOf("Italia", "Francia", "Spagna")
-
-    val province = listOf("Milano", "Roma", "Napoli", "Torino") // ← puoi personalizzare
+    var provinceList by remember { mutableStateOf(listOf<String>()) }
+    var provincia by remember { mutableStateOf("") }
     var provinciaExpanded by remember { mutableStateOf(false) }
+
     Scaffold(
         snackbarHost = { androidx.compose.material3.SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -265,6 +269,9 @@ fun CreaAccount(navController: NavHostController) {
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(statoExpanded) },
                     placeholder = { Text("Stato") }
                 )
+                LaunchedEffect(Unit) {
+                    stati = fetchEUCountries(httpClient)
+                }
                 ExposedDropdownMenu(
                     expanded = statoExpanded,
                     onDismissRequest = { statoExpanded = false }
@@ -278,6 +285,13 @@ fun CreaAccount(navController: NavHostController) {
                             }
                         )
                     }
+                }
+            }
+
+            LaunchedEffect(stato) {
+                if (stato.isNotBlank()) {
+                    provinceList = fetchProvincesByCountry(httpClient, stato)
+                    provincia = "" // reset della provincia selezionata
                 }
             }
 
@@ -303,7 +317,7 @@ fun CreaAccount(navController: NavHostController) {
                     expanded = provinciaExpanded,
                     onDismissRequest = { provinciaExpanded = false }
                 ) {
-                    province.forEach {
+                    provinceList.forEach {
                         DropdownMenuItem(
                             text = { Text(it) },
                             onClick = {
