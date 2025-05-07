@@ -459,6 +459,7 @@ fun CreaAccount(navController: NavHostController) {
                             "Password" to password,
                             "Conferma Password" to confermaPassword,
                             "Data di nascita" to dataNascita,
+                            "Cellulare" to cellulare,
                             "Stato" to stato,
                             "Provincia" to provincia,
                             "Città" to citta,
@@ -484,12 +485,16 @@ fun CreaAccount(navController: NavHostController) {
                         if (noNumeriRegex.containsMatchIn(via)) throw Exception("La via non può contenere numeri.")
                         if (noNumeriRegex.containsMatchIn(citta)) throw Exception("La città non può contenere numeri.")
 
-                        // 5. Civico → numero tra 1 e 100000
+                        // 5. Cellulare → numero, con minimo di 8 e un max di 15 cifre
+                        if (!cellulare.matches(Regex("^\\d+$"))) throw Exception("Il numero deve contenere solo cifre.")
+                        if (cellulare.length !in 8..15) throw Exception("Il numero deve contenere da 8 a 15 cifre.")
+
+                        // 6. Civico → numero tra 1 e 100000
                         val civicoInt = civico.toIntOrNull()
                             ?: throw Exception("Il civico deve essere un numero.")
                         if (civicoInt !in 1..100000) throw Exception("Il civico deve essere compreso tra 1 e 100000.")
 
-                        // 6. Checkbox condizioni
+                        // 7. Checkbox condizioni
                         if (!accettoCondizioni) throw Exception("Devi accettare i termini e la privacy.")
 
                         // Tutto ok
