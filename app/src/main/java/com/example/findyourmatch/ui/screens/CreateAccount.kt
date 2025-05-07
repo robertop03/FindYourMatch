@@ -81,6 +81,9 @@ fun CreaAccount(navController: NavHostController) {
     var civico by remember { mutableStateOf("") }
     var accettoCondizioni by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
+    var cellulare by remember { mutableStateOf("") }
+    var prefissoExpanded by remember { mutableStateOf(false) }
+    var prefisso by remember { mutableStateOf("+39") }
     val coroutineScope = rememberCoroutineScope()
     var stati by remember { mutableStateOf(listOf<String>()) }
     val httpClient = remember { createHttpClient() }
@@ -238,6 +241,66 @@ fun CreaAccount(navController: NavHostController) {
             }
             Spacer(Modifier.height(16.dp))
 
+            val prefissi = listOf("+43", "+32", "+359", "+357", "+385", "+45", "+372", "+358", "+33", "+49", "+30", "+353", "+39", "+371", "+370", "+352", "+356", "+31", "+48", "+351", "+420", "+40", "+421", "+386", "+34", "+46")
+            // Numero di telefono con prefisso
+            Text(
+                text = buildAnnotatedString {
+                    append("Cellulare")
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(330.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(330.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ExposedDropdownMenuBox(
+                    expanded = prefissoExpanded,
+                    onExpandedChange = { prefissoExpanded = !prefissoExpanded },
+                    modifier = Modifier.width(98.dp)
+                ) {
+                    OutlinedTextField(
+                        value = prefisso,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier.menuAnchor(),
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = prefissoExpanded) },
+                        singleLine = true
+                    )
+                    ExposedDropdownMenu(
+                        expanded = prefissoExpanded,
+                        onDismissRequest = { prefissoExpanded = false }
+                    ) {
+                        prefissi.forEach {
+                            DropdownMenuItem(
+                                text = { Text(it) },
+                                onClick = {
+                                    prefisso = it
+                                    prefissoExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                OutlinedTextField(
+                    value = cellulare,
+                    onValueChange = { cellulare = it },
+                    placeholder = { Text("1234567890") },
+                    singleLine = true,
+                    modifier = Modifier.weight(0.9f)
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
 
             // Indirizzo
             Text(
