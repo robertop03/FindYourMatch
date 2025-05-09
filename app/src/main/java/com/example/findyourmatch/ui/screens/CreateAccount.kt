@@ -590,28 +590,22 @@ fun CreaAccount(navController: NavHostController) {
                         accettoCondizioni = accettoCondizioni
                     ) {
                         val salt = PasswordUtils.generateSalt()
-                        val hashedPassword = PasswordUtils.hashPassword(password, salt)
+                        val hashedPassword = PasswordUtils.hashPassword(password.trim(), salt)
                         val db = AppDatabase.getInstance(context)
                         val utente = Utenti(
-                            email = email,
-                            nome = nome,
-                            cognome = cognome,
+                            email = email.trim(),
+                            nome = nome.trim(),
+                            cognome = cognome.trim(),
                             dataNascita = LocalDate.parse(dataNascita),
                             password = hashedPassword,
                             salt = salt,
                             sesso = sesso,
                             dataIscrizione = LocalDate.now(),
-                            telefono = prefisso + cellulare
+                            telefono = prefisso + cellulare.trim()
                         )
 
                         coroutineScope.launch {
                             db.userDao().insert(utente)
-
-                            val user = db.userDao().getByEmail("Roberto.pisu03@gmail.com")
-                            if (user != null) {
-                                db.userDao().delete(user)
-                            }
-
                             snackbarHostState.showSnackbar("Registrazione completata")
                             navController.navigate(NavigationRoute.Login)
                         }
