@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.3"
+androidDatabaseSqlcipher = "4.5.3"
 datastorePreferences = "1.1.5"
 datastorePreferencesVersion = "1.0.0"
 kotlin = "2.0.0"
@@ -18,13 +19,21 @@ activityCompose = "1.10.1"
 composeBom = "2024.04.01"
 materialIconsExtended = "1.7.8"
 navigationCompose = "2.8.9"
+roomRuntime = "2.7.1"
+sqliteFramework = "2.5.0"
+sqlcipher = "4.5.3"
 
 [libraries]
+android-database-sqlcipher = { module = "net.zetetic:android-database-sqlcipher", version.ref = "androidDatabaseSqlcipher" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-datastore-preferences-v100 = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferencesVersion" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+androidx-sqlite = { module = "androidx.sqlite:sqlite", version.ref = "sqliteFramework" }
+androidx-sqlite-framework = { module = "androidx.sqlite:sqlite-framework", version.ref = "sqliteFramework" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -44,9 +53,11 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
 ktor-serialization-kotlinx-json-v234 = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJsonVersion" }
+zetetic-android-database-sqlcipher = { module = "net.zetetic:android-database-sqlcipher", version.ref = "sqlcipher" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version = "2.0.0-1.0.24" }
