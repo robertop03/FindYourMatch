@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -40,7 +41,13 @@ android {
     }
 }
 
+val room_version = "2.7.1"
 dependencies {
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.android.database.sqlcipher)
+    implementation(libs.androidx.sqlite)
+    implementation(libs.androidx.sqlite.framework)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.content.negotiation)

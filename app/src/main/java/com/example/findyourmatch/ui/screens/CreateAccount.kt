@@ -1,8 +1,12 @@
 package com.example.findyourmatch.ui.screens
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
+import java.security.MessageDigest
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +38,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -54,15 +60,21 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.findyourmatch.data.database.AppDatabase
+import com.example.findyourmatch.data.database.Utenti
 import com.example.findyourmatch.data.remote.createHttpClient
 import com.example.findyourmatch.data.remote.fetchEUCountries
 import com.example.findyourmatch.data.remote.fetchProvincesByCountry
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import androidx.compose.ui.viewinterop.AndroidView
+import com.example.findyourmatch.data.PasswordUtils
+import java.util.*
 
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreaAccount(navController: NavHostController) {
@@ -87,10 +99,11 @@ fun CreaAccount(navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
     var stati by remember { mutableStateOf(listOf<String>()) }
     val httpClient = remember { createHttpClient() }
-
     var provinceList by remember { mutableStateOf(listOf<String>()) }
     var provincia by remember { mutableStateOf("") }
     var provinciaExpanded by remember { mutableStateOf(false) }
+    var showDatePickerDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Scaffold(
         snackbarHost = { androidx.compose.material3.SnackbarHost(snackbarHostState) },
@@ -207,8 +220,60 @@ fun CreaAccount(navController: NavHostController) {
                 { confermaPassword = it },
                 "almeno 8 caratteri"
             )
-            campoObbligatorio("Data di nascita", dataNascita, { dataNascita = it }, "dd/mm/yyyy")
 
+            Spacer(Modifier.height(16.dp))
+
+
+            Text(
+                text = buildAnnotatedString {
+                    append("Data di nascita")
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(330.dp)
+
+            )
+
+            TextField(
+                value = dataNascita,
+                readOnly = true,
+                placeholder = { Text("yyyy-MM-dd")},
+                onValueChange = {},
+                singleLine = true,
+                interactionSource = remember { MutableInteractionSource() }
+                    .also { interactionSource ->
+                        LaunchedEffect(interactionSource) {
+                            interactionSource.interactions.collect {
+                                if (it is PressInteraction.Release) {
+                                    showDatePickerDialog = true
+                                }
+                            }
+                        }
+                    },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(330.dp)
+            )
+
+            if (showDatePickerDialog) {
+                val contextData = LocalContext.current
+                val calendar = Calendar.getInstance()
+                DatePickerDialog(
+                    contextData,
+                    { _, year, month, dayOfMonth ->
+                        dataNascita = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                        showDatePickerDialog = false
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                ).show()
+            }
+
+            Spacer(Modifier.height(16.dp))
             Text(
                 text = buildAnnotatedString {
                     append("Sesso")
@@ -263,7 +328,7 @@ fun CreaAccount(navController: NavHostController) {
                 ExposedDropdownMenuBox(
                     expanded = prefissoExpanded,
                     onExpandedChange = { prefissoExpanded = !prefissoExpanded },
-                    modifier = Modifier.width(98.dp)
+                    modifier = Modifier.width(110.dp)
                 ) {
                     OutlinedTextField(
                         value = prefisso,
@@ -524,8 +589,32 @@ fun CreaAccount(navController: NavHostController) {
                         civico = civico,
                         accettoCondizioni = accettoCondizioni
                     ) {
-                        // ✅ Solo se tutti i controlli passano
-                        // Esegui registrazione qui
+                        val salt = PasswordUtils.generateSalt()
+                        val hashedPassword = PasswordUtils.hashPassword(password, salt)
+                        val db = AppDatabase.getInstance(context)
+                        val utente = Utenti(
+                            email = email,
+                            nome = nome,
+                            cognome = cognome,
+                            dataNascita = LocalDate.parse(dataNascita),
+                            password = hashedPassword,
+                            salt = salt,
+                            sesso = sesso,
+                            dataIscrizione = LocalDate.now(),
+                            telefono = prefisso + cellulare
+                        )
+
+                        coroutineScope.launch {
+                            db.userDao().insert(utente)
+
+                            val user = db.userDao().getByEmail("Roberto.pisu03@gmail.com")
+                            if (user != null) {
+                                db.userDao().delete(user)
+                            }
+
+                            snackbarHostState.showSnackbar("Registrazione completata")
+                            navController.navigate(NavigationRoute.Login)
+                        }
                     }
                 },
                 modifier = Modifier
