@@ -8,7 +8,7 @@ import androidx.room.Query
 
 @Dao
 interface UtentiDAO {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(utente: Utenti)
 
     @Delete

@@ -51,6 +51,7 @@ import com.example.findyourmatch.data.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
+import com.example.findyourmatch.data.SessionManager
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,8 +84,6 @@ fun Settings(navController: NavHostController) {
     var fingerprintEnabled by remember(savedFingerprintEnabled) { mutableStateOf(savedFingerprintEnabled) }
     var maxDistance by remember(savedMaxDistance) { mutableFloatStateOf(savedMaxDistance) }
 
-
-
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -116,7 +115,7 @@ fun Settings(navController: NavHostController) {
                     }
                     Text(
                         text = "Impostazioni",
-                        fontSize = 24.sp,
+                        fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -289,9 +288,12 @@ fun Settings(navController: NavHostController) {
                         onClick = {
                             showLogoutDialog = false
                             coroutineScope.launch {
+                                SessionManager.logout(context)
+                                navController.navigate(NavigationRoute.Login) {
+                                    popUpTo(NavigationRoute.Profile) { inclusive = true }
+                                }
                                 snackbarHostState.showSnackbar("Logout eseguito con successo!")
                             }
-                            // Implement logout logic here
                         }
                     ) {
                         Text("Conferma")
