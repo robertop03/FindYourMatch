@@ -2,7 +2,6 @@ package com.example.findyourmatch.ui.screens
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
-import java.security.MessageDigest
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -69,7 +68,6 @@ import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import androidx.compose.ui.viewinterop.AndroidView
 import com.example.findyourmatch.data.PasswordUtils
 import java.util.*
 
@@ -423,7 +421,7 @@ fun CreaAccount(navController: NavHostController) {
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(16.dp))
 
             // Dropdown Provincia
             ExposedDropdownMenuBox(
@@ -458,10 +456,10 @@ fun CreaAccount(navController: NavHostController) {
             }
 
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(8.dp))
 
             // Campi con solo placeholder
-            val campiIndirizzo = listOf(
+            val campiIndirizzo: List<Triple<String, String, (String) -> Unit>> = listOf(
                 Triple("Città", citta, { nuovo: String -> citta = nuovo }),
                 Triple("Via", via, { nuovo: String -> via = nuovo }),
                 Triple("Civico", civico, { nuovo: String -> civico = nuovo })
@@ -476,7 +474,7 @@ fun CreaAccount(navController: NavHostController) {
                     modifier = Modifier
                         .width(330.dp)
                         .align(Alignment.CenterHorizontally)
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = 8.dp)
                 )
             }
 
@@ -489,7 +487,10 @@ fun CreaAccount(navController: NavHostController) {
                 Checkbox(checked = accettoCondizioni, onCheckedChange = { accettoCondizioni = it })
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "Accetto i termini e l'informativa sulla privacy.",
+                    text = buildAnnotatedString {
+                        append("Accetto i termini e l'informativa sulla privacy.")
+                        withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                    },
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp
                 )
@@ -561,6 +562,13 @@ fun CreaAccount(navController: NavHostController) {
 
                         // 7. Checkbox condizioni
                         if (!accettoCondizioni) throw Exception("Devi accettare i termini e la privacy.")
+
+                        // 8. Account con email già registrata
+                        val db = AppDatabase.getInstance(context)
+                        val existingUser = db.userDao().getByEmail(email.trim())
+                        if (existingUser != null) {
+                            throw Exception("Un account con questa email è già registrato.")
+                        }
 
                         // Tutto ok
                         onSuccess()

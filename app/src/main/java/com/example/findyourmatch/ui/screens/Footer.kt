@@ -18,12 +18,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import android.util.Log
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.findyourmatch.navigation.NavigationRoute
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import com.example.findyourmatch.data.SessionManager
+import kotlinx.coroutines.launch
 
 @Composable
 fun Footer(navController: NavHostController) {
@@ -35,6 +38,8 @@ fun Footer(navController: NavHostController) {
     val isProfileSelected = currentRoute == NavigationRoute.Profile::class.qualifiedName
     val isLoginSelected = currentRoute == NavigationRoute.Login::class.qualifiedName
     val isCreateAccountSelected = currentRoute == NavigationRoute.CreateAccount::class.qualifiedName
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.primary,
@@ -63,7 +68,15 @@ fun Footer(navController: NavHostController) {
                 )
             }
 
-            IconButton(onClick = { navController.navigate(NavigationRoute.Login) }) {
+            IconButton(onClick = {
+                coroutineScope.launch {
+                    if (SessionManager.getLoggedInUser(context) != null) {
+                        navController.navigate(NavigationRoute.Profile)
+                    }else {
+                        navController.navigate(NavigationRoute.Login)
+                    }
+                }
+            }) {
                 Icon(
                     imageVector = if (isProfileSelected || isLoginSelected || isCreateAccountSelected)
                         Icons.Filled.Person else Icons.Outlined.Person,

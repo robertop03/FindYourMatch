@@ -2,7 +2,6 @@ package com.example.findyourmatch.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -57,7 +56,6 @@ fun CambiaPassword(navController: NavHostController) {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
-        // 🔙 Titolo con freccia
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -89,7 +87,9 @@ fun CambiaPassword(navController: NavHostController) {
                 append("Inserisci nuova password")
                 withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
             },
-            fontSize = 14.sp
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
         )
         OutlinedTextField(
             value = newPassword,
@@ -103,7 +103,7 @@ fun CambiaPassword(navController: NavHostController) {
                     Icon(imageVector = icon, contentDescription = "Mostra/Nascondi password")
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.width(330.dp).align(Alignment.CenterHorizontally)
         )
 
         Spacer(Modifier.height(16.dp))
@@ -114,7 +114,9 @@ fun CambiaPassword(navController: NavHostController) {
                 append("Conferma password")
                 withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
             },
-            fontSize = 14.sp
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
         )
         OutlinedTextField(
             value = confirmPassword,
@@ -128,7 +130,7 @@ fun CambiaPassword(navController: NavHostController) {
                     Icon(imageVector = icon, contentDescription = "Mostra/Nascondi password")
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.width(330.dp).align(Alignment.CenterHorizontally)
         )
 
         Spacer(Modifier.height(32.dp))

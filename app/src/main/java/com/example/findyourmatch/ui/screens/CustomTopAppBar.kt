@@ -24,13 +24,19 @@ import com.example.findyourmatch.R
 import com.example.findyourmatch.navigation.NavigationRoute
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.findyourmatch.data.SessionManager
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTopAppBar(navController: NavHostController) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     val isSettingsSelected = currentRoute == NavigationRoute.Settings::class.qualifiedName
 
@@ -65,7 +71,15 @@ fun CustomTopAppBar(navController: NavHostController) {
                 }
 
                 IconButton(
-                    onClick = { navController.navigate(NavigationRoute.Settings) },
+                    onClick = {
+                        coroutineScope.launch {
+                            if (SessionManager.getLoggedInUser(context) != null) {
+                                navController.navigate(NavigationRoute.Settings)
+                            }else {
+                                navController.navigate(NavigationRoute.Login)
+                            }
+                        }
+                    },
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .padding(end = 16.dp)

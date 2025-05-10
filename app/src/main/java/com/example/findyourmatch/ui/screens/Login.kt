@@ -1,7 +1,5 @@
 package com.example.findyourmatch.ui.screens
 
-import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -48,9 +46,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.data.PasswordUtils
+import com.example.findyourmatch.data.SessionManager
 import com.example.findyourmatch.data.database.AppDatabase
 import com.example.findyourmatch.navigation.NavigationRoute
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -187,6 +185,7 @@ fun Login(navController: NavHostController) {
                         password = password.trim(),
                         onSuccess = {
                             coroutineScope.launch {
+                                SessionManager.login(context, email) // Salva l'utente come loggato nel datastore
                                 snackbarHostState.showSnackbar("Login effettuato con successo")
                                 navController.navigate(NavigationRoute.Profile)
                             }
@@ -217,7 +216,7 @@ fun Login(navController: NavHostController) {
                 textDecoration = TextDecoration.Underline
             )
 
-            Spacer(modifier = Modifier.height(195.dp))
+            Spacer(modifier = Modifier.height(120.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
