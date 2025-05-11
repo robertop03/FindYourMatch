@@ -1,4 +1,4 @@
-package com.example.findyourmatch.data
+package com.example.findyourmatch.data.user
 
 import java.security.SecureRandom
 import java.util.Base64

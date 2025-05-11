@@ -1,6 +1,5 @@
 package com.example.findyourmatch.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,11 +46,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.findyourmatch.data.UserSettings
+import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
-import com.example.findyourmatch.data.SessionManager
+import com.example.findyourmatch.data.user.SessionManager
 
 
 @OptIn(ExperimentalMaterial3Api::class)

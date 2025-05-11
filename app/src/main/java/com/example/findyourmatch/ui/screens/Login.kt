@@ -1,6 +1,5 @@
 package com.example.findyourmatch.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,13 +45,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.findyourmatch.data.PasswordUtils
-import com.example.findyourmatch.data.SessionManager
-import com.example.findyourmatch.data.database.AppDatabase
+import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
-import com.example.findyourmatch.data.loginSupabase
-
+import com.example.findyourmatch.data.user.loginSupabase
 
 
 @Composable
@@ -172,21 +168,17 @@ fun Login(navController: NavHostController) {
                         if (result.isSuccess) {
 
                             val accessToken = SessionManager.getAccessToken(context)
-                            println("ACCESS TOKEN DOPO LOGIN: $accessToken")
+
                             snackbarHostState.showSnackbar("Login effettuato con successo")
-                            println("Navigo verso profilo")
                             navController.navigate(NavigationRoute.Profile) {
                                 popUpTo(NavigationRoute.Login) { inclusive = true }
-                                popUpTo(NavigationRoute.CreateAccount) { inclusive = true }
                             }
                         } else {
                             val ex = result.exceptionOrNull()
-                            Log.e("LOGIN_SUPABASE", "Login fallito", ex)
                             throw ex ?: Exception("Login fallito")
                         }
 
                     } catch (e: Exception) {
-                        Log.e("LOGIN_ERROR", "Errore nel login", e)
                         snackbarHostState.showSnackbar(e.message ?: "Errore di login.")
                     }
                 }
@@ -195,7 +187,6 @@ fun Login(navController: NavHostController) {
 
             Button(
                 onClick = {
-                    println("TENTO LOGIN")
                     loginUtente(email.trim(), password.trim())
                 },
                 modifier = Modifier
@@ -222,7 +213,7 @@ fun Login(navController: NavHostController) {
                 textDecoration = TextDecoration.Underline
             )
 
-            Spacer(modifier = Modifier.height(120.dp))
+            Spacer(modifier = Modifier.height(140.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

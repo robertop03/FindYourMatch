@@ -25,7 +25,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import com.example.findyourmatch.data.SessionManager
+import com.example.findyourmatch.data.user.SessionManager
 import kotlinx.coroutines.launch
 
 @Composable

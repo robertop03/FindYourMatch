@@ -59,18 +59,15 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import okhttp3.Request
 import com.example.findyourmatch.data.remote.api.createHttpClient
 import com.example.findyourmatch.data.remote.api.fetchEUCountries
 import com.example.findyourmatch.data.remote.api.fetchProvincesByCountry
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.example.findyourmatch.data.PasswordUtils
-import com.example.findyourmatch.data.SessionManager
+import com.example.findyourmatch.data.user.PasswordUtils
 import java.util.*
-import com.example.findyourmatch.data.registraUtenteSupabase
-import okhttp3.OkHttpClient
+import com.example.findyourmatch.data.user.registraUtenteSupabase
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
@@ -544,6 +541,17 @@ fun CreaAccount(navController: NavHostController) {
                         // 3. Email
                         val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
                         if (!emailRegex.matches(email)) throw Exception("L'indirizzo email non è valido.")
+
+                        // 3.1 Età minima → almeno 14 anni
+                        try {
+                            val formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                            val dataNascitaParsed = java.time.LocalDate.parse(dataNascita, formatter)
+                            val oggi = java.time.LocalDate.now()
+                            val anni = java.time.Period.between(dataNascitaParsed, oggi).years
+                            if (anni < 14) throw Exception("Devi avere almeno 14 anni per registrarti.")
+                        } catch (e: Exception) {
+                            throw Exception("E' necessario avere alemeno 14 anni per registrarti.")
+                        }
 
                         // 4. Nome, Cognome, Via, Città → nessun numero
                         val noNumeriRegex = Regex(".*\\d.*")

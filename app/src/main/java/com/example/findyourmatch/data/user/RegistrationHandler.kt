@@ -1,7 +1,6 @@
-package com.example.findyourmatch.data
+package com.example.findyourmatch.data.user
 
 import android.content.Context
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -61,9 +60,8 @@ suspend fun registraUtenteSupabase(
         val signupResponse = client.newCall(signupRequest).execute()
 
         if (!signupResponse.isSuccessful) {
-            val errorBody = signupResponse.body?.string()
             return@withContext Result.failure(
-                Exception("Registrazione fallita: ${signupResponse.code} - $errorBody")
+                Exception("Registrazione fallita, un account con questa email è già registrato")
             )
         }
 
