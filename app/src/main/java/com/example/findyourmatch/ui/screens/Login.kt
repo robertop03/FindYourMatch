@@ -131,7 +131,7 @@ fun Login(navController: NavHostController) {
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text("deve essere di 8 caratteri") },
+                placeholder = { Text("almeno 8 caratteri") },
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
