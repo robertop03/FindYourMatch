@@ -3,6 +3,7 @@ package com.example.findyourmatch.data.user
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -17,10 +18,10 @@ data class LoginRequest(val email: String, val password: String)
 
 @Serializable
 data class SessionData(
-    val access_token: String,
-    val refresh_token: String,
-    val token_type: String,
-    val expires_in: Int
+    @SerialName("access_token") val accessToken: String,
+    @SerialName("refresh_token") val refreshToken: String,
+    @SerialName("token_type") val tokenType: String,
+    @SerialName("expires_in") val expiresIn: Int
 )
 
 suspend fun loginSupabase(
@@ -54,8 +55,8 @@ suspend fun loginSupabase(
         }.decodeFromString(SessionData.serializer(), bodyString)
 
 
-        SessionManager.saveTokens(context, session.access_token, session.refresh_token)
-        Result.success(session.access_token)
+        SessionManager.saveTokens(context, session.accessToken, session.refreshToken)
+        Result.success(session.accessToken)
 
     } catch (e: Exception) {
         Result.failure(e)
