@@ -59,17 +59,18 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.findyourmatch.data.database.AppDatabase
-import com.example.findyourmatch.data.database.Utenti
-import com.example.findyourmatch.data.remote.createHttpClient
-import com.example.findyourmatch.data.remote.fetchEUCountries
-import com.example.findyourmatch.data.remote.fetchProvincesByCountry
+import okhttp3.Request
+import com.example.findyourmatch.data.remote.api.createHttpClient
+import com.example.findyourmatch.data.remote.api.fetchEUCountries
+import com.example.findyourmatch.data.remote.api.fetchProvincesByCountry
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import com.example.findyourmatch.data.PasswordUtils
+import com.example.findyourmatch.data.SessionManager
 import java.util.*
+import com.example.findyourmatch.data.registraUtenteSupabase
+import okhttp3.OkHttpClient
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
@@ -563,13 +564,6 @@ fun CreaAccount(navController: NavHostController) {
                         // 7. Checkbox condizioni
                         if (!accettoCondizioni) throw Exception("Devi accettare i termini e la privacy.")
 
-                        // 8. Account con email già registrata
-                        val db = AppDatabase.getInstance(context)
-                        val existingUser = db.userDao().getByEmail(email.trim())
-                        if (existingUser != null) {
-                            throw Exception("Un account con questa email è già registrato.")
-                        }
-
                         // Tutto ok
                         onSuccess()
                     } catch (e: Exception) {
@@ -599,24 +593,28 @@ fun CreaAccount(navController: NavHostController) {
                     ) {
                         val salt = PasswordUtils.generateSalt()
                         val hashedPassword = PasswordUtils.hashPassword(password.trim(), salt)
-                        val db = AppDatabase.getInstance(context)
-                        val utente = Utenti(
-                            email = email.trim(),
-                            nome = nome.trim(),
-                            cognome = cognome.trim(),
-                            dataNascita = LocalDate.parse(dataNascita),
-                            password = hashedPassword,
-                            salt = salt,
-                            sesso = sesso,
-                            dataIscrizione = LocalDate.now(),
-                            telefono = prefisso + cellulare.trim()
-                        )
-
                         coroutineScope.launch {
-                            db.userDao().insert(utente)
-                            snackbarHostState.showSnackbar("Registrazione completata")
-                            navController.navigate(NavigationRoute.Login)
+                            val result = registraUtenteSupabase(
+                                context = context,
+                                email = email.trim(),
+                                password = password.trim(),
+                                nome = nome.trim(),
+                                cognome = cognome.trim(),
+                                dataNascita = dataNascita,
+                                salt = salt,
+                                hashedPassword = hashedPassword,
+                                sesso = sesso,
+                                telefono = prefisso + cellulare.trim()
+                            )
+
+                            if (result.isSuccess) {
+                                snackbarHostState.showSnackbar("Registrazione completata")
+                                navController.navigate(NavigationRoute.Login)
+                            } else {
+                                snackbarHostState.showSnackbar("Errore: ${result.exceptionOrNull()?.message}")
+                            }
                         }
+
                     }
                 },
                 modifier = Modifier

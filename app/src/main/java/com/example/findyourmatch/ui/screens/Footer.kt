@@ -70,9 +70,9 @@ fun Footer(navController: NavHostController) {
 
             IconButton(onClick = {
                 coroutineScope.launch {
-                    if (SessionManager.getLoggedInUser(context) != null) {
+                    if (SessionManager.isLoggedIn(context)) {
                         navController.navigate(NavigationRoute.Profile)
-                    }else {
+                    } else {
                         navController.navigate(NavigationRoute.Login)
                     }
                 }

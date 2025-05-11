@@ -1,4 +1,4 @@
-package com.example.findyourmatch.data.remote
+package com.example.findyourmatch.data.remote.api
 
 import android.util.Log
 import io.ktor.client.*
