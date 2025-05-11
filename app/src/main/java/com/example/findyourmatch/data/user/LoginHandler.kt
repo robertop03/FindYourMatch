@@ -1,4 +1,4 @@
-package com.example.findyourmatch.data
+package com.example.findyourmatch.data.user
 
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
