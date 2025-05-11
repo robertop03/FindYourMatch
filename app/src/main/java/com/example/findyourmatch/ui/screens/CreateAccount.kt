@@ -65,7 +65,6 @@ import com.example.findyourmatch.data.remote.api.fetchProvincesByCountry
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.example.findyourmatch.data.user.PasswordUtils
 import java.util.*
 import com.example.findyourmatch.data.user.registraUtenteSupabase
 
@@ -599,8 +598,6 @@ fun CreaAccount(navController: NavHostController) {
                         civico = civico,
                         accettoCondizioni = accettoCondizioni
                     ) {
-                        val salt = PasswordUtils.generateSalt()
-                        val hashedPassword = PasswordUtils.hashPassword(password.trim(), salt)
                         coroutineScope.launch {
                             val result = registraUtenteSupabase(
                                 context = context,
@@ -609,8 +606,6 @@ fun CreaAccount(navController: NavHostController) {
                                 nome = nome.trim(),
                                 cognome = cognome.trim(),
                                 dataNascita = dataNascita,
-                                salt = salt,
-                                hashedPassword = hashedPassword,
                                 sesso = sesso,
                                 telefono = prefisso + cellulare.trim()
                             )
@@ -622,7 +617,6 @@ fun CreaAccount(navController: NavHostController) {
                                 snackbarHostState.showSnackbar("Errore: ${result.exceptionOrNull()?.message}")
                             }
                         }
-
                     }
                 },
                 modifier = Modifier

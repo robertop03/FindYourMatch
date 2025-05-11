@@ -166,9 +166,6 @@ fun Login(navController: NavHostController) {
                         val result = loginSupabase(context, email, password)
 
                         if (result.isSuccess) {
-
-                            val accessToken = SessionManager.getAccessToken(context)
-
                             snackbarHostState.showSnackbar("Login effettuato con successo")
                             navController.navigate(NavigationRoute.Profile) {
                                 popUpTo(NavigationRoute.Login) { inclusive = true }

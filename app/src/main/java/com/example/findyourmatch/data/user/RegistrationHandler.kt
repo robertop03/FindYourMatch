@@ -3,6 +3,7 @@ package com.example.findyourmatch.data.user
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -16,18 +17,19 @@ import java.time.LocalDate
 data class SignupRequest(val email: String, val password: String)
 
 @Serializable
-data class SignupResponse(val access_token: String, val refresh_token: String)
+data class SignupResponse(
+    @SerialName("access_token") val accessToken: String,
+    @SerialName("refresh_token") val refreshToken: String
+)
 
 @Serializable
 data class Utente(
     val email: String,
     val nome: String,
     val cognome: String,
-    val data_nascita: String,
-    val password: String,
-    val salt: String,
+    @SerialName("data_nascita") val dataNascita: String,
     val sesso: String,
-    val data_iscrizione: String,
+    @SerialName("data_iscrizione") val dataIscrizione: String,
     val telefono: String
 )
 
@@ -38,8 +40,6 @@ suspend fun registraUtenteSupabase(
     nome: String,
     cognome: String,
     dataNascita: String,
-    salt: String,
-    hashedPassword: String,
     sesso: String,
     telefono: String
 ): Result<Unit> = withContext(Dispatchers.IO) {
@@ -92,13 +92,13 @@ suspend fun registraUtenteSupabase(
 
 
         // 2. Salva i token
-        SessionManager.saveTokens(context, session.access_token, session.refresh_token)
+        SessionManager.saveTokens(context, session.accessToken, session.refreshToken)
 
         // 3. Controlla se l’utente è già nella tabella `utenti`
         val checkRequest = Request.Builder()
             .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti?email=eq.${email.trim()}")
             .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
-            .addHeader("Authorization", "Bearer ${session.access_token}")
+            .addHeader("Authorization", "Bearer ${session.accessToken}")
             .addHeader("Accept", "application/json")
             .build()
 
@@ -118,34 +118,92 @@ suspend fun registraUtenteSupabase(
             email = email,
             nome = nome,
             cognome = cognome,
-            data_nascita = dataNascita,
-            password = hashedPassword,
-            salt = salt,
+            dataNascita = dataNascita,
             sesso = sesso,
-            data_iscrizione = LocalDate.now().toString(),
+            dataIscrizione = LocalDate.now().toString(),
             telefono = telefono,
         )
 
         val utenteJson = Json.encodeToString(utente)
-        println("UTENTE JSON: $utenteJson")
+        print(utenteJson)
         val utenteBody = utenteJson.toRequestBody("application/json".toMediaType())
-        println("UTENTE JSON: $utenteBody")
+        print(utenteBody)
 
         val insertRequest = Request.Builder()
             .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti")
             .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
-            .addHeader("Authorization", "Bearer ${session.access_token}")
+            .addHeader("Authorization", "Bearer ${session.accessToken}")
             .addHeader("Content-Type", "application/json")
             .post(utenteBody)
             .build()
 
-        val insertResponse = client.newCall(insertRequest).execute()
-        if (!insertResponse.isSuccessful) {
-            return@withContext Result.failure(Exception("Inserimento dati fallito: ${insertResponse.code}"))
+        var tokenToUse: String
+
+        var insertResponse = client.newCall(insertRequest).execute()
+
+        if (insertResponse.code == 401 || insertResponse.code == 403) {
+            // Token scaduto, tentiamo refresh
+            val refreshResult = refreshTokenIfNeeded(context, client, session.refreshToken)
+            if (refreshResult.isSuccess) {
+                val newSession = refreshResult.getOrThrow()
+                tokenToUse = newSession.accessToken
+
+                // Nuova richiesta con token aggiornato
+                val retryInsertRequest = insertRequest.newBuilder()
+                    .removeHeader("Authorization")
+                    .addHeader("Authorization", "Bearer $tokenToUse")
+                    .build()
+
+                insertResponse = client.newCall(retryInsertRequest).execute()
+            } else {
+                return@withContext Result.failure(Exception("Refresh del token fallito"))
+            }
         }
 
-        Result.success(Unit)
+        if (!insertResponse.isSuccessful && insertResponse.code != 201) {
+            val errorBody = insertResponse.body?.string()
+            return@withContext Result.failure(
+                Exception("Inserimento fallito (${insertResponse.code}): $errorBody")
+            )
+        }
 
+        return@withContext Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+}
+
+suspend fun refreshTokenIfNeeded(
+    context: Context,
+    client: OkHttpClient,
+    refreshToken: String
+): Result<SignupResponse> = withContext(Dispatchers.IO) {
+    try {
+        val body = """
+        {
+            "refresh_token": "$refreshToken"
+        }
+        """.trimIndent().toRequestBody("application/json".toMediaType())
+
+        val request = Request.Builder()
+            .url("https://ugtxgylfzblkvudpnagi.supabase.co/auth/v1/token?grant_type=refresh_token")
+            .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0") // usa sempre il tuo
+            .addHeader("Content-Type", "application/json")
+            .post(body)
+            .build()
+
+        val response = client.newCall(request).execute()
+        if (!response.isSuccessful) {
+            return@withContext Result.failure(Exception("Refresh token fallito (${response.code})"))
+        }
+
+        val responseBody = response.body?.string()
+            ?: return@withContext Result.failure(Exception("Corpo della risposta nullo"))
+
+        val newSession = Json.decodeFromString(SignupResponse.serializer(), responseBody)
+        SessionManager.saveTokens(context, newSession.accessToken, newSession.refreshToken)
+
+        Result.success(newSession)
     } catch (e: Exception) {
         Result.failure(e)
     }
