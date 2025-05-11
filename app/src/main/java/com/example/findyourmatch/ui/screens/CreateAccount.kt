@@ -599,6 +599,7 @@ fun CreaAccount(navController: NavHostController) {
                         accettoCondizioni = accettoCondizioni
                     ) {
                         coroutineScope.launch {
+                            kotlinx.coroutines.delay(100)
                             val result = registraUtenteSupabase(
                                 context = context,
                                 email = email.trim(),
@@ -607,7 +608,12 @@ fun CreaAccount(navController: NavHostController) {
                                 cognome = cognome.trim(),
                                 dataNascita = dataNascita,
                                 sesso = sesso,
-                                telefono = prefisso + cellulare.trim()
+                                telefono = prefisso + cellulare.trim(),
+                                stato = stato.trim(),
+                                provincia = provincia.trim(),
+                                citta = citta.trim(),
+                                via = via.trim(),
+                                civico = civico.trim()
                             )
 
                             if (result.isSuccess) {

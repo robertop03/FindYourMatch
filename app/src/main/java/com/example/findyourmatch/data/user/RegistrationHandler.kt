@@ -30,7 +30,12 @@ data class Utente(
     @SerialName("data_nascita") val dataNascita: String,
     val sesso: String,
     @SerialName("data_iscrizione") val dataIscrizione: String,
-    val telefono: String
+    val telefono: String,
+    val stato: String,
+    val citta: String,
+    val provincia: String,
+    val via: String,
+    val civico: String
 )
 
 suspend fun registraUtenteSupabase(
@@ -41,7 +46,12 @@ suspend fun registraUtenteSupabase(
     cognome: String,
     dataNascita: String,
     sesso: String,
-    telefono: String
+    telefono: String,
+    stato: String,
+    citta: String,
+    provincia: String,
+    via: String,
+    civico: String
 ): Result<Unit> = withContext(Dispatchers.IO) {
     try {
         val client = OkHttpClient()
@@ -122,12 +132,15 @@ suspend fun registraUtenteSupabase(
             sesso = sesso,
             dataIscrizione = LocalDate.now().toString(),
             telefono = telefono,
+            stato = stato,
+            citta = citta,
+            provincia = provincia,
+            via = via,
+            civico = civico
         )
 
         val utenteJson = Json.encodeToString(utente)
-        print(utenteJson)
         val utenteBody = utenteJson.toRequestBody("application/json".toMediaType())
-        print(utenteBody)
 
         val insertRequest = Request.Builder()
             .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti")
@@ -137,7 +150,7 @@ suspend fun registraUtenteSupabase(
             .post(utenteBody)
             .build()
 
-        var tokenToUse: String
+        val tokenToUse: String
 
         var insertResponse = client.newCall(insertRequest).execute()
 
