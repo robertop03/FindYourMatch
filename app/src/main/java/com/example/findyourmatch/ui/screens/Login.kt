@@ -1,5 +1,6 @@
 package com.example.findyourmatch.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,6 +51,8 @@ import com.example.findyourmatch.data.SessionManager
 import com.example.findyourmatch.data.database.AppDatabase
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
+import com.example.findyourmatch.data.loginSupabase
+
 
 
 @Composable
@@ -148,13 +151,13 @@ fun Login(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            fun validaCampiEUtenteEsistente(
+            fun loginUtente(
                 email: String,
-                password: String,
-                onSuccess: () -> Unit
+                password: String
             ) {
                 coroutineScope.launch {
                     try {
+                        // 1. Validazione campi
                         val campi = listOf("Email" to email, "Password" to password)
                         campi.forEach { (nomeCampo, valore) ->
                             if (valore.isBlank()) throw Exception("Il campo \"$nomeCampo\" non può essere vuoto.")
@@ -163,34 +166,37 @@ fun Login(navController: NavHostController) {
                         val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
                         if (!emailRegex.matches(email)) throw Exception("L'indirizzo email non è valido.")
 
-                        val db = AppDatabase.getInstance(context)
-                        val utente = db.userDao().getByEmail(email)
-                            ?: throw Exception("Email non registrata.")
+                        // 2. Chiamata alla loginSupabase
+                        val result = loginSupabase(context, email, password)
 
-                        val passwordValida = PasswordUtils.verifyPassword(password, utente.salt, utente.password)
-                        if (!passwordValida) throw Exception("Password errata.")
+                        if (result.isSuccess) {
 
-                        // Tutto ok
-                        onSuccess()
+                            val accessToken = SessionManager.getAccessToken(context)
+                            println("ACCESS TOKEN DOPO LOGIN: $accessToken")
+                            snackbarHostState.showSnackbar("Login effettuato con successo")
+                            println("Navigo verso profilo")
+                            navController.navigate(NavigationRoute.Profile) {
+                                popUpTo(NavigationRoute.Login) { inclusive = true }
+                                popUpTo(NavigationRoute.CreateAccount) { inclusive = true }
+                            }
+                        } else {
+                            val ex = result.exceptionOrNull()
+                            Log.e("LOGIN_SUPABASE", "Login fallito", ex)
+                            throw ex ?: Exception("Login fallito")
+                        }
+
                     } catch (e: Exception) {
-                        snackbarHostState.showSnackbar(e.message ?: "Errore di validazione.")
+                        Log.e("LOGIN_ERROR", "Errore nel login", e)
+                        snackbarHostState.showSnackbar(e.message ?: "Errore di login.")
                     }
                 }
             }
 
+
             Button(
                 onClick = {
-                    validaCampiEUtenteEsistente(
-                        email = email.trim(),
-                        password = password.trim(),
-                        onSuccess = {
-                            coroutineScope.launch {
-                                SessionManager.login(context, email) // Salva l'utente come loggato nel datastore
-                                snackbarHostState.showSnackbar("Login effettuato con successo")
-                                navController.navigate(NavigationRoute.Profile)
-                            }
-                        }
-                    )
+                    println("TENTO LOGIN")
+                    loginUtente(email.trim(), password.trim())
                 },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)

@@ -1,0 +1,63 @@
+package com.example.findyourmatch.data
+
+import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+
+
+@Serializable
+data class LoginRequest(val email: String, val password: String)
+
+@Serializable
+data class SessionData(
+    val access_token: String,
+    val refresh_token: String,
+    val token_type: String,
+    val expires_in: Int
+)
+
+suspend fun loginSupabase(
+    context: Context,
+    email: String,
+    password: String
+): Result<String> = withContext(Dispatchers.IO) {
+    try {
+        val client = OkHttpClient()
+        val jsonBody = Json.encodeToString(LoginRequest(email, password))
+        val requestBody = jsonBody.toRequestBody("application/json".toMediaType())
+
+        val request = Request.Builder()
+            .url("https://ugtxgylfzblkvudpnagi.supabase.co/auth/v1/token?grant_type=password")
+            .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+            .addHeader("Content-Type", "application/json")
+            .post(requestBody)
+            .build()
+
+        val response = client.newCall(request).execute()
+
+        if (!response.isSuccessful) {
+            return@withContext Result.failure(Exception("Login fallito: ${response.code}"))
+        }
+
+        val bodyString = response.body?.string()
+            ?: return@withContext Result.failure(Exception("Corpo della risposta vuoto"))
+
+        val session = Json {
+            ignoreUnknownKeys = true
+        }.decodeFromString(SessionData.serializer(), bodyString)
+
+
+        SessionManager.saveTokens(context, session.access_token, session.refresh_token)
+        Result.success(session.access_token)
+
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+}

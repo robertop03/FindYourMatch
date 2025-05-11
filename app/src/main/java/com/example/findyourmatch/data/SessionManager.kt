@@ -1,25 +1,41 @@
 package com.example.findyourmatch.data
 
 import android.content.Context
-import kotlinx.coroutines.flow.first
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 object SessionManager {
-    private val Context.dataStore by preferencesDataStore(name = "user_session")
+    private val ACCESS_TOKEN = stringPreferencesKey("access_token")
+    private val REFRESH_TOKEN = stringPreferencesKey("refresh_token")
 
-    private val LOGGED_IN_EMAIL = stringPreferencesKey("logged_in_email")
+    suspend fun saveTokens(context: Context, accessToken: String, refreshToken: String) {
+        context.dataStore.edit { preferences ->
+            preferences[ACCESS_TOKEN] = accessToken
+            preferences[REFRESH_TOKEN] = refreshToken
+        }
+    }
 
-    suspend fun login(context: Context, email: String) {
-        context.dataStore.edit { prefs -> prefs[LOGGED_IN_EMAIL] = email }
+     suspend fun getAccessToken(context: Context): String? {
+        return context.dataStore.data.map { it[ACCESS_TOKEN] }.first()
+    }
+
+
+    suspend fun getRefreshToken(context: Context): String? {
+        return context.dataStore.data.map { it[REFRESH_TOKEN] }.first()
     }
 
     suspend fun logout(context: Context) {
-        context.dataStore.edit { prefs -> prefs.remove(LOGGED_IN_EMAIL) }
+        context.dataStore.edit { preferences ->
+            preferences.remove(ACCESS_TOKEN)
+            preferences.remove(REFRESH_TOKEN)
+        }
     }
 
-    suspend fun getLoggedInUser(context: Context): String? {
-        return context.dataStore.data.first()[LOGGED_IN_EMAIL]
+    suspend fun isLoggedIn(context: Context): Boolean {
+        val token = getAccessToken(context)
+        return !token.isNullOrBlank()
     }
+
 }

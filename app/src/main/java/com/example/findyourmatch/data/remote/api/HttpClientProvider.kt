@@ -1,4 +1,4 @@
-package com.example.findyourmatch.data.remote
+package com.example.findyourmatch.data.remote.api
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
