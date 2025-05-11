@@ -21,7 +21,6 @@ object SessionManager {
         return context.dataStore.data.map { it[ACCESS_TOKEN] }.first()
     }
 
-
     suspend fun getRefreshToken(context: Context): String? {
         return context.dataStore.data.map { it[REFRESH_TOKEN] }.first()
     }
