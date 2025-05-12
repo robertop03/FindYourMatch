@@ -181,7 +181,6 @@ fun Login(navController: NavHostController) {
                 }
             }
 
-
             Button(
                 onClick = {
                     loginUtente(email.trim(), password.trim())
@@ -206,7 +205,7 @@ fun Login(navController: NavHostController) {
                 color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .clickable { /* navController.navigate(...) */ },
+                    .clickable { navController.navigate(NavigationRoute.RestorePassword) },
                 textDecoration = TextDecoration.Underline
             )
 

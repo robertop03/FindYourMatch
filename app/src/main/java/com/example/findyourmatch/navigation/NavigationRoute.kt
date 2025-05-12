@@ -5,6 +5,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.findyourmatch.ui.screens.*
 import kotlinx.serialization.Serializable
 
@@ -26,6 +28,10 @@ sealed interface NavigationRoute {
     data object Login : NavigationRoute
     @Serializable
     data object CreateAccount : NavigationRoute
+    @Serializable
+    data object RestorePassword : NavigationRoute
+    @Serializable
+    data class PasswordResetDeepLink(val token: String) : NavigationRoute
 }
 
 @Composable
@@ -61,6 +67,23 @@ fun NavGraph(
         }
         composable<NavigationRoute.CreateAccount> {
             CreaAccount(navController)
+        }
+        composable<NavigationRoute.RestorePassword> {
+            RecuperaPassword(navController)
+        }
+        composable(
+            route = "password-reset?access_token={access_token}",
+            arguments = listOf(
+                navArgument("access_token") { nullable = false }
+            ),
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "findyourmatch://password-reset?access_token={access_token}"
+                }
+            )
+        ) { backStackEntry ->
+            val token = backStackEntry.arguments?.getString("access_token") ?: ""
+            CambiaPasswordDeepLink(navController, token)
         }
     }
 }

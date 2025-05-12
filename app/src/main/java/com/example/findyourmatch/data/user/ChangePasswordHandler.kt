@@ -1,7 +1,6 @@
 package com.example.findyourmatch.data.user
 
 import android.content.Context
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -65,12 +64,7 @@ private fun tryUpdatePassword(token: String, nuovaPassword: String): Result<Unit
 suspend fun refreshAccessToken(context: Context): Result<String> = withContext(Dispatchers.IO) {
     try {
         val refreshToken = SessionManager.getRefreshToken(context)
-        if (refreshToken == null) {
-            Log.e("RefreshToken", "Refresh token mancante.")
-            return@withContext Result.failure(Exception("Refresh token mancante."))
-        }
-
-        Log.d("RefreshToken", "Token attuale: $refreshToken")
+            ?: return@withContext Result.failure(Exception("Refresh token mancante."))
 
         val json = Json.encodeToString(mapOf("refresh_token" to refreshToken))
         val body = json.toRequestBody("application/json".toMediaType())
@@ -85,7 +79,6 @@ suspend fun refreshAccessToken(context: Context): Result<String> = withContext(D
         val response = OkHttpClient().newCall(request).execute()
 
         val responseBody = response.body?.string()
-        Log.d("RefreshResponse", "Codice: ${response.code} - Corpo: $responseBody")
 
         if (!response.isSuccessful || responseBody == null) {
             return@withContext Result.failure(
@@ -99,7 +92,6 @@ suspend fun refreshAccessToken(context: Context): Result<String> = withContext(D
         SessionManager.saveTokens(context, session.accessToken, session.refreshToken)
         Result.success(session.accessToken)
     } catch (e: Exception) {
-        Log.e("RefreshException", "Eccezione: ${e.message}", e)
         Result.failure(e)
     }
 }
