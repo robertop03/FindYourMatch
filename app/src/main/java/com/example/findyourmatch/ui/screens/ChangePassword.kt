@@ -22,9 +22,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,8 +46,18 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.data.user.cambiaPasswordUtente
+import com.example.findyourmatch.navigation.NavigationRoute
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 
 
 @Composable
@@ -90,7 +102,7 @@ fun CambiaPassword(navController: NavHostController) {
                     text = "Cambia password",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
 
@@ -202,5 +214,161 @@ fun CambiaPassword(navController: NavHostController) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CambiaPasswordDeepLink(navController: NavHostController, token: String) {
+    var newPassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.secondaryContainer
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = "Reimposta password",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(start = 16.dp, bottom = 24.dp)
+            )
+
+            Text(
+                text = buildAnnotatedString {
+                    append("Inserisci nuova password")
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+            )
+            Spacer(Modifier.height(5.dp))
+            OutlinedTextField(
+                value = newPassword,
+                onValueChange = { newPassword = it },
+                placeholder = { Text("almeno 8 caratteri") },
+                singleLine = true,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector = icon, contentDescription = "Mostra/Nascondi password")
+                    }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF1B836C),
+                    focusedLabelColor = Color(0xFF1B836C),
+                    cursorColor = Color(0xFF1B836C)
+                ),
+                modifier = Modifier.width(330.dp).align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            // Conferma password
+            Text(
+                text = buildAnnotatedString {
+                    append("Conferma password")
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+            )
+            Spacer(Modifier.height(5.dp))
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                placeholder = { Text("almeno 8 caratteri") },
+                singleLine = true,
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val icon = if (confirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        Icon(imageVector = icon, contentDescription = "Mostra/Nascondi password")
+                    }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF1B836C),
+                    focusedLabelColor = Color(0xFF1B836C),
+                    cursorColor = Color(0xFF1B836C)
+                ),
+                modifier = Modifier.width(330.dp).align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(Modifier.height(32.dp))
+
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        if (newPassword != confirmPassword) {
+                            snackbarHostState.showSnackbar("Le password non coincidono.")
+                            return@launch
+                        }
+                        if (newPassword.length < 8) {
+                            snackbarHostState.showSnackbar("Minimo 8 caratteri richiesti.")
+                            return@launch
+                        }
+
+                        val result = aggiornaPasswordConToken(token, newPassword)
+                        if (result.isSuccess) {
+                            SessionManager.logout(context)
+                            snackbarHostState.showSnackbar("Password aggiornata con successo!")
+                            navController.navigate(NavigationRoute.Login)
+                        } else {
+                            snackbarHostState.showSnackbar("Errore: ${result.exceptionOrNull()?.message}")
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Salva", fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+suspend fun aggiornaPasswordConToken(token: String, newPassword: String): Result<Unit> = withContext(
+    Dispatchers.IO) {
+    try {
+        val json = Json.encodeToString(mapOf("password" to newPassword))
+        val body = json.toRequestBody("application/json".toMediaType())
+
+        val request = Request.Builder()
+            .url("https://ugtxgylfzblkvudpnagi.supabase.co/auth/v1/user")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+            .addHeader("Content-Type", "application/json")
+            .put(body)
+            .build()
+
+        val response = OkHttpClient().newCall(request).execute()
+
+        if (response.isSuccessful) {
+            Result.success(Unit)
+        } else {
+            Result.failure(Exception("${response.code}: ${response.body?.string()}"))
+        }
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 }
