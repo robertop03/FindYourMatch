@@ -50,7 +50,11 @@ fun Footer(navController: NavHostController) {
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { navController.navigate(NavigationRoute.Home) }) {
+            IconButton(onClick = { navController.navigate(NavigationRoute.Home){
+                launchSingleTop = true
+                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                restoreState = true
+            } }) {
                 Icon(
                     imageVector = if (isHomeSelected)
                         Icons.Filled.Home else Icons.Outlined.Home,
@@ -59,7 +63,11 @@ fun Footer(navController: NavHostController) {
                 )
             }
 
-            IconButton(onClick = { navController.navigate(NavigationRoute.CreateMatch) }) {
+            IconButton(onClick = { navController.navigate(NavigationRoute.CreateMatch){
+                launchSingleTop = true
+                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                restoreState = true
+            } }) {
                 Icon(
                     imageVector = if (isCreateMatchSelected)
                         Icons.Filled.AddCircle else Icons.Outlined.AddCircle,
@@ -71,9 +79,17 @@ fun Footer(navController: NavHostController) {
             IconButton(onClick = {
                 coroutineScope.launch {
                     if (SessionManager.isLoggedIn(context)) {
-                        navController.navigate(NavigationRoute.Profile)
+                        navController.navigate(NavigationRoute.Profile){
+                            launchSingleTop = true
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            restoreState = true
+                        }
                     } else {
-                        navController.navigate(NavigationRoute.Login)
+                        navController.navigate(NavigationRoute.Login){
+                            launchSingleTop = true
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            restoreState = true
+                        }
                     }
                 }
             }) {
@@ -85,7 +101,11 @@ fun Footer(navController: NavHostController) {
                 )
             }
 
-            IconButton(onClick = { navController.navigate(NavigationRoute.Notifications) }) {
+            IconButton(onClick = { navController.navigate(NavigationRoute.Notifications){
+                launchSingleTop = true
+                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                restoreState = true
+            } }) {
                 Icon(
                     imageVector = if (isNotificationSelected)
                         Icons.Filled.Notifications else Icons.Outlined.Notifications,

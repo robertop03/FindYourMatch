@@ -281,7 +281,7 @@ fun Settings(navController: NavHostController) {
             AlertDialog(
                 onDismissRequest = { showLogoutDialog = false },
                 title = { Text("Conferma logout") },
-                text = { Text("Sei sicuro di voler uscire dall'app?") },
+                text = { Text("Sei sicuro di voler uscire dall'account?") },
                 confirmButton = {
                     Button(
                         onClick = {
