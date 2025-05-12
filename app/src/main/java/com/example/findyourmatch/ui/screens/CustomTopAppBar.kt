@@ -26,6 +26,7 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.findyourmatch.data.user.SessionManager
 import kotlinx.coroutines.launch
@@ -50,7 +51,7 @@ fun CustomTopAppBar(navController: NavHostController) {
 
                 Text(
                     text = "FindYourMatch",
-                    style = MaterialTheme.typography.headlineLarge,
+                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -74,9 +75,17 @@ fun CustomTopAppBar(navController: NavHostController) {
                     onClick = {
                         coroutineScope.launch {
                             if (SessionManager.isLoggedIn(context)) {
-                                navController.navigate(NavigationRoute.Settings)
+                                navController.navigate(NavigationRoute.Settings){
+                                    launchSingleTop = true
+                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                    restoreState = true
+                                }
                             } else {
-                                navController.navigate(NavigationRoute.Login)
+                                navController.navigate(NavigationRoute.Login){
+                                    launchSingleTop = true
+                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                    restoreState = true
+                                }
                             }
                         }
                     },

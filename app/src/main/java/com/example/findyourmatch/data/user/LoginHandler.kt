@@ -44,7 +44,7 @@ suspend fun loginSupabase(
         val response = client.newCall(request).execute()
 
         if (!response.isSuccessful) {
-            return@withContext Result.failure(Exception("Login fallito: ${response.code}"))
+            return@withContext Result.failure(Exception("Login fallito, credenziali errate"))
         }
 
         val bodyString = response.body?.string()
