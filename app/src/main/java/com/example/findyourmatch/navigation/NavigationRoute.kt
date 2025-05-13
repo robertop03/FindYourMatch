@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import com.example.findyourmatch.data.user.SessionViewModel
 import com.example.findyourmatch.ui.screens.*
 import kotlinx.serialization.Serializable
 
@@ -37,6 +38,7 @@ sealed interface NavigationRoute {
 @Composable
 fun NavGraph(
     navController: NavHostController,
+    sessionViewModel: SessionViewModel,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -63,7 +65,7 @@ fun NavGraph(
             CambiaPassword(navController)
         }
         composable<NavigationRoute.Login> {
-            Login(navController)
+            Login(navController, sessionViewModel)
         }
         composable<NavigationRoute.CreateAccount> {
             CreaAccount(navController)

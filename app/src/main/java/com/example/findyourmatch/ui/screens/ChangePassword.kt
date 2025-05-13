@@ -184,8 +184,9 @@ fun CambiaPassword(navController: NavHostController) {
 
                             val result = cambiaPasswordUtente(context, newPassword)
                             if (result.isSuccess) {
-                                snackbarHostState.showSnackbar("Password aggiornata con successo.")
-                                navController.navigateUp()
+                                SessionManager.logout(context)
+                                snackbarHostState.showSnackbar("Password aggiornata con successo!")
+                                navController.navigate(NavigationRoute.Login)
                             } else {
                                 snackbarHostState.showSnackbar("Errore: ${result.exceptionOrNull()?.message}")
                             }

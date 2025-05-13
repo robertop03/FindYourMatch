@@ -27,7 +27,8 @@ data class SessionData(
 suspend fun loginSupabase(
     context: Context,
     email: String,
-    password: String
+    password: String,
+    sessionViewModel: SessionViewModel
 ): Result<String> = withContext(Dispatchers.IO) {
     try {
         val client = OkHttpClient()
@@ -56,6 +57,7 @@ suspend fun loginSupabase(
 
 
         SessionManager.saveTokens(context, session.accessToken, session.refreshToken)
+        sessionViewModel.updateLoginStatus(true)
         Result.success(session.accessToken)
 
     } catch (e: Exception) {
