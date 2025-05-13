@@ -623,7 +623,7 @@ fun CreaAccount(navController: NavHostController) {
 
                             if (result.isSuccess) {
                                 snackbarHostState.showSnackbar("Registrazione completata")
-                                navController.navigate(NavigationRoute.Login)
+                                navController.navigate(NavigationRoute.Home)
                             } else {
                                 snackbarHostState.showSnackbar("Errore: ${result.exceptionOrNull()?.message}")
                             }

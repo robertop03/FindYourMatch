@@ -47,13 +47,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.findyourmatch.data.user.SessionViewModel
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import com.example.findyourmatch.data.user.loginSupabase
 
 
 @Composable
-fun Login(navController: NavHostController) {
+fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -165,7 +166,7 @@ fun Login(navController: NavHostController) {
                         if (!emailRegex.matches(email)) throw Exception("L'indirizzo email non è valido.")
 
                         // 2. Chiamata alla loginSupabase
-                        val result = loginSupabase(context, email, password)
+                        val result = loginSupabase(context, email, password, sessionViewModel)
 
                         if (result.isSuccess) {
                             snackbarHostState.showSnackbar("Login effettuato con successo")

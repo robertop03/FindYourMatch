@@ -23,21 +23,19 @@ import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.navigation.NavigationRoute
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.findyourmatch.data.user.SessionManager
-import kotlinx.coroutines.launch
+import com.example.findyourmatch.data.user.SessionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTopAppBar(navController: NavHostController) {
+fun CustomTopAppBar(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
+
 
     val isSettingsSelected = currentRoute == NavigationRoute.Settings::class.qualifiedName
 
@@ -73,20 +71,11 @@ fun CustomTopAppBar(navController: NavHostController) {
 
                 IconButton(
                     onClick = {
-                        coroutineScope.launch {
-                            if (SessionManager.isLoggedIn(context)) {
-                                navController.navigate(NavigationRoute.Settings){
-                                    launchSingleTop = true
-                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                    restoreState = true
-                                }
-                            } else {
-                                navController.navigate(NavigationRoute.Login){
-                                    launchSingleTop = true
-                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                    restoreState = true
-                                }
-                            }
+                        navController.navigate(
+                            if (isLoggedIn) NavigationRoute.Settings else NavigationRoute.Login
+                        ) {
+                            launchSingleTop = true
+                            popUpTo(NavigationRoute.Home) { inclusive = false }
                         }
                     },
                     modifier = Modifier
