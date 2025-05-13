@@ -256,7 +256,7 @@ fun CreaAccount(navController: NavHostController) {
             if (showDatePickerDialog) {
                 val contextData = LocalContext.current
                 val calendar = Calendar.getInstance()
-                DatePickerDialog(
+                val dialog = DatePickerDialog(
                     contextData,
                     { _, year, month, dayOfMonth ->
                         dataNascita = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
@@ -265,8 +265,13 @@ fun CreaAccount(navController: NavHostController) {
                     calendar.get(Calendar.YEAR),
                     calendar.get(Calendar.MONTH),
                     calendar.get(Calendar.DAY_OF_MONTH)
-                ).show()
+                )
+                dialog.setOnCancelListener {
+                    showDatePickerDialog = false
+                }
+                dialog.show()
             }
+
 
             Spacer(Modifier.height(16.dp))
             Text(

@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
@@ -45,7 +47,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import com.example.findyourmatch.data.user.loginSupabase
@@ -67,6 +68,7 @@ fun Login(navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Top,
