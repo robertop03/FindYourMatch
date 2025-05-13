@@ -41,16 +41,10 @@ android {
     }
 }
 
-val room_version = "2.7.1"
 dependencies {
     implementation(libs.androidx.datastore.preferences.v116)
     implementation(libs.kotlinx.serialization.json.v160)
     implementation(libs.okhttp)
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.android.database.sqlcipher)
-    implementation(libs.androidx.sqlite)
-    implementation(libs.androidx.sqlite.framework)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.content.negotiation)

@@ -36,7 +36,4 @@ object SessionManager {
         val token = getAccessToken(context)
         return !token.isNullOrBlank()
     }
-
-
-
 }
