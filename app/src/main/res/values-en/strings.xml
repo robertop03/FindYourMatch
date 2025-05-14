@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FindYourMatch</string>
+
+    <!-- CREA ACCOUNT -->
+    <string name="crea_account">Create account</string>
+    <string name="email">Email</string>
+    <string name="email_placeholder">example@gmail.com</string>
+    <string name="nome">First name</string>
+    <string name="nome_placeholder">Enter your first name</string>
+    <string name="cognome">Last name</string>
+    <string name="cognome_placeholder">Enter your last name</string>
+    <string name="password">Password</string>
+    <string name="conferma_password">Confirm password</string>
+    <string name="password_placeholder">at least 8 characters</string>
+    <string name="data_di_nascita">Date of birth</string>
+    <string name="data_placeholder">yyyy-MM-dd</string>
+    <string name="sesso">Gender</string>
+    <string name="maschio">Male</string>
+    <string name="femmina">Female</string>
+    <string name="cellulare">Phone number</string>
+    <string name="cellulare_placeholder">1234567890</string>
+    <string name="indirizzo">Address</string>
+    <string name="stato">Country</string>
+    <string name="provincia">Province</string>
+    <string name="citta">City</string>
+    <string name="via">Street</string>
+    <string name="civico">House number</string>
+    <string name="termini_privacy">I accept the terms and the privacy policy.</string>
+    <string name="registrazione_completata">Registration completed</string>
+    <string name="errore_registrazione">Error</string>
+    <string name="gia_account">Already have an account?</string>
+    <string name="login">Login</string>
+    <string name="indietro">Back</string>
+    <string name="errore_validazione">Validation error.</string>
+    <string name="campo_non_vuoto">The field &quot;%1$s&quot; cannot be empty.</string>
+    <string name="password_non_coincide">Passwords do not match.</string>
+    <string name="password_troppo_corta">Password must be at least 8 characters.</string>
+    <string name="email_non_valida">The email address is not valid.</string>
+    <string name="eta_minima">You must be at least 14 years old to register.</string>
+    <string name="errore_eta">You must be at least 14 years old to register.</string>
+    <string name="nome_con_numeri">First name cannot contain numbers.</string>
+    <string name="cognome_con_numeri">Last name cannot contain numbers.</string>
+    <string name="via_con_numeri">Street cannot contain numbers.</string>
+    <string name="citta_con_numeri">City cannot contain numbers.</string>
+    <string name="numero_telefono_non_valido">Phone number must contain only digits.</string>
+    <string name="numero_telefono_lunghezza">Phone number must be between 8 and 15 digits.</string>
+    <string name="civico_non_numero">House number must be a valid number.</string>
+    <string name="civico_fuori_range">House number must be between 1 and 100000.</string>
+    <string name="checkbox_non_accettata">You must accept the terms and privacy policy.</string>
+    <string name="mostra_nascondi_pw">Show/Hide password.</string>
+
+    <!-- LOGIN -->
+    <string name="login_successo">Login successful</string>
+    <string name="login_fallito">Login failed</string>
+    <string name="login_errore">Login error</string>
+    <string name="accedi">Login</string>
+    <string name="password_dimenticata">Forgot password? Recover now</string>
+    <string name="no_account">Don\'t have an account? </string>
+
+    <!-- CAMBIA PASSWORD -->
+    <string name="cambia_pw">Change password</string>
+    <string name="inserisci_nuova_pw">Insert a new password</string>
+    <string name="errore_pw">Password must contain at least 8 characters</string>
+    <string name="aggiornamento_pw">Password updated successfully!</string>
+    <string name="salva">Save</string>
+    <string name="annulla">Cancel</string>
+    <string name="reimposta_pw">Reset password</string>
+    <string name="aggiornata_pw">Password updated successfully!</string>
+
+    <!-- RIPRISTINA PASSWORD -->
+    <string name="recupera_pw">Recover password</string>
+    <string name="inserisci_email">Enter your email for password recovery!</string>
+    <string name="controlla_email">Check your email to reset your password.</string>
+    <string name="email_valida">Enter a valid email.</string>
+    <string name="invia">Send</string>
+
+    <!-- CREA MATCH -->
+
+    <!-- SETTINGS -->
+    <string name="preferenze">Preferences</string>
+    <string name="distanza_massima">Maximum distance: %1$d km</string>
+    <string name="privacy">Privacy</string>
+    <string name="impronta_digitale">Fingerprint</string>
+    <string name="sicurezza">Security</string>
+    <string name="logout">Logout</string>
+    <string name="conferma_logout">Confirm logout</string>
+    <string name="testo_conferma_logout">Are you sure you want to log out?</string>
+    <string name="conferma">Confirm</string>
+    <string name="impostazioni_salvate">Settings saved successfully!</string>
+    <string name="logout_successo">Successfully logged out!</string>
+
+    <!-- HOME -->
+    <string name="miei_calcetti">My futsal games…</string>
+    <string name="impostazioni">Settings</string>
+    <string name="aggiungi">Add</string>
+
+    <!-- NOTIFICHE -->
+    <string name="notifiche">Notifications</string>
+
+    <!-- SINGOLA NOTIFICA -->
+
+    <!-- GAMIFICATION -->
+    <string name="tue_medaglie">Your rewards</string>
+
+    <!-- PROFILO -->
+    <string name="profilo">Profile</string>
+</resources>

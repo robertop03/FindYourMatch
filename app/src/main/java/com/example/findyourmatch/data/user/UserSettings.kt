@@ -8,6 +8,9 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.edit
+import java.util.Locale
+import android.os.LocaleList
+import androidx.compose.runtime.staticCompositionLocalOf
 
 
 // Extension property per ottenere il DataStore
@@ -23,7 +26,7 @@ class UserSettings(private val context: Context) {
     }
 
     val language: Flow<String> = context.dataStore.data
-        .map { it[LANGUAGE_KEY] ?: "Italiano" }
+        .map { it[LANGUAGE_KEY] ?: "it" }
 
     val notificationsEnabled: Flow<Boolean> = context.dataStore.data
         .map { it[NOTIFICATIONS_KEY] ?: true }
@@ -47,4 +50,19 @@ class UserSettings(private val context: Context) {
             prefs[MAX_DISTANCE_KEY] = distance
         }
     }
+}
+
+
+object LocaleHelper {
+    fun updateLocale(context: Context, language: String): Context {
+        val locale = Locale(language)
+        Locale.setDefault(locale)
+        val configuration = context.resources.configuration
+        configuration.setLocales(LocaleList(locale))
+        return context.createConfigurationContext(configuration)
+    }
+}
+
+val LocalLocalizedContext = staticCompositionLocalOf<Context> {
+    error("No localized context provided")
 }

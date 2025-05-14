@@ -26,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +43,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.findyourmatch.R
+import com.example.findyourmatch.data.user.LocaleHelper
+import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.inviaEmailRecuperoPassword
 import kotlinx.coroutines.launch
 
@@ -50,6 +55,14 @@ fun RecuperaPassword(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+    val userSettings = remember { UserSettings(context) }
+    val language by userSettings.language.collectAsState(initial = "it")
+    val localizedContext = remember(language) {
+        LocaleHelper.updateLocale(context, language)
+    }
+    val ctx = localizedContext
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -75,13 +88,13 @@ fun RecuperaPassword(navController: NavHostController) {
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Indietro",
+                        contentDescription = ctx.getString(R.string.indietro),
                         modifier = Modifier.size(24.dp)
                     )
                 }
 
                 Text(
-                    text = "Recupera password",
+                    text = ctx.getString(R.string.recupera_pw),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -91,7 +104,7 @@ fun RecuperaPassword(navController: NavHostController) {
             Spacer(Modifier.height(50.dp))
             Text(
                 text = buildAnnotatedString {
-                    append("Inserisci la tua email per il recupero password!")
+                    append(ctx.getString(R.string.inserisci_email))
                 },
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
@@ -115,7 +128,7 @@ fun RecuperaPassword(navController: NavHostController) {
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text("esempio@gmail.com") },
+                placeholder = { Text(ctx.getString(R.string.email_placeholder)) },
                 singleLine = true,
                 modifier = Modifier
                     .width(330.dp)
@@ -132,15 +145,15 @@ fun RecuperaPassword(navController: NavHostController) {
                     onClick = {
                         coroutineScope.launch {
                             if (email.isBlank()) {
-                                snackbarHostState.showSnackbar("Inserisci un'email valida.")
+                                snackbarHostState.showSnackbar(ctx.getString(R.string.email_valida))
                                 return@launch
                             }
 
                             val result = inviaEmailRecuperoPassword(email)
                             if (result.isSuccess) {
-                                snackbarHostState.showSnackbar("Controlla la tua email per reimpostare la password.")
+                                snackbarHostState.showSnackbar(ctx.getString(R.string.controlla_email))
                             } else {
-                                snackbarHostState.showSnackbar("Errore: ${result.exceptionOrNull()?.message}")
+                                snackbarHostState.showSnackbar("${ctx.getString(R.string.errore_registrazione)}: ${result.exceptionOrNull()?.message}")
                             }
                         }
                     },
@@ -152,7 +165,7 @@ fun RecuperaPassword(navController: NavHostController) {
                         contentColor = Color.White
                     )
                 ) {
-                    Text("Invia", fontWeight = FontWeight.Bold)
+                    Text(ctx.getString(R.string.invia), fontWeight = FontWeight.Bold)
                 }
             }
         }
