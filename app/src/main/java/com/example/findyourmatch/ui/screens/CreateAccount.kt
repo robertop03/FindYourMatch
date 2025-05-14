@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,6 +68,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
 import com.example.findyourmatch.data.user.registraUtenteSupabase
+import androidx.compose.ui.res.stringResource
+import com.example.findyourmatch.R
+import com.example.findyourmatch.data.user.LocaleHelper
+import com.example.findyourmatch.data.user.UserSettings
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
@@ -81,8 +86,8 @@ fun CreaAccount(navController: NavHostController) {
     var confermaPassword by remember { mutableStateOf("") }
     var confermaVisible by remember { mutableStateOf(false) }
     var dataNascita by remember { mutableStateOf("") }
-    var sesso by remember { mutableStateOf("Maschio") }
-    var stato by remember { mutableStateOf("Stato") }
+    var sesso by remember { mutableStateOf("") }
+    var stato by remember { mutableStateOf("") }
     var citta by remember { mutableStateOf("") }
     var via by remember { mutableStateOf("") }
     var civico by remember { mutableStateOf("") }
@@ -99,6 +104,13 @@ fun CreaAccount(navController: NavHostController) {
     var provinciaExpanded by remember { mutableStateOf(false) }
     var showDatePickerDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+
+    val userSettings = remember { UserSettings(context) }
+    val language by userSettings.language.collectAsState(initial = "it")
+    val localizedContext = remember(language) {
+        LocaleHelper.updateLocale(context, language)
+    }
+    val ctx = localizedContext
 
     Scaffold(
         snackbarHost = { androidx.compose.material3.SnackbarHost(snackbarHostState) },
@@ -120,12 +132,12 @@ fun CreaAccount(navController: NavHostController) {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Indietro",
+                            contentDescription = ctx.getString(R.string.indietro),
                             modifier = Modifier.size(24.dp)
                         )
                     }
                     Text(
-                        text = "Crea account",
+                        text = ctx.getString(R.string.crea_account),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -200,20 +212,20 @@ fun CreaAccount(navController: NavHostController) {
                 Spacer(Modifier.height(16.dp))
             }
 
-            campoObbligatorio("Email", email, { email = it }, "esempio@gmail.com")
-            campoObbligatorio("Nome", nome, { nome = it }, "Inserisci il tuo nome")
-            campoObbligatorio("Cognome", cognome, { cognome = it }, "Inserisci il tuo cognome")
+            campoObbligatorio(ctx.getString(R.string.email), email, { email = it }, ctx.getString(R.string.email_placeholder))
+            campoObbligatorio(ctx.getString(R.string.nome), nome, { nome = it }, ctx.getString(R.string.nome_placeholder))
+            campoObbligatorio(ctx.getString(R.string.cognome), cognome, { cognome = it }, ctx.getString(R.string.cognome_placeholder))
             campoObbligatorioPasswords(
-                "Password",
+                ctx.getString(R.string.password),
                 password,
                 { password = it },
-                "almeno 8 caratteri"
+                ctx.getString(R.string.password_placeholder)
             )
             campoObbligatorioPasswords(
-                "Conferma password",
+                ctx.getString(R.string.conferma_password),
                 confermaPassword,
                 { confermaPassword = it },
-                "almeno 8 caratteri"
+                ctx.getString(R.string.password_placeholder)
             )
 
             Spacer(Modifier.height(16.dp))
@@ -221,7 +233,7 @@ fun CreaAccount(navController: NavHostController) {
 
             Text(
                 text = buildAnnotatedString {
-                    append("Data di nascita")
+                    append(ctx.getString(R.string.data_di_nascita))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -235,7 +247,7 @@ fun CreaAccount(navController: NavHostController) {
             TextField(
                 value = dataNascita,
                 readOnly = true,
-                placeholder = { Text("yyyy-MM-dd")},
+                placeholder = { Text(ctx.getString(R.string.data_placeholder))},
                 onValueChange = {},
                 singleLine = true,
                 interactionSource = remember { MutableInteractionSource() }
@@ -276,7 +288,7 @@ fun CreaAccount(navController: NavHostController) {
             Spacer(Modifier.height(16.dp))
             Text(
                 text = buildAnnotatedString {
-                    append("Sesso")
+                    append(ctx.getString(R.string.sesso))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -292,7 +304,7 @@ fun CreaAccount(navController: NavHostController) {
                     .width(330.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                listOf("Maschio", "Femmina").forEach { label ->
+                listOf(ctx.getString(R.string.maschio), ctx.getString(R.string.femmina)).forEach { label ->
                     Row(
                         modifier = Modifier
                             .clickable { sesso = label }
@@ -310,7 +322,7 @@ fun CreaAccount(navController: NavHostController) {
             // Numero di telefono con prefisso
             Text(
                 text = buildAnnotatedString {
-                    append("Cellulare")
+                    append(ctx.getString(R.string.cellulare))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -359,7 +371,7 @@ fun CreaAccount(navController: NavHostController) {
                 OutlinedTextField(
                     value = cellulare,
                     onValueChange = { cellulare = it },
-                    placeholder = { Text("1234567890") },
+                    placeholder = { Text(ctx.getString(R.string.cellulare_placeholder)) },
                     singleLine = true,
                     modifier = Modifier.weight(0.9f)
                 )
@@ -370,7 +382,7 @@ fun CreaAccount(navController: NavHostController) {
             // Indirizzo
             Text(
                 text = buildAnnotatedString {
-                    append("Indirizzo")
+                    append(ctx.getString(R.string.indirizzo))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -395,7 +407,7 @@ fun CreaAccount(navController: NavHostController) {
                         .menuAnchor()
                         .width(330.dp),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(statoExpanded) },
-                    placeholder = { Text("Stato") }
+                    placeholder = { Text(ctx.getString(R.string.stato)) }
                 )
                 LaunchedEffect(Unit) {
                     stati = fetchEUCountries(httpClient)
@@ -439,7 +451,7 @@ fun CreaAccount(navController: NavHostController) {
                         .menuAnchor()
                         .width(330.dp),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(provinciaExpanded) },
-                    placeholder = { Text("Provincia") }
+                    placeholder = { Text(ctx.getString(R.string.provincia))}
                 )
                 ExposedDropdownMenu(
                     expanded = provinciaExpanded,
@@ -462,9 +474,9 @@ fun CreaAccount(navController: NavHostController) {
 
             // Campi con solo placeholder
             val campiIndirizzo: List<Triple<String, String, (String) -> Unit>> = listOf(
-                Triple("Città", citta, { nuovo: String -> citta = nuovo }),
-                Triple("Via", via, { nuovo: String -> via = nuovo }),
-                Triple("Civico", civico, { nuovo: String -> civico = nuovo })
+                Triple(ctx.getString(R.string.citta), citta, { nuovo: String -> citta = nuovo }),
+                Triple(ctx.getString(R.string.via), via, { nuovo: String -> via = nuovo }),
+                Triple(ctx.getString(R.string.civico), civico, { nuovo: String -> civico = nuovo })
             )
 
             campiIndirizzo.forEach { (placeholder, value, onChange) ->
@@ -490,7 +502,7 @@ fun CreaAccount(navController: NavHostController) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = buildAnnotatedString {
-                        append("Accetto i termini e l'informativa sulla privacy.")
+                        append(ctx.getString(R.string.termini_privacy))
                         withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                     },
                     fontWeight = FontWeight.SemiBold,
@@ -521,65 +533,68 @@ fun CreaAccount(navController: NavHostController) {
                     try {
                         // 1. Campi vuoti
                         val campi = listOf(
-                            "Email" to email,
-                            "Nome" to nome,
-                            "Cognome" to cognome,
-                            "Password" to password,
-                            "Conferma Password" to confermaPassword,
-                            "Data di nascita" to dataNascita,
-                            "Cellulare" to cellulare,
-                            "Stato" to stato,
-                            "Provincia" to provincia,
-                            "Città" to citta,
-                            "Via" to via,
-                            "Civico" to civico
+                            ctx.getString(R.string.email) to email,
+                            ctx.getString(R.string.nome) to nome,
+                            ctx.getString(R.string.cognome) to cognome,
+                            ctx.getString(R.string.password) to password,
+                            ctx.getString(R.string.conferma_password) to confermaPassword,
+                            ctx.getString(R.string.data_di_nascita) to dataNascita,
+                            ctx.getString(R.string.cellulare) to cellulare,
+                            ctx.getString(R.string.stato) to stato,
+                            ctx.getString(R.string.provincia) to provincia,
+                            ctx.getString(R.string.citta) to citta,
+                            ctx.getString(R.string.via) to via,
+                            ctx.getString(R.string.civico) to civico
                         )
                         campi.forEach { (nomeCampo, valore) ->
-                            if (valore.isBlank()) throw Exception("Il campo \"$nomeCampo\" non può essere vuoto.")
+                            if (valore.isBlank()) {
+                                val message = ctx.getString(R.string.campo_non_vuoto, nomeCampo)
+                                throw Exception(message)
+                            }
                         }
 
                         // 2. Password
-                        if (password != confermaPassword) throw Exception("Le password non coincidono.")
-                        if (password.length < 8) throw Exception("La password deve contenere almeno 8 caratteri.")
+                        if (password != confermaPassword) throw Exception(ctx.getString(R.string.password_non_coincide))
+                        if (password.length < 8) throw Exception(ctx.getString(R.string.password_troppo_corta))
 
                         // 3. Email
                         val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
-                        if (!emailRegex.matches(email)) throw Exception("L'indirizzo email non è valido.")
+                        if (!emailRegex.matches(email)) throw Exception(ctx.getString(R.string.email_non_valida))
 
-                        // 3.1 Età minima → almeno 14 anni
+                        // 3.1 Età minima → almeno 14 anni eta_minima
                         try {
                             val formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
                             val dataNascitaParsed = java.time.LocalDate.parse(dataNascita, formatter)
                             val oggi = java.time.LocalDate.now()
                             val anni = java.time.Period.between(dataNascitaParsed, oggi).years
-                            if (anni < 14) throw Exception("Devi avere almeno 14 anni per registrarti.")
+                            if (anni < 14) throw Exception(ctx.getString(R.string.eta_minima))
                         } catch (e: Exception) {
-                            throw Exception("E' necessario avere alemeno 14 anni per registrarti.")
+                            throw Exception(ctx.getString(R.string.errore_eta))
                         }
 
                         // 4. Nome, Cognome, Via, Città → nessun numero
                         val noNumeriRegex = Regex(".*\\d.*")
-                        if (noNumeriRegex.containsMatchIn(nome)) throw Exception("Il nome non può contenere numeri.")
-                        if (noNumeriRegex.containsMatchIn(cognome)) throw Exception("Il cognome non può contenere numeri.")
-                        if (noNumeriRegex.containsMatchIn(via)) throw Exception("La via non può contenere numeri.")
-                        if (noNumeriRegex.containsMatchIn(citta)) throw Exception("La città non può contenere numeri.")
+                        if (noNumeriRegex.containsMatchIn(nome)) throw Exception(ctx.getString(R.string.nome_con_numeri))
+                        if (noNumeriRegex.containsMatchIn(cognome)) throw Exception(ctx.getString(R.string.cognome_con_numeri))
+                        if (noNumeriRegex.containsMatchIn(via)) throw Exception(ctx.getString(R.string.via_con_numeri))
+                        if (noNumeriRegex.containsMatchIn(citta)) throw Exception(ctx.getString(R.string.citta_con_numeri))
 
                         // 5. Cellulare → numero, con minimo di 8 e un max di 15 cifre
-                        if (!cellulare.matches(Regex("^\\d+$"))) throw Exception("Il numero deve contenere solo cifre.")
-                        if (cellulare.length !in 8..15) throw Exception("Il numero deve contenere da 8 a 15 cifre.")
+                        if (!cellulare.matches(Regex("^\\d+$"))) throw Exception(ctx.getString(R.string.numero_telefono_non_valido))
+                        if (cellulare.length !in 8..15) throw Exception(ctx.getString(R.string.numero_telefono_lunghezza))
 
                         // 6. Civico → numero tra 1 e 100000
                         val civicoInt = civico.toIntOrNull()
-                            ?: throw Exception("Il civico deve essere un numero.")
-                        if (civicoInt !in 1..100000) throw Exception("Il civico deve essere compreso tra 1 e 100000.")
+                            ?: throw Exception(ctx.getString(R.string.civico_non_numero))
+                        if (civicoInt !in 1..100000) throw Exception(ctx.getString(R.string.civico_fuori_range))
 
                         // 7. Checkbox condizioni
-                        if (!accettoCondizioni) throw Exception("Devi accettare i termini e la privacy.")
+                        if (!accettoCondizioni) throw Exception(ctx.getString(R.string.checkbox_non_accettata))
 
                         // Tutto ok
                         onSuccess()
                     } catch (e: Exception) {
-                        snackbarHostState.showSnackbar(e.message ?: "Errore di validazione.")
+                        snackbarHostState.showSnackbar(e.message ?: ctx.getString(R.string.errore_validazione))
                     }
                 }
             }
@@ -622,10 +637,10 @@ fun CreaAccount(navController: NavHostController) {
                             )
 
                             if (result.isSuccess) {
-                                snackbarHostState.showSnackbar("Registrazione completata")
+                                snackbarHostState.showSnackbar(ctx.getString(R.string.registrazione_completata))
                                 navController.navigate(NavigationRoute.Home)
                             } else {
-                                snackbarHostState.showSnackbar("Errore: ${result.exceptionOrNull()?.message}")
+                                snackbarHostState.showSnackbar("${ctx.getString(R.string.errore_registrazione)}: ${result.exceptionOrNull()?.message}")
                             }
                         }
                     }
@@ -638,16 +653,16 @@ fun CreaAccount(navController: NavHostController) {
                     contentColor = MaterialTheme.colorScheme.background
                 )
             ) {
-                Text("Crea account", fontWeight = FontWeight.Bold)
+                Text(ctx.getString(R.string.crea_account), fontWeight = FontWeight.Bold)
             }
 
             Spacer(Modifier.height(12.dp))
 
             // Login link
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Text("Hai già un account? ")
+                Text(ctx.getString(R.string.gia_account))
                 Text(
-                    text = "Login",
+                    text = ctx.getString(R.string.login),
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.secondary,
                     textDecoration = TextDecoration.Underline,

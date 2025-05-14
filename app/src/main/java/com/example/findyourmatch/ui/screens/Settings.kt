@@ -52,7 +52,10 @@ import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
+import com.example.findyourmatch.R
+import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
+import kotlinx.coroutines.runBlocking
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,22 +63,21 @@ import com.example.findyourmatch.data.user.SessionManager
 fun Settings(navController: NavHostController) {
     val showBackButton = navController.previousBackStackEntry != null
 
-    // States for settings
-    val languages = listOf("Italiano", "English")
-
+    val languages = listOf("it", "en")
     var expanded by remember { mutableStateOf(false) }
-
-    // Snackbar state
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-
-    // State for logout confirmation dialog
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val userSettings = remember { UserSettings(context) }
+    val language by userSettings.language.collectAsState(initial = "it")
+    val localizedContext = remember(language) {
+        LocaleHelper.updateLocale(context, language)
+    }
+    val ctx = localizedContext
 
-    val savedLanguage by userSettings.language.collectAsState(initial = "Italiano")
+    val savedLanguage by userSettings.language.collectAsState(initial = "it")
     val savedNotificationsEnabled by userSettings.notificationsEnabled.collectAsState(initial = true)
     val savedFingerprintEnabled by userSettings.fingerprintEnabled.collectAsState(initial = true)
     val savedMaxDistance by userSettings.maxDistance.collectAsState(initial = 50f)
@@ -84,6 +86,8 @@ fun Settings(navController: NavHostController) {
     var notificationsEnabled by remember(savedNotificationsEnabled) { mutableStateOf(savedNotificationsEnabled) }
     var fingerprintEnabled by remember(savedFingerprintEnabled) { mutableStateOf(savedFingerprintEnabled) }
     var maxDistance by remember(savedMaxDistance) { mutableFloatStateOf(savedMaxDistance) }
+
+    val isLoggedIn by remember { mutableStateOf(runBlocking { SessionManager.isLoggedIn(context) }) }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -102,7 +106,6 @@ fun Settings(navController: NavHostController) {
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.Top
         ) {
-            // Title and Back Button
             if (showBackButton) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -111,12 +114,12 @@ fun Settings(navController: NavHostController) {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Indietro",
+                            contentDescription = ctx.getString(R.string.indietro),
                             modifier = Modifier.size(20.dp)
                         )
                     }
                     Text(
-                        text = "Impostazioni",
+                        text = ctx.getString(R.string.impostazioni),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -126,8 +129,7 @@ fun Settings(navController: NavHostController) {
 
             Spacer(Modifier.height(12.dp))
 
-            // Preferences Section
-            Text("Preferenze", style = MaterialTheme.typography.titleMedium)
+            Text(ctx.getString(R.string.preferenze), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
 
             ExposedDropdownMenuBox(
@@ -138,7 +140,6 @@ fun Settings(navController: NavHostController) {
                     value = selectedLanguage,
                     onValueChange = {},
                     readOnly = true,
-                    label = null,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                     modifier = Modifier
                         .menuAnchor()
@@ -163,7 +164,8 @@ fun Settings(navController: NavHostController) {
 
             Spacer(Modifier.height(8.dp))
 
-            Text("Distanza massima: ${maxDistance.toInt()} km", fontSize = 14.sp)
+            Text(ctx.getString(R.string.distanza_massima, maxDistance.toInt()), fontSize = 14.sp)
+
             Slider(
                 value = maxDistance,
                 onValueChange = { maxDistance = it },
@@ -171,55 +173,48 @@ fun Settings(navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            HorizontalDivider(Modifier.padding(vertical = 12.dp))
+            if (isLoggedIn) {
+                HorizontalDivider(Modifier.padding(vertical = 12.dp))
 
-            // Privacy Section
-            Text("Privacy", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(8.dp))
+                Text("Privacy", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Notifiche", fontSize = 14.sp)
-                Switch(
-                    checked = notificationsEnabled,
-                    onCheckedChange = { notificationsEnabled = it }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(ctx.getString(R.string.notifiche), fontSize = 14.sp)
+                    Switch(checked = notificationsEnabled, onCheckedChange = { notificationsEnabled = it })
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(ctx.getString(R.string.impronta_digitale), fontSize = 14.sp)
+                    Switch(checked = fingerprintEnabled, onCheckedChange = { fingerprintEnabled = it })
+                }
+
+                HorizontalDivider(Modifier.padding(vertical = 12.dp))
+
+                Text(ctx.getString(R.string.sicurezza), style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+
+                Text(
+                    text = ctx.getString(R.string.cambia_pw),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier
+                        .clickable { navController.navigate(NavigationRoute.ChangePassword) }
+                        .align(Alignment.Start)
                 )
             }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Impronta digitale", fontSize = 14.sp)
-                Switch(
-                    checked = fingerprintEnabled,
-                    onCheckedChange = { fingerprintEnabled = it }
-                )
-            }
-
-            HorizontalDivider(Modifier.padding(vertical = 12.dp))
-
-            // Security Section
-            Text("Sicurezza", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(8.dp))
-
-            Text(
-                text = "Cambia password",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.primary,
-                textDecoration = TextDecoration.Underline,
-                modifier = Modifier
-                    .clickable { navController.navigate(NavigationRoute.ChangePassword) }
-                    .align(Alignment.Start)
-            )
 
             Spacer(Modifier.height(48.dp))
 
-            // Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -233,7 +228,7 @@ fun Settings(navController: NavHostController) {
                                 fingerprint = fingerprintEnabled,
                                 distance = maxDistance
                             )
-                            snackbarHostState.showSnackbar("Impostazioni salvate con successo!")
+                            snackbarHostState.showSnackbar(ctx.getString(R.string.impostazioni_salvate))
                         }
                     },
                     modifier = Modifier.width(150.dp).height(42.dp),
@@ -242,7 +237,7 @@ fun Settings(navController: NavHostController) {
                         contentColor = MaterialTheme.colorScheme.background
                     )
                 ) {
-                    Text("Salva", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(ctx.getString(R.string.salva), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
 
                 Button(
@@ -253,38 +248,35 @@ fun Settings(navController: NavHostController) {
                         contentColor = MaterialTheme.colorScheme.background
                     )
                 ) {
-                    Text("Annulla", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(ctx.getString(R.string.annulla), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
-
-            // Logout Button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    onClick = { showLogoutDialog = true },
-                    modifier = Modifier
-                        .width(330.dp)
-                        .height(42.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.background
-                    )
+            if (isLoggedIn) {
+                Spacer(Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Logout", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Button(
+                        onClick = { showLogoutDialog = true },
+                        modifier = Modifier.width(330.dp).height(42.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.background
+                        )
+                    ) {
+                        Text(ctx.getString(R.string.logout), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
 
-        // Logout Confirmation Dialog
         if (showLogoutDialog) {
             AlertDialog(
                 onDismissRequest = { showLogoutDialog = false },
-                title = { Text("Conferma logout") },
-                text = { Text("Sei sicuro di voler uscire dall'account?") },
+                title = { Text(ctx.getString(R.string.conferma_logout)) },
+                text = { Text(ctx.getString(R.string.testo_conferma_logout)) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -294,16 +286,16 @@ fun Settings(navController: NavHostController) {
                                 navController.navigate(NavigationRoute.Login) {
                                     popUpTo(NavigationRoute.Profile) { inclusive = true }
                                 }
-                                snackbarHostState.showSnackbar("Logout eseguito con successo!")
+                                snackbarHostState.showSnackbar(ctx.getString(R.string.logout_successo))
                             }
                         }
                     ) {
-                        Text("Conferma")
+                        Text(ctx.getString(R.string.conferma))
                     }
                 },
                 dismissButton = {
                     Button(onClick = { showLogoutDialog = false }) {
-                        Text("Annulla")
+                        Text(ctx.getString(R.string.annulla))
                     }
                 }
             )

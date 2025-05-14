@@ -25,9 +25,13 @@ import com.example.findyourmatch.navigation.NavigationRoute
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionViewModel
+import com.example.findyourmatch.data.user.UserSettings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +39,14 @@ fun CustomTopAppBar(navController: NavHostController, sessionViewModel: SessionV
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
+
+    val context = LocalContext.current
+    val userSettings = remember { UserSettings(context) }
+    val language by userSettings.language.collectAsState(initial = "it")
+    val localizedContext = remember(language) {
+        LocaleHelper.updateLocale(context, language)
+    }
+    val ctx = localizedContext
 
 
     val isSettingsSelected = currentRoute == NavigationRoute.Settings::class.qualifiedName
@@ -72,7 +84,7 @@ fun CustomTopAppBar(navController: NavHostController, sessionViewModel: SessionV
                 IconButton(
                     onClick = {
                         navController.navigate(
-                            if (isLoggedIn) NavigationRoute.Settings else NavigationRoute.Login
+                            NavigationRoute.Settings
                         ) {
                             launchSingleTop = true
                             popUpTo(NavigationRoute.Home) { inclusive = false }
@@ -85,7 +97,7 @@ fun CustomTopAppBar(navController: NavHostController, sessionViewModel: SessionV
                     Icon(
                         imageVector = if (isSettingsSelected)
                             Icons.Filled.Settings else Icons.Outlined.Settings,
-                        contentDescription = "Settings",
+                        contentDescription = ctx.getString(R.string.impostazioni),
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(36.dp)
                     )

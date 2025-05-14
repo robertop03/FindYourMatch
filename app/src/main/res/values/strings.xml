@@ -1,8 +1,106 @@
 <resources>
     <string name="app_name">FindYourMatch</string>
-    <string name="home">Home</string>
-    <string name="settings">Settings</string>
-    <string name="profile">Profile</string>
-    <string name="unknown_screen_name">Unknown Screen</string>
-    <string name="back_button_description">Go Back</string>
+    <string name="crea_account">Crea account</string>
+    <string name="email">Email</string>
+    <string name="email_placeholder">esempio@gmail.com</string>
+    <string name="nome">Nome</string>
+    <string name="nome_placeholder">Inserisci il tuo nome</string>
+    <string name="cognome">Cognome</string>
+    <string name="cognome_placeholder">Inserisci il tuo cognome</string>
+    <string name="password">Password</string>
+    <string name="conferma_password">Conferma password</string>
+    <string name="password_placeholder">almeno 8 caratteri</string>
+    <string name="data_di_nascita">Data di nascita</string>
+    <string name="data_placeholder">yyyy-MM-dd</string>
+    <string name="sesso">Sesso</string>
+    <string name="maschio">Maschio</string>
+    <string name="femmina">Femmina</string>
+    <string name="cellulare">Cellulare</string>
+    <string name="cellulare_placeholder">1234567890</string>
+    <string name="indirizzo">Indirizzo</string>
+    <string name="stato">Stato</string>
+    <string name="provincia">Provincia</string>
+    <string name="citta">Città</string>
+    <string name="via">Via</string>
+    <string name="civico">Civico</string>
+    <string name="termini_privacy">Accetto i termini e l\'informativa sulla privacy.</string>
+    <string name="registrazione_completata">Registrazione completata</string>
+    <string name="errore_registrazione">Errore</string>
+    <string name="gia_account">Hai già un account?</string>
+    <string name="login">Login</string>
+    <string name="indietro">Indietro</string>
+    <string name="errore_validazione">Errore di validazione.</string>
+    <string name="campo_non_vuoto">Il campo &quot;%1$s&quot; non può essere vuoto.</string>
+    <string name="password_non_coincide">Le password non coincidono.</string>
+    <string name="password_troppo_corta">La password deve contenere almeno 8 caratteri.</string>
+    <string name="email_non_valida">L\'indirizzo email non è valido.</string>
+    <string name="eta_minima">Devi avere almeno 14 anni per registrarti.</string>
+    <string name="errore_eta">È necessario avere almeno 14 anni per registrarti.</string>
+    <string name="nome_con_numeri">Il nome non può contenere numeri.</string>
+    <string name="cognome_con_numeri">Il cognome non può contenere numeri.</string>
+    <string name="via_con_numeri">La via non può contenere numeri.</string>
+    <string name="citta_con_numeri">La città non può contenere numeri.</string>
+    <string name="numero_telefono_non_valido">Il numero deve contenere solo cifre.</string>
+    <string name="numero_telefono_lunghezza">Il numero deve contenere da 8 a 15 cifre.</string>
+    <string name="civico_non_numero">Il civico deve essere un numero.</string>
+    <string name="civico_fuori_range">Il civico deve essere compreso tra 1 e 100000.</string>
+    <string name="checkbox_non_accettata">Devi accettare i termini e la privacy.</string>
+    <string name="mostra_nascondi_pw">Mostra/Nascondi password.</string>
+
+
+    <!-- LOGIN -->
+    <string name="login_successo">Login effettuato con successo</string>
+    <string name="login_fallito">Login fallito</string>
+    <string name="login_errore">Errore di login</string>
+    <string name="accedi">Accedi</string>
+    <string name="password_dimenticata">Password dimenticata? Recupera ora</string>
+    <string name="no_account">Non hai un account? </string>
+
+    <!-- CAMBIA PASSWORD -->
+    <string name="cambia_pw">Cambia password</string>
+    <string name="inserisci_nuova_pw">Inserisci nuova password</string>
+    <string name="errore_pw">La password deve contenere almeno 8 caratteri</string>
+    <string name="aggiornamento_pw">Password aggiornata con successo!</string>
+    <string name="salva">Salva</string>
+    <string name="annulla">Annulla</string>
+    <string name="reimposta_pw">Reimposta password</string>
+    <string name="aggiornata_pw">Password aggiornata con successo!</string>
+
+    <!-- RIPRISTINA PASSWORD -->
+    <string name="recupera_pw">Recupera password</string>
+    <string name="inserisci_email">Inserisci la tua email per il recupero password!</string>
+    <string name="controlla_email">Controlla la tua email per reimpostare la password</string>
+    <string name="email_valida">Inserisci un\'email valida.</string>
+    <string name="invia">Invia</string>
+
+    <!-- CREA MATCH -->
+
+    <!-- SETTINGS -->
+    <string name="preferenze">Preferenze</string>
+    <string name="distanza_massima">Distanza massima: %1$d km</string>
+    <string name="privacy">Privacy</string>
+    <string name="impronta_digitale">Impronta digitale</string>
+    <string name="sicurezza">Sicurezza</string>
+    <string name="logout">Logout</string>
+    <string name="conferma_logout">Conferma logout</string>
+    <string name="testo_conferma_logout">Sei sicuro di voler uscire dall\'account?</string>
+    <string name="conferma">Conferma</string>
+    <string name="impostazioni_salvate">Impostazioni salvate con successo!</string>
+    <string name="logout_successo">Logout eseguito con successo!</string>
+
+    <!-- HOME -->
+    <string name="miei_calcetti">I miei calcetti…</string>
+    <string name="impostazioni">Impostazioni</string>
+    <string name="aggiungi">Aggiungi</string>
+
+    <!-- NOTIFICHE -->
+    <string name="notifiche">Notifiche</string>
+
+    <!-- SINGOLA NOTIFICA -->
+
+    <!-- GAMIFICATION -->
+    <string name="tue_medaglie">Le tue medaglie</string>
+
+    <!-- PROFILO -->
+    <string name="profilo">Profilo</string>
 </resources>

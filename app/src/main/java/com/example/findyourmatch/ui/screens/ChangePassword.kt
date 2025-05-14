@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +48,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.findyourmatch.R
+import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
+import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.cambiaPasswordUtente
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.Dispatchers
@@ -70,6 +74,12 @@ fun CambiaPassword(navController: NavHostController) {
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val userSettings = remember { UserSettings(context) }
+    val language by userSettings.language.collectAsState(initial = "it")
+    val localizedContext = remember(language) {
+        LocaleHelper.updateLocale(context, language)
+    }
+    val ctx = localizedContext
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -95,13 +105,13 @@ fun CambiaPassword(navController: NavHostController) {
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Indietro",
+                        contentDescription = ctx.getString(R.string.indietro),
                         modifier = Modifier.size(24.dp)
                     )
                 }
 
                 Text(
-                    text = "Cambia password",
+                    text = ctx.getString(R.string.cambia_pw),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary
@@ -113,7 +123,7 @@ fun CambiaPassword(navController: NavHostController) {
             // Nuova password
             Text(
                 text = buildAnnotatedString {
-                    append("Inserisci nuova password")
+                    append(ctx.getString(R.string.inserisci_nuova_pw))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -123,13 +133,13 @@ fun CambiaPassword(navController: NavHostController) {
             OutlinedTextField(
                 value = newPassword,
                 onValueChange = { newPassword = it },
-                placeholder = { Text("almeno 8 caratteri") },
+                placeholder = { Text(ctx.getString(R.string.password_placeholder)) },
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icon, contentDescription = "Mostra/Nascondi password")
+                        Icon(imageVector = icon, contentDescription = ctx.getString(R.string.mostra_nascondi_pw))
                     }
                 },
                 modifier = Modifier.width(330.dp).align(Alignment.CenterHorizontally)
@@ -150,13 +160,13 @@ fun CambiaPassword(navController: NavHostController) {
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                placeholder = { Text("almeno 8 caratteri") },
+                placeholder = { Text(ctx.getString(R.string.password_placeholder)) },
                 singleLine = true,
                 visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val icon = if (confirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
                     IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                        Icon(imageVector = icon, contentDescription = "Mostra/Nascondi password")
+                        Icon(imageVector = icon, contentDescription = ctx.getString(R.string.mostra_nascondi_pw))
                     }
                 },
                 modifier = Modifier.width(330.dp).align(Alignment.CenterHorizontally)
@@ -173,22 +183,22 @@ fun CambiaPassword(navController: NavHostController) {
                     onClick = {
                         coroutineScope.launch {
                             if (newPassword != confirmPassword) {
-                                snackbarHostState.showSnackbar("Le password non coincidono.")
+                                snackbarHostState.showSnackbar(ctx.getString(R.string.password_non_coincide))
                                 return@launch
                             }
 
                             if (newPassword.length < 8) {
-                                snackbarHostState.showSnackbar("La password deve contenere almeno 8 caratteri.")
+                                snackbarHostState.showSnackbar(ctx.getString(R.string.errore_pw))
                                 return@launch
                             }
 
                             val result = cambiaPasswordUtente(context, newPassword)
                             if (result.isSuccess) {
                                 SessionManager.logout(context)
-                                snackbarHostState.showSnackbar("Password aggiornata con successo!")
+                                snackbarHostState.showSnackbar(ctx.getString(R.string.aggiornamento_pw))
                                 navController.navigate(NavigationRoute.Login)
                             } else {
-                                snackbarHostState.showSnackbar("Errore: ${result.exceptionOrNull()?.message}")
+                                snackbarHostState.showSnackbar("${ctx.getString(R.string.aggiornamento_pw)}: ${result.exceptionOrNull()?.message}")
                             }
                         }
                     },
@@ -200,7 +210,7 @@ fun CambiaPassword(navController: NavHostController) {
                         contentColor = Color.White
                     )
                 ) {
-                    Text("Salva", fontWeight = FontWeight.Bold)
+                    Text(ctx.getString(R.string.salva), fontWeight = FontWeight.Bold)
                 }
 
                 Button(
@@ -213,7 +223,7 @@ fun CambiaPassword(navController: NavHostController) {
                         contentColor = Color.White
                     )
                 ) {
-                    Text("Annulla", fontWeight = FontWeight.Bold)
+                    Text(ctx.getString(R.string.annulla), fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -230,6 +240,14 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    val userSettings = remember { UserSettings(context) }
+    val language by userSettings.language.collectAsState(initial = "it")
+    val localizedContext = remember(language) {
+        LocaleHelper.updateLocale(context, language)
+    }
+    val ctx = localizedContext
+
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -244,7 +262,7 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String) {
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = "Reimposta password",
+                text = ctx.getString(R.string.annulla),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -253,7 +271,7 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String) {
 
             Text(
                 text = buildAnnotatedString {
-                    append("Inserisci nuova password")
+                    append(ctx.getString(R.string.inserisci_nuova_pw))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -264,13 +282,13 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String) {
             OutlinedTextField(
                 value = newPassword,
                 onValueChange = { newPassword = it },
-                placeholder = { Text("almeno 8 caratteri") },
+                placeholder = { Text(ctx.getString(R.string.password_placeholder)) },
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icon, contentDescription = "Mostra/Nascondi password")
+                        Icon(imageVector = icon, contentDescription = ctx.getString(R.string.mostra_nascondi_pw))
                     }
                 },
                 colors = OutlinedTextFieldDefaults.colors(
@@ -286,7 +304,7 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String) {
             // Conferma password
             Text(
                 text = buildAnnotatedString {
-                    append("Conferma password")
+                    append(ctx.getString(R.string.conferma_password))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -297,13 +315,13 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String) {
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                placeholder = { Text("almeno 8 caratteri") },
+                placeholder = { Text(ctx.getString(R.string.password_placeholder)) },
                 singleLine = true,
                 visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val icon = if (confirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
                     IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                        Icon(imageVector = icon, contentDescription = "Mostra/Nascondi password")
+                        Icon(imageVector = icon, contentDescription = ctx.getString(R.string.mostra_nascondi_pw))
                     }
                 },
                 colors = OutlinedTextFieldDefaults.colors(
@@ -320,21 +338,21 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String) {
                 onClick = {
                     coroutineScope.launch {
                         if (newPassword != confirmPassword) {
-                            snackbarHostState.showSnackbar("Le password non coincidono.")
+                            snackbarHostState.showSnackbar(ctx.getString(R.string.password_non_coincide))
                             return@launch
                         }
                         if (newPassword.length < 8) {
-                            snackbarHostState.showSnackbar("Minimo 8 caratteri richiesti.")
+                            snackbarHostState.showSnackbar(ctx.getString(R.string.password_placeholder))
                             return@launch
                         }
 
                         val result = aggiornaPasswordConToken(token, newPassword)
                         if (result.isSuccess) {
                             SessionManager.logout(context)
-                            snackbarHostState.showSnackbar("Password aggiornata con successo!")
+                            snackbarHostState.showSnackbar(ctx.getString(R.string.aggiornamento_pw))
                             navController.navigate(NavigationRoute.Login)
                         } else {
-                            snackbarHostState.showSnackbar("Errore: ${result.exceptionOrNull()?.message}")
+                            snackbarHostState.showSnackbar("${ctx.getString(R.string.errore_registrazione)}: ${result.exceptionOrNull()?.message}")
                         }
                     }
                 },
@@ -344,7 +362,7 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String) {
                     contentColor = Color.White
                 )
             ) {
-                Text("Salva", fontWeight = FontWeight.Bold)
+                Text(ctx.getString(R.string.salva), fontWeight = FontWeight.Bold)
             }
         }
     }

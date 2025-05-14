@@ -22,10 +22,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.findyourmatch.navigation.NavigationRoute
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import com.example.findyourmatch.R
+import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
+import com.example.findyourmatch.data.user.UserSettings
 import kotlinx.coroutines.launch
 
 @Composable
@@ -40,6 +45,12 @@ fun Footer(navController: NavHostController) {
     val isCreateAccountSelected = currentRoute == NavigationRoute.CreateAccount::class.qualifiedName
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val userSettings = remember { UserSettings(context) }
+    val language by userSettings.language.collectAsState(initial = "it")
+    val localizedContext = remember(language) {
+        LocaleHelper.updateLocale(context, language)
+    }
+    val ctx = localizedContext
 
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.primary,
@@ -71,7 +82,7 @@ fun Footer(navController: NavHostController) {
                 Icon(
                     imageVector = if (isCreateMatchSelected)
                         Icons.Filled.AddCircle else Icons.Outlined.AddCircle,
-                    contentDescription = "Add",
+                    contentDescription = ctx.getString(R.string.aggiungi),
                     modifier = Modifier.size(45.dp)
                 )
             }
@@ -96,7 +107,7 @@ fun Footer(navController: NavHostController) {
                 Icon(
                     imageVector = if (isProfileSelected || isLoginSelected || isCreateAccountSelected)
                         Icons.Filled.Person else Icons.Outlined.Person,
-                    contentDescription = "Profile",
+                    contentDescription = ctx.getString(R.string.profilo),
                     modifier = Modifier.size(45.dp)
                 )
             }
@@ -109,7 +120,7 @@ fun Footer(navController: NavHostController) {
                 Icon(
                     imageVector = if (isNotificationSelected)
                         Icons.Filled.Notifications else Icons.Outlined.Notifications,
-                    contentDescription = "Notifications",
+                    contentDescription = ctx.getString(R.string.notifiche),
                     modifier = Modifier.size(45.dp)
                 )
             }

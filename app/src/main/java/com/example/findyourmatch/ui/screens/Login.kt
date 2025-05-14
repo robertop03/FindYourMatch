@@ -28,6 +28,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +48,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.findyourmatch.R
+import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionViewModel
+import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import com.example.findyourmatch.data.user.loginSupabase
@@ -61,6 +65,13 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    
+    val userSettings = remember { UserSettings(context) }
+    val language by userSettings.language.collectAsState(initial = "it")
+    val localizedContext = remember(language) {
+        LocaleHelper.updateLocale(context, language)
+    }
+    val ctx = localizedContext
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -84,12 +95,12 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Indietro",
+                            contentDescription = ctx.getString(R.string.indietro),
                             modifier = Modifier.size(24.dp)
                         )
                     }
                     Text(
-                        text = "Login",
+                        text = ctx.getString(R.string.login),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -101,7 +112,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
 
             Text(
                 text = buildAnnotatedString {
-                    append("Email")
+                    append(ctx.getString(R.string.email))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -112,7 +123,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text("esempio@gmail.com") },
+                placeholder = { Text(ctx.getString(R.string.email_placeholder)) },
                 singleLine = true,
                 modifier = Modifier
                     .width(330.dp)
@@ -123,7 +134,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
 
             Text(
                 text = buildAnnotatedString {
-                    append("Password")
+                    append(ctx.getString(R.string.password))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -134,13 +145,13 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text("almeno 8 caratteri") },
+                placeholder = { Text(ctx.getString(R.string.password_placeholder)) },
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icon, contentDescription = "Mostra/Nascondi password")
+                        Icon(imageVector = icon, contentDescription = ctx.getString(R.string.mostra_nascondi_pw))
                     }
                 },
                 modifier = Modifier
@@ -157,29 +168,29 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
                 coroutineScope.launch {
                     try {
                         // 1. Validazione campi
-                        val campi = listOf("Email" to email, "Password" to password)
+                        val campi = listOf(ctx.getString(R.string.email) to email, ctx.getString(R.string.password) to password)
                         campi.forEach { (nomeCampo, valore) ->
-                            if (valore.isBlank()) throw Exception("Il campo \"$nomeCampo\" non può essere vuoto.")
+                            if (valore.isBlank()) throw Exception(ctx.getString(R.string.campo_non_vuoto, nomeCampo))
                         }
 
                         val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
-                        if (!emailRegex.matches(email)) throw Exception("L'indirizzo email non è valido.")
+                        if (!emailRegex.matches(email)) throw Exception(ctx.getString(R.string.email_non_valida))
 
                         // 2. Chiamata alla loginSupabase
                         val result = loginSupabase(context, email, password, sessionViewModel)
 
                         if (result.isSuccess) {
-                            snackbarHostState.showSnackbar("Login effettuato con successo")
+                            snackbarHostState.showSnackbar(ctx.getString(R.string.login_successo))
                             navController.navigate(NavigationRoute.Profile) {
                                 popUpTo(NavigationRoute.Login) { inclusive = true }
                             }
                         } else {
                             val ex = result.exceptionOrNull()
-                            throw ex ?: Exception("Login fallito")
+                            throw ex ?: Exception(ctx.getString(R.string.email_non_valida))
                         }
 
                     } catch (e: Exception) {
-                        snackbarHostState.showSnackbar(e.message ?: "Errore di login.")
+                        snackbarHostState.showSnackbar(e.message ?: ctx.getString(R.string.login_errore))
                     }
                 }
             }
@@ -197,13 +208,13 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
                     contentColor = MaterialTheme.colorScheme.background
                 )
             ) {
-                Text("Accedi", fontWeight = FontWeight.Bold)
+                Text(ctx.getString(R.string.accedi), fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Password dimenticata? Recupera ora",
+                text = ctx.getString(R.string.password_dimenticata),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier
@@ -218,9 +229,9 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text("Non hai un account? ")
+                Text(ctx.getString(R.string.no_account))
                 Text(
-                    text = "Crea account",
+                    text = ctx.getString(R.string.crea_account),
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.clickable {
