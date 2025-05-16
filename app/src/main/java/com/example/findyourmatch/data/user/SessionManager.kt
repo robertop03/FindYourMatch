@@ -1,11 +1,6 @@
 package com.example.findyourmatch.data.user
 
 import android.content.Context
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
@@ -16,29 +11,33 @@ object SessionManager {
     private val REFRESH_TOKEN = stringPreferencesKey("refresh_token")
 
     suspend fun saveTokens(context: Context, accessToken: String, refreshToken: String) {
-        context.dataStore.edit { preferences ->
+        context.applicationContext.dataStore.edit { preferences ->
             preferences[ACCESS_TOKEN] = accessToken
             preferences[REFRESH_TOKEN] = refreshToken
         }
     }
 
      suspend fun getAccessToken(context: Context): String? {
-        return context.dataStore.data.map { it[ACCESS_TOKEN] }.first()
+         val token = context.applicationContext.dataStore.data.map {
+             val at = it[ACCESS_TOKEN]
+             at
+         }.first()
+         return token
     }
 
     suspend fun getRefreshToken(context: Context): String? {
-        return context.dataStore.data.map { it[REFRESH_TOKEN] }.first()
+        val refreshToken = context.applicationContext.dataStore.data.map {
+            val rt = it[REFRESH_TOKEN]
+            rt
+        }.first()
+        return refreshToken
     }
 
-    suspend fun logout(context: Context) {
-        context.dataStore.edit { preferences ->
-            preferences.remove(ACCESS_TOKEN)
-            preferences.remove(REFRESH_TOKEN)
-        }
+    fun logout(sessionViewModel: SessionViewModel) {
+        sessionViewModel.updateLoginStatus(false)
     }
 
-    suspend fun isLoggedIn(context: Context): Boolean {
-        val token = getAccessToken(context)
-        return !token.isNullOrBlank()
+    fun isLoggedIn(sessionViewModel: SessionViewModel): Boolean {
+        return sessionViewModel.isLoggedIn.value
     }
 }

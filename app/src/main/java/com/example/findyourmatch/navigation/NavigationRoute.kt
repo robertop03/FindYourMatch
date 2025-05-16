@@ -2,6 +2,7 @@ package com.example.findyourmatch.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -39,7 +40,8 @@ sealed interface NavigationRoute {
 fun NavGraph(
     navController: NavHostController,
     sessionViewModel: SessionViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    activity: FragmentActivity
 ) {
     NavHost(
         navController = navController,
@@ -50,7 +52,7 @@ fun NavGraph(
             Home(navController)
         }
         composable<NavigationRoute.Settings> {
-            Settings(navController)
+            Settings(navController, sessionViewModel)
         }
         composable<NavigationRoute.Profile> {
             Profile(navController)
@@ -62,10 +64,10 @@ fun NavGraph(
             CreaPartita(navController)
         }
         composable<NavigationRoute.ChangePassword> {
-            CambiaPassword(navController)
+            CambiaPassword(navController, sessionViewModel)
         }
         composable<NavigationRoute.Login> {
-            Login(navController, sessionViewModel)
+            Login(navController, sessionViewModel, activity)
         }
         composable<NavigationRoute.CreateAccount> {
             CreaAccount(navController)
@@ -85,7 +87,7 @@ fun NavGraph(
             )
         ) { backStackEntry ->
             val token = backStackEntry.arguments?.getString("access_token") ?: ""
-            CambiaPasswordDeepLink(navController, token)
+            CambiaPasswordDeepLink(navController, token, sessionViewModel)
         }
     }
 }

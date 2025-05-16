@@ -57,6 +57,12 @@
     <string name="accedi">Login</string>
     <string name="password_dimenticata">Forgot password? Recover now</string>
     <string name="no_account">Don\'t have an account? </string>
+    <!-- AUTENTICAZIONE BIOMETRICA -->
+    <string name="autenticazione_biom">Biometric authentication</string>
+    <string name="accedi_con_impronta_digitale">Log in with fingerprint</string>
+    <string name="accedi_con_impronta">Log in with fingerprint</string>
+    <string name="autenticazione_fallita">Authentication failed</string>
+
 
     <!-- CAMBIA PASSWORD -->
     <string name="cambia_pw">Change password</string>

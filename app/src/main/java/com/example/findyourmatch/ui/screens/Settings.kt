@@ -34,6 +34,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,12 +56,11 @@ import androidx.compose.runtime.collectAsState
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
-import kotlinx.coroutines.runBlocking
-
+import com.example.findyourmatch.data.user.SessionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Settings(navController: NavHostController) {
+fun Settings(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val showBackButton = navController.previousBackStackEntry != null
 
     val languages = listOf("it", "en")
@@ -87,7 +87,10 @@ fun Settings(navController: NavHostController) {
     var fingerprintEnabled by remember(savedFingerprintEnabled) { mutableStateOf(savedFingerprintEnabled) }
     var maxDistance by remember(savedMaxDistance) { mutableFloatStateOf(savedMaxDistance) }
 
-    val isLoggedIn by remember { mutableStateOf(runBlocking { SessionManager.isLoggedIn(context) }) }
+    var isLoggedIn by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        isLoggedIn = SessionManager.isLoggedIn(sessionViewModel)
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -282,7 +285,7 @@ fun Settings(navController: NavHostController) {
                         onClick = {
                             showLogoutDialog = false
                             coroutineScope.launch {
-                                SessionManager.logout(context)
+                                SessionManager.logout(sessionViewModel)
                                 navController.navigate(NavigationRoute.Login) {
                                     popUpTo(NavigationRoute.Profile) { inclusive = true }
                                 }

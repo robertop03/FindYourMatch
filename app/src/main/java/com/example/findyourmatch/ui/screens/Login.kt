@@ -34,7 +34,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -52,13 +51,18 @@ import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionViewModel
 import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.data.user.authenticateWithBiometrics
+import com.example.findyourmatch.data.user.isBiometricAvailable
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import com.example.findyourmatch.data.user.loginSupabase
+import androidx.compose.ui.Alignment
+import androidx.fragment.app.FragmentActivity
+import com.example.findyourmatch.data.user.SessionManager
 
 
 @Composable
-fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) {
+fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, activity: FragmentActivity) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -72,6 +76,9 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
         LocaleHelper.updateLocale(context, language)
     }
     val ctx = localizedContext
+
+    val fingerprintEnabled by userSettings.fingerprintEnabled.collectAsState(initial = true)
+
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -195,6 +202,47 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
                 }
             }
 
+            if (fingerprintEnabled && isBiometricAvailable(context)) {
+                Button(
+                    onClick = {
+                        authenticateWithBiometrics(
+                            activity = activity,
+                            onSuccess = {
+                                coroutineScope.launch {
+
+                                    val accessToken = SessionManager.getAccessToken(context)
+                                    val refreshToken = SessionManager.getRefreshToken(context)
+
+                                    if (!accessToken.isNullOrBlank() && !refreshToken.isNullOrBlank()) {
+                                        sessionViewModel.updateLoginStatus(true)
+
+                                        navController.navigate(NavigationRoute.Profile) {
+                                            popUpTo(NavigationRoute.Login) { inclusive = true }
+                                        }
+                                    } else {
+                                        snackbarHostState.showSnackbar(ctx.getString(R.string.login_errore))
+                                    }
+                                }
+                            },
+                            onError = {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(it)
+                                }
+                            },
+                            ctx
+                        )
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .width(330.dp)
+                        .height(50.dp)
+                ) {
+                    Text(ctx.getString(R.string.accedi_con_impronta), fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             Button(
                 onClick = {
                     loginUtente(email.trim(), password.trim())
@@ -223,7 +271,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel) 
                 textDecoration = TextDecoration.Underline
             )
 
-            Spacer(modifier = Modifier.height(140.dp))
+            Spacer(modifier = Modifier.height(105.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

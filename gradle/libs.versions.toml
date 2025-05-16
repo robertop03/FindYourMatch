@@ -2,6 +2,7 @@
 agp = "8.7.3"
 androidDatabaseSqlcipher = "4.5.3"
 androidxDatastorePreferences = "1.1.6"
+biometric = "1.1.0"
 datastorePreferences = "1.1.5"
 datastorePreferencesVersion = "1.0.0"
 kotlin = "2.0.0"
@@ -29,6 +30,7 @@ supabaseKt = "1.2.0"
 
 [libraries]
 android-database-sqlcipher = { module = "net.zetetic:android-database-sqlcipher", version.ref = "androidDatabaseSqlcipher" }
+androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-datastore-preferences-v100 = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferencesVersion" }
