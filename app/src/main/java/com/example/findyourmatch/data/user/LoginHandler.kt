@@ -33,6 +33,7 @@ suspend fun loginSupabase(
     try {
         val client = OkHttpClient()
         val jsonBody = Json.encodeToString(LoginRequest(email, password))
+        val userSettings = UserSettings(context)
         val requestBody = jsonBody.toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
@@ -46,6 +47,8 @@ suspend fun loginSupabase(
 
         if (!response.isSuccessful) {
             return@withContext Result.failure(Exception("Login fallito, credenziali errate"))
+        }else{
+            userSettings.setBiometricReady(true)
         }
 
         val bodyString = response.body?.string()
@@ -56,7 +59,7 @@ suspend fun loginSupabase(
         }.decodeFromString(SessionData.serializer(), bodyString)
 
 
-        SessionManager.saveTokens(context, session.accessToken, session.refreshToken)
+        SessionManager.saveTokens(context.applicationContext, session.accessToken, session.refreshToken)
         sessionViewModel.updateLoginStatus(true)
         Result.success(session.accessToken)
 

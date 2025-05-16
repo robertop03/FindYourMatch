@@ -15,6 +15,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 
 // Extension property per ottenere il DataStore
 val Context.dataStore by preferencesDataStore("user_preferences")
+val BIOMETRIC_READY_KEY = booleanPreferencesKey("biometric_ready")
 
 class UserSettings(private val context: Context) {
 
@@ -37,6 +38,7 @@ class UserSettings(private val context: Context) {
     val maxDistance: Flow<Float> = context.dataStore.data
         .map { it[MAX_DISTANCE_KEY] ?: 50f }
 
+
     suspend fun saveSettings(
         language: String,
         notifications: Boolean,
@@ -50,6 +52,13 @@ class UserSettings(private val context: Context) {
             prefs[MAX_DISTANCE_KEY] = distance
         }
     }
+
+    suspend fun setBiometricReady(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[BIOMETRIC_READY_KEY] = enabled
+        }
+    }
+
 }
 
 
@@ -61,8 +70,4 @@ object LocaleHelper {
         configuration.setLocales(LocaleList(locale))
         return context.createConfigurationContext(configuration)
     }
-}
-
-val LocalLocalizedContext = staticCompositionLocalOf<Context> {
-    error("No localized context provided")
 }

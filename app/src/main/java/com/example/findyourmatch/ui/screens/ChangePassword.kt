@@ -51,6 +51,7 @@ import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
+import com.example.findyourmatch.data.user.SessionViewModel
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.cambiaPasswordUtente
 import com.example.findyourmatch.navigation.NavigationRoute
@@ -66,7 +67,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 
 @Composable
-fun CambiaPassword(navController: NavHostController) {
+fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionViewModel) {
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -194,7 +195,7 @@ fun CambiaPassword(navController: NavHostController) {
 
                             val result = cambiaPasswordUtente(context, newPassword)
                             if (result.isSuccess) {
-                                SessionManager.logout(context)
+                                SessionManager.logout(sessionViewModel)
                                 snackbarHostState.showSnackbar(ctx.getString(R.string.aggiornamento_pw))
                                 navController.navigate(NavigationRoute.Login)
                             } else {
@@ -231,7 +232,7 @@ fun CambiaPassword(navController: NavHostController) {
 }
 
 @Composable
-fun CambiaPasswordDeepLink(navController: NavHostController, token: String) {
+fun CambiaPasswordDeepLink(navController: NavHostController, token: String, sessionViewModel: SessionViewModel) {
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -348,7 +349,7 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String) {
 
                         val result = aggiornaPasswordConToken(token, newPassword)
                         if (result.isSuccess) {
-                            SessionManager.logout(context)
+                            SessionManager.logout(sessionViewModel)
                             snackbarHostState.showSnackbar(ctx.getString(R.string.aggiornamento_pw))
                             navController.navigate(NavigationRoute.Login)
                         } else {

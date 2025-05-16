@@ -30,11 +30,12 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
+import com.example.findyourmatch.data.user.SessionViewModel
 import com.example.findyourmatch.data.user.UserSettings
 import kotlinx.coroutines.launch
 
 @Composable
-fun Footer(navController: NavHostController) {
+fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val isHomeSelected = currentRoute == NavigationRoute.Home::class.qualifiedName
@@ -89,7 +90,7 @@ fun Footer(navController: NavHostController) {
 
             IconButton(onClick = {
                 coroutineScope.launch {
-                    if (SessionManager.isLoggedIn(context)) {
+                    if (SessionManager.isLoggedIn(sessionViewModel)) {
                         navController.navigate(NavigationRoute.Profile){
                             launchSingleTop = true
                             popUpTo(navController.graph.startDestinationId) { saveState = true }

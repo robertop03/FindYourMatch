@@ -68,7 +68,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
 import com.example.findyourmatch.data.user.registraUtenteSupabase
-import androidx.compose.ui.res.stringResource
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
