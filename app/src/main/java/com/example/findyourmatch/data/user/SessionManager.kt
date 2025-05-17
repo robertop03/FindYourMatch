@@ -3,6 +3,7 @@ package com.example.findyourmatch.data.user
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.findyourmatch.viewmodel.SessionViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 

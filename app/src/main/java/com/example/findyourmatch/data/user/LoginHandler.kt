@@ -1,6 +1,7 @@
 package com.example.findyourmatch.data.user
 
 import android.content.Context
+import com.example.findyourmatch.viewmodel.SessionViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName

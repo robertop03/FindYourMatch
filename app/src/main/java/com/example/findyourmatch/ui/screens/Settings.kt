@@ -56,7 +56,7 @@ import androidx.compose.runtime.collectAsState
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
-import com.example.findyourmatch.data.user.SessionViewModel
+import com.example.findyourmatch.viewmodel.SessionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

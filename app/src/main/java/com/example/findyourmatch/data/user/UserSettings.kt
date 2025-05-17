@@ -10,7 +10,6 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.edit
 import java.util.Locale
 import android.os.LocaleList
-import androidx.compose.runtime.staticCompositionLocalOf
 
 
 // Extension property per ottenere il DataStore

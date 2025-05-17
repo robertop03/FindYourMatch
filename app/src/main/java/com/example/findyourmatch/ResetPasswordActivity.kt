@@ -7,8 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.findyourmatch.data.user.SessionViewModel
-import com.example.findyourmatch.data.user.SessionViewModelFactory
+import com.example.findyourmatch.viewmodel.SessionViewModel
+import com.example.findyourmatch.viewmodel.SessionViewModelFactory
 import com.example.findyourmatch.ui.screens.CambiaPassword
 import com.example.findyourmatch.ui.screens.CambiaPasswordDeepLink
 

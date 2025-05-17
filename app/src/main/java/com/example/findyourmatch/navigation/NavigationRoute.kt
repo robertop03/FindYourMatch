@@ -4,13 +4,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
-import com.example.findyourmatch.data.user.SessionViewModel
+import com.example.findyourmatch.data.notifications.Notifica
+import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.ui.screens.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 sealed interface NavigationRoute {
 
@@ -31,9 +36,9 @@ sealed interface NavigationRoute {
     @Serializable
     data object CreateAccount : NavigationRoute
     @Serializable
-    data object RestorePassword : NavigationRoute
+    data object Notice : NavigationRoute
     @Serializable
-    data class PasswordResetDeepLink(val token: String) : NavigationRoute
+    data object RestorePassword : NavigationRoute
 }
 
 @Composable
@@ -59,6 +64,17 @@ fun NavGraph(
         }
         composable<NavigationRoute.Notifications> {
             Notifiche(navController)
+        }
+        composable(
+            route = "${NavigationRoute.Notice}/{notificaJson}",
+            arguments = listOf(navArgument("notificaJson") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val notificaJson = backStackEntry.arguments?.getString("notificaJson") ?: ""
+            val notifica = Json.decodeFromString<Notifica>(
+                URLDecoder.decode(notificaJson, StandardCharsets.UTF_8.toString())
+            )
+
+            Notifica(notifica = notifica, navController = navController)
         }
         composable<NavigationRoute.CreateMatch> {
             CreaPartita(navController)
