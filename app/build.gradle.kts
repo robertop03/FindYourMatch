@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.datetime)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.datastore.preferences.v116)
     implementation(libs.kotlinx.serialization.json.v160)

@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.findyourmatch.data.user.LocaleHelper
-import com.example.findyourmatch.data.user.SessionViewModel
+import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.data.user.UserSettings
 
 @OptIn(ExperimentalMaterial3Api::class)

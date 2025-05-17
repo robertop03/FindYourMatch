@@ -1,10 +1,11 @@
-package com.example.findyourmatch.data.user
+package com.example.findyourmatch.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.findyourmatch.data.user.SessionManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 

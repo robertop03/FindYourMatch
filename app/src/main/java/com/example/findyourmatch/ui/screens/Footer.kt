@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
-import com.example.findyourmatch.data.user.SessionViewModel
+import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.data.user.UserSettings
 import kotlinx.coroutines.launch
 
@@ -113,11 +113,23 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel)
                 )
             }
 
-            IconButton(onClick = { navController.navigate(NavigationRoute.Notifications){
-                launchSingleTop = true
-                popUpTo(navController.graph.startDestinationId) { saveState = true }
-                restoreState = true
-            } }) {
+            IconButton(onClick = {
+                coroutineScope.launch {
+                    if (SessionManager.isLoggedIn(sessionViewModel)) {
+                        navController.navigate(NavigationRoute.Notifications){
+                            launchSingleTop = true
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            restoreState = true
+                        }
+                    } else {
+                        navController.navigate(NavigationRoute.Login){
+                            launchSingleTop = true
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            restoreState = true
+                        }
+                    }
+                }
+            }) {
                 Icon(
                     imageVector = if (isNotificationSelected)
                         Icons.Filled.Notifications else Icons.Outlined.Notifications,

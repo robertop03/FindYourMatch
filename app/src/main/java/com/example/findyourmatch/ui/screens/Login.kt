@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
-import com.example.findyourmatch.data.user.SessionViewModel
+import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.authenticateWithBiometrics
 import com.example.findyourmatch.data.user.isBiometricAvailable
