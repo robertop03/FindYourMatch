@@ -110,6 +110,10 @@
     <!-- GAMIFICATION -->
     <string name="tue_medaglie">Your rewards</string>
     <string name="vedi_tutte_medaglie">See all goals</string>
+    <string name="partite_vinte">Matches won</string>
+    <string name="goal_fatti">Goals scored</string>
+    <string name="partite_giocate">Matches played</string>
+    <string name="obiettivi">Goals</string>
 
     <!-- PROFILO -->
     <string name="profilo">Profile</string>

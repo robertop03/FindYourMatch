@@ -1,7 +1,6 @@
 package com.example.findyourmatch.ui.screens
 
 import android.app.Application
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,18 +39,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.viewmodel.NotificheViewModel
-import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
 import kotlinx.coroutines.launch
 
 @Composable
-fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel) {
+fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel, notificheViewModel: NotificheViewModel) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val isHomeSelected = currentRoute == NavigationRoute.Home::class.qualifiedName
@@ -71,10 +68,7 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel)
         LocaleHelper.updateLocale(context, language)
     }
 
-    val notificheViewModel: NotificheViewModel = viewModel(
-        factory = NotificheViewModelFactory(context.applicationContext as Application)
-    )
-    val notifiche by remember { derivedStateOf { notificheViewModel.notifiche } }
+    val notifiche by notificheViewModel.notifiche.collectAsState()
     val unreadCount by remember { derivedStateOf { notifiche.count { !it.stato } } }
 
     LaunchedEffect(currentRoute) {
@@ -171,7 +165,7 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel)
                     )
                 }
 
-                if (unreadCount > 0) {
+                if (unreadCount > 0 && SessionManager.isLoggedIn(sessionViewModel)) {
                     Box(
                         modifier = Modifier
                             .offset(x = (-4).dp, y = 4.dp)

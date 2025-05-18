@@ -40,7 +40,7 @@ suspend fun caricaNotificheUtente(context: Context, email: String): List<Notific
     val token = SessionManager.getAccessToken(context) ?: return@withContext emptyList()
 
     val request = Request.Builder()
-        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/notifiche?destinatario=eq.${email}")
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/notifiche?destinatario=eq.${email}&order=dataOraInvio.desc")
         .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
         .addHeader("Authorization", "Bearer $token")
         .addHeader("Accept", "application/json")
@@ -53,13 +53,6 @@ suspend fun caricaNotificheUtente(context: Context, email: String): List<Notific
 
     return@withContext Json.decodeFromString(ListSerializer(Notifica.serializer()), json)
 }
-
-suspend fun contaNotificheNonLette(context: Context, email: String): Int = withContext(Dispatchers.IO) {
-    val notifiche = caricaNotificheUtente(context, email)
-    return@withContext notifiche.count { !it.stato }
-}
-
-
 
 suspend fun segnaNotificaComeLetta(context: Context, notifica: Notifica): Boolean = withContext(Dispatchers.IO) {
     val client = OkHttpClient()

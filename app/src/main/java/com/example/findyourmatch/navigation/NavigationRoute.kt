@@ -12,6 +12,7 @@ import androidx.navigation.navDeepLink
 import com.example.findyourmatch.data.notifications.Notifica
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.ui.screens.*
+import com.example.findyourmatch.viewmodel.NotificheViewModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URLDecoder
@@ -48,7 +49,8 @@ fun NavGraph(
     navController: NavHostController,
     sessionViewModel: SessionViewModel,
     modifier: Modifier = Modifier,
-    activity: FragmentActivity
+    activity: FragmentActivity,
+    notificheViewModel: NotificheViewModel
 ) {
     NavHost(
         navController = navController,
@@ -65,7 +67,7 @@ fun NavGraph(
             Profile(navController)
         }
         composable<NavigationRoute.Notifications> {
-            Notifiche(navController)
+            Notifiche(navController, notificheViewModel)
         }
         composable(
             route = "${NavigationRoute.Notice}/{notificaJson}",

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -27,16 +28,20 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -135,22 +140,30 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Notifiche(navController: NavHostController) {
+fun Notifiche(navController: NavHostController, notificheViewModel: NotificheViewModel) {
     val context = LocalContext.current
-    val notificheViewModel: NotificheViewModel = viewModel(
-        factory = NotificheViewModelFactory(context.applicationContext as Application)
+    var isRefreshing by remember { mutableStateOf(false) }
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = true
+            notificheViewModel.ricaricaNotifiche()
+            isRefreshing = false
+        }
     )
 
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
     val localizedContext = remember(language) { LocaleHelper.updateLocale(context, language) }
 
-    val notifiche by remember { derivedStateOf { notificheViewModel.notifiche } }
+    val notifiche by notificheViewModel.notifiche.collectAsState()
 
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .pullRefresh(pullRefreshState)
             .background(MaterialTheme.colorScheme.secondaryContainer)
     ) {
         Column(
@@ -187,6 +200,14 @@ fun Notifiche(navController: NavHostController) {
             notifiche.forEach {
                 CardNotifica(it, navController)
             }
+
         }
+        PullRefreshIndicator(
+            refreshing = isRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter),
+            backgroundColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.White
+        )
     }
 }

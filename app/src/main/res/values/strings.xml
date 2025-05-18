@@ -107,6 +107,10 @@
     <!-- GAMIFICATION -->
     <string name="tue_medaglie">Le tue medaglie</string>
     <string name="vedi_tutte_medaglie">Vai a tutte le medaglie</string>
+    <string name="partite_vinte">Partite vinte</string>
+    <string name="goal_fatti">Goal fatti</string>
+    <string name="partite_giocate">Partite giocate</string>
+    <string name="obiettivi">Obiettivi</string>
 
 
     <!-- PROFILO -->
