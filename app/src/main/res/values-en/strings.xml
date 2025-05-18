@@ -109,7 +109,11 @@
 
     <!-- GAMIFICATION -->
     <string name="tue_medaglie">Your rewards</string>
+    <string name="vedi_tutte_medaglie">See all goals</string>
 
     <!-- PROFILO -->
     <string name="profilo">Profile</string>
+
+    <!-- CREA PARTITA -->
+    <string name="crea_partita">Create match</string>
 </resources>

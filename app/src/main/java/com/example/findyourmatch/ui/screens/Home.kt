@@ -33,7 +33,6 @@ fun Home(navController: NavHostController) {
     val localizedContext = remember(language) {
         LocaleHelper.updateLocale(context, language)
     }
-    val ctx = localizedContext
 
     Box(
         modifier = Modifier
@@ -50,7 +49,7 @@ fun Home(navController: NavHostController) {
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = ctx.getString(R.string.miei_calcetti),
+                text = localizedContext.getString(R.string.miei_calcetti),
                 style = MaterialTheme.typography.titleLarge,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,

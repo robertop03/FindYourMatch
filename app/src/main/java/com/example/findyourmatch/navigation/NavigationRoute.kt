@@ -39,6 +39,8 @@ sealed interface NavigationRoute {
     data object Notice : NavigationRoute
     @Serializable
     data object RestorePassword : NavigationRoute
+    @Serializable
+    data object Rewards : NavigationRoute
 }
 
 @Composable
@@ -90,6 +92,9 @@ fun NavGraph(
         }
         composable<NavigationRoute.RestorePassword> {
             RecuperaPassword(navController)
+        }
+        composable<NavigationRoute.Rewards> {
+            Rewards(navController)
         }
         composable(
             route = "password-reset?access_token={access_token}",

@@ -31,8 +31,34 @@ class NotificheViewModel(application: Application) : AndroidViewModel(applicatio
                 val lingua = getLanguage(application)
                 notifiche = notificheCaricate.map { notifica ->
                     notifica.copy(
-                        titolo = if (lingua == "en") notifica.titolo_en else notifica.titolo,
-                        testo = if (lingua == "en") notifica.testo_en else notifica.testo
+                        titolo = if (lingua == "en") notifica.titoloEn else notifica.titolo,
+                        testo = if (lingua == "en") notifica.testoEn else notifica.testo
+                    )
+                }
+            }
+        }
+    }
+
+    fun segnaComeLetta(notificaDaAggiornare: Notifica) {
+        notifiche = notifiche.map { notifica ->
+            if (notifica.idNotifica == notificaDaAggiornare.idNotifica) {
+                notifica.copy(stato = true)
+            } else {
+                notifica
+            }
+        }
+    }
+
+    fun ricaricaNotifiche() {
+        viewModelScope.launch {
+            val email = getLoggedUserEmail(getApplication())
+            if (email != null) {
+                val notificheCaricate = caricaNotificheUtente(getApplication(), email)
+                val lingua = getLanguage(getApplication())
+                notifiche = notificheCaricate.map { notifica ->
+                    notifica.copy(
+                        titolo = if (lingua == "en") notifica.titoloEn else notifica.titolo,
+                        testo = if (lingua == "en") notifica.testoEn else notifica.testo
                     )
                 }
             }
@@ -45,7 +71,11 @@ class NotificheViewModelFactory(
     private val application: Application
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return NotificheViewModel(application) as T
+        if (modelClass.isAssignableFrom(NotificheViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return NotificheViewModel(application) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 

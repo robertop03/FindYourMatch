@@ -30,15 +30,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.findyourmatch.data.user.LocaleHelper
-import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.data.user.UserSettings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTopAppBar(navController: NavHostController, sessionViewModel: SessionViewModel) {
+fun CustomTopAppBar(navController: NavHostController) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
-    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
 
     val context = LocalContext.current
     val userSettings = remember { UserSettings(context) }
@@ -46,7 +44,6 @@ fun CustomTopAppBar(navController: NavHostController, sessionViewModel: SessionV
     val localizedContext = remember(language) {
         LocaleHelper.updateLocale(context, language)
     }
-    val ctx = localizedContext
 
 
     val isSettingsSelected = currentRoute == NavigationRoute.Settings::class.qualifiedName
@@ -97,7 +94,7 @@ fun CustomTopAppBar(navController: NavHostController, sessionViewModel: SessionV
                     Icon(
                         imageVector = if (isSettingsSelected)
                             Icons.Filled.Settings else Icons.Outlined.Settings,
-                        contentDescription = ctx.getString(R.string.impostazioni),
+                        contentDescription = localizedContext.getString(R.string.impostazioni),
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(36.dp)
                     )

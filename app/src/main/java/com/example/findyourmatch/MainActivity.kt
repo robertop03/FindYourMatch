@@ -31,14 +31,13 @@ class MainActivity : FragmentActivity() {
                         factory = SessionViewModelFactory(context.applicationContext as Application)
                     )
                     Scaffold(
-                        topBar = { CustomTopAppBar(navController, sessionViewModel) },
+                        topBar = { CustomTopAppBar(navController) },
                         bottomBar = { Footer(navController, sessionViewModel) },
                         modifier = Modifier.fillMaxSize()
                     ) { innerPadding ->
                         NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this)
                     }
                 }
-
         }
     }
 }

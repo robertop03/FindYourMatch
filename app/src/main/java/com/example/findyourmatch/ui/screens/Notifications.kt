@@ -36,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,11 +49,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.notifications.Notifica
+import com.example.findyourmatch.data.notifications.segnaNotificaComeLetta
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.net.URLEncoder
@@ -66,7 +69,11 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
     val localizedContext = remember(language) {
         LocaleHelper.updateLocale(context, language)
     }
-    val ctx = localizedContext
+    val coroutineScope = rememberCoroutineScope()
+    val notificheViewModel: NotificheViewModel = viewModel(
+        factory = NotificheViewModelFactory(context.applicationContext as Application)
+    )
+
     val coloreBordo = when (notifica.tipologia) {
         "accettato" -> Color(0xFF4CAF50)
         "rifiutato" -> Color(0xFFF44336)
@@ -87,7 +94,7 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
         else -> Icons.Default.Notifications
     }
 
-    val coloreSfondo = if (!notifica.stato) MaterialTheme.colorScheme.background else Color(0xFF1976D2)
+    val coloreSfondo = if (!notifica.stato) MaterialTheme.colorScheme.background else Color(0xFFF0F0F0)
     val cornerRadius = RoundedCornerShape(16.dp)
 
     Box(
@@ -99,13 +106,22 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
             .background(coloreSfondo)
             .clickable {
                 val notificaJson = URLEncoder.encode(Json.encodeToString(notifica), StandardCharsets.UTF_8.toString())
+                coroutineScope.launch {
+                    segnaNotificaComeLetta(context, notifica)
+                }
+                notificheViewModel.segnaComeLetta(notifica)
                 navController.navigate("${NavigationRoute.Notice}/$notificaJson")
             }
             .padding(16.dp)
     ) {
         Column {
             if (!notifica.stato) {
-                Text(ctx.getString(R.string.nuova), color = coloreBordo, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    localizedContext.getString(R.string.nuova),
+                    color = coloreBordo,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(imageVector = icona, contentDescription = null, tint = coloreBordo)
@@ -129,7 +145,6 @@ fun Notifiche(navController: NavHostController) {
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
     val localizedContext = remember(language) { LocaleHelper.updateLocale(context, language) }
-    val ctx = localizedContext
 
     val notifiche by remember { derivedStateOf { notificheViewModel.notifiche } }
 
@@ -154,12 +169,12 @@ fun Notifiche(navController: NavHostController) {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = ctx.getString(R.string.indietro),
+                            contentDescription = localizedContext.getString(R.string.indietro),
                             modifier = Modifier.size(24.dp)
                         )
                     }
                     Text(
-                        text = ctx.getString(R.string.notifiche),
+                        text = localizedContext.getString(R.string.notifiche),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer

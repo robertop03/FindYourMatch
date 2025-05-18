@@ -75,7 +75,6 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
     val localizedContext = remember(language) {
         LocaleHelper.updateLocale(context, language)
     }
-    val ctx = localizedContext
 
     val savedLanguage by userSettings.language.collectAsState(initial = "it")
     val savedNotificationsEnabled by userSettings.notificationsEnabled.collectAsState(initial = true)
@@ -117,12 +116,12 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = ctx.getString(R.string.indietro),
+                            contentDescription = localizedContext.getString(R.string.indietro),
                             modifier = Modifier.size(20.dp)
                         )
                     }
                     Text(
-                        text = ctx.getString(R.string.impostazioni),
+                        text = localizedContext.getString(R.string.impostazioni),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -132,7 +131,10 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
 
             Spacer(Modifier.height(12.dp))
 
-            Text(ctx.getString(R.string.preferenze), style = MaterialTheme.typography.titleMedium)
+            Text(
+                localizedContext.getString(R.string.preferenze),
+                style = MaterialTheme.typography.titleMedium
+            )
             Spacer(Modifier.height(8.dp))
 
             ExposedDropdownMenuBox(
@@ -167,7 +169,10 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
 
             Spacer(Modifier.height(8.dp))
 
-            Text(ctx.getString(R.string.distanza_massima, maxDistance.toInt()), fontSize = 14.sp)
+            Text(
+                localizedContext.getString(R.string.distanza_massima, maxDistance.toInt()),
+                fontSize = 14.sp
+            )
 
             Slider(
                 value = maxDistance,
@@ -187,7 +192,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(ctx.getString(R.string.notifiche), fontSize = 14.sp)
+                    Text(localizedContext.getString(R.string.notifiche), fontSize = 14.sp)
                     Switch(checked = notificationsEnabled, onCheckedChange = { notificationsEnabled = it })
                 }
 
@@ -196,17 +201,20 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(ctx.getString(R.string.impronta_digitale), fontSize = 14.sp)
+                    Text(localizedContext.getString(R.string.impronta_digitale), fontSize = 14.sp)
                     Switch(checked = fingerprintEnabled, onCheckedChange = { fingerprintEnabled = it })
                 }
 
                 HorizontalDivider(Modifier.padding(vertical = 12.dp))
 
-                Text(ctx.getString(R.string.sicurezza), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    localizedContext.getString(R.string.sicurezza),
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = ctx.getString(R.string.cambia_pw),
+                    text = localizedContext.getString(R.string.cambia_pw),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.primary,
                     textDecoration = TextDecoration.Underline,
@@ -231,7 +239,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                                 fingerprint = fingerprintEnabled,
                                 distance = maxDistance
                             )
-                            snackbarHostState.showSnackbar(ctx.getString(R.string.impostazioni_salvate))
+                            snackbarHostState.showSnackbar(localizedContext.getString(R.string.impostazioni_salvate))
                         }
                     },
                     modifier = Modifier.width(150.dp).height(42.dp),
@@ -240,7 +248,11 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                         contentColor = MaterialTheme.colorScheme.background
                     )
                 ) {
-                    Text(ctx.getString(R.string.salva), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        localizedContext.getString(R.string.salva),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
                 Button(
@@ -251,7 +263,11 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                         contentColor = MaterialTheme.colorScheme.background
                     )
                 ) {
-                    Text(ctx.getString(R.string.annulla), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        localizedContext.getString(R.string.annulla),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
@@ -269,7 +285,11 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                             contentColor = MaterialTheme.colorScheme.background
                         )
                     ) {
-                        Text(ctx.getString(R.string.logout), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            localizedContext.getString(R.string.logout),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -278,8 +298,8 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
         if (showLogoutDialog) {
             AlertDialog(
                 onDismissRequest = { showLogoutDialog = false },
-                title = { Text(ctx.getString(R.string.conferma_logout)) },
-                text = { Text(ctx.getString(R.string.testo_conferma_logout)) },
+                title = { Text(localizedContext.getString(R.string.conferma_logout)) },
+                text = { Text(localizedContext.getString(R.string.testo_conferma_logout)) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -289,16 +309,16 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                                 navController.navigate(NavigationRoute.Login) {
                                     popUpTo(NavigationRoute.Profile) { inclusive = true }
                                 }
-                                snackbarHostState.showSnackbar(ctx.getString(R.string.logout_successo))
+                                snackbarHostState.showSnackbar(localizedContext.getString(R.string.logout_successo))
                             }
                         }
                     ) {
-                        Text(ctx.getString(R.string.conferma))
+                        Text(localizedContext.getString(R.string.conferma))
                     }
                 },
                 dismissButton = {
                     Button(onClick = { showLogoutDialog = false }) {
-                        Text(ctx.getString(R.string.annulla))
+                        Text(localizedContext.getString(R.string.annulla))
                     }
                 }
             )

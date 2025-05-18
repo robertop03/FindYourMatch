@@ -1,12 +1,15 @@
 package com.example.findyourmatch.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +39,7 @@ import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.navigation.NavigationRoute
 import com.example.findyourmatch.utils.getLoggedUserEmail
 
 @Composable
@@ -45,12 +50,12 @@ fun Profile(navController: NavHostController) {
     val localizedContext = remember(language) {
         LocaleHelper.updateLocale(context, language)
     }
-    val ctx = localizedContext
 
     var emailUtente by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         emailUtente = getLoggedUserEmail(context)
+        Log.d("Profile", "Email utente: $emailUtente")
     }
 
     Box(
@@ -80,13 +85,13 @@ fun Profile(navController: NavHostController) {
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = ctx.getString(R.string.indietro),
+                            contentDescription = localizedContext.getString(R.string.indietro),
                             modifier = Modifier.size(24.dp)
                         )
                     }
 
                     Text(
-                        text = ctx.getString(R.string.profilo),
+                        text = localizedContext.getString(R.string.profilo),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -98,12 +103,35 @@ fun Profile(navController: NavHostController) {
                 // Mostra l’email utente se disponibile
                 emailUtente?.let {
                     Text(
-                        text = "${ctx.getString(R.string.email)}: $it",
+                        text = "${localizedContext.getString(R.string.email)}: $it",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 }
+                Spacer(Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            navController.navigate(NavigationRoute.Rewards)
+                        }
+                        .padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = localizedContext.getString(R.string.tue_medaglie),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = localizedContext.getString(R.string.vedi_tutte_medaglie)
+                    )
+                }
+
+
             }
         }
     }

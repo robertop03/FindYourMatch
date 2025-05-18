@@ -106,7 +106,13 @@
 
     <!-- GAMIFICATION -->
     <string name="tue_medaglie">Le tue medaglie</string>
+    <string name="vedi_tutte_medaglie">Vai a tutte le medaglie</string>
+
 
     <!-- PROFILO -->
     <string name="profilo">Profilo</string>
+
+
+    <!-- CREA PARTITA -->
+    <string name="crea_partita">Crea partita</string>
 </resources>
