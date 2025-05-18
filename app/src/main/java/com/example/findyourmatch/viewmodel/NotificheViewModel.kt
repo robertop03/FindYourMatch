@@ -14,13 +14,14 @@ import com.example.findyourmatch.data.notifications.caricaNotificheUtente
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.dataStore
 import com.example.findyourmatch.utils.getLoggedUserEmail
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class NotificheViewModel(application: Application) : AndroidViewModel(application) {
 
-    var notifiche by mutableStateOf<List<Notifica>>(emptyList())
-        private set
+    private val _notifiche = MutableStateFlow<List<Notifica>>(emptyList())
+    val notifiche = _notifiche
 
     init {
         viewModelScope.launch {
@@ -29,7 +30,7 @@ class NotificheViewModel(application: Application) : AndroidViewModel(applicatio
                 val notificheCaricate = caricaNotificheUtente(application, email)
 
                 val lingua = getLanguage(application)
-                notifiche = notificheCaricate.map { notifica ->
+                _notifiche.value = notificheCaricate.map { notifica ->
                     notifica.copy(
                         titolo = if (lingua == "en") notifica.titoloEn else notifica.titolo,
                         testo = if (lingua == "en") notifica.testoEn else notifica.testo
@@ -40,7 +41,7 @@ class NotificheViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun segnaComeLetta(notificaDaAggiornare: Notifica) {
-        notifiche = notifiche.map { notifica ->
+        _notifiche.value = _notifiche.value.map { notifica ->
             if (notifica.idNotifica == notificaDaAggiornare.idNotifica) {
                 notifica.copy(stato = true)
             } else {
@@ -55,7 +56,7 @@ class NotificheViewModel(application: Application) : AndroidViewModel(applicatio
             if (email != null) {
                 val notificheCaricate = caricaNotificheUtente(getApplication(), email)
                 val lingua = getLanguage(getApplication())
-                notifiche = notificheCaricate.map { notifica ->
+                _notifiche.value = notificheCaricate.map { notifica ->
                     notifica.copy(
                         titolo = if (lingua == "en") notifica.titoloEn else notifica.titolo,
                         testo = if (lingua == "en") notifica.testoEn else notifica.testo

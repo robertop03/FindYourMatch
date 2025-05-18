@@ -1,5 +1,6 @@
 package com.example.findyourmatch.ui.screens
 
+import android.app.Application
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,7 +29,9 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,7 +61,10 @@ import kotlinx.coroutines.launch
 import com.example.findyourmatch.data.user.loginSupabase
 import androidx.compose.ui.Alignment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.findyourmatch.data.user.SessionManager
+import com.example.findyourmatch.viewmodel.NotificheViewModel
+import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
 
 
 @Composable
@@ -75,6 +81,10 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
     val localizedContext = remember(language) {
         LocaleHelper.updateLocale(context, language)
     }
+
+    val notificheViewModel: NotificheViewModel = viewModel(
+        factory = NotificheViewModelFactory(context.applicationContext as Application)
+    )
 
     val fingerprintEnabled by userSettings.fingerprintEnabled.collectAsState(initial = true)
 
@@ -195,8 +205,10 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                         // 2. Chiamata alla loginSupabase
                         val result = loginSupabase(context, email, password, sessionViewModel)
 
+
                         if (result.isSuccess) {
                             snackbarHostState.showSnackbar(localizedContext.getString(R.string.login_successo))
+                            notificheViewModel.ricaricaNotifiche()
                             navController.navigate(NavigationRoute.Profile) {
                                 popUpTo(NavigationRoute.Login) { inclusive = true }
                             }

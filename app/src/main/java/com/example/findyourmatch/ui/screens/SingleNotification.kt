@@ -25,34 +25,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.findyourmatch.R
 import com.example.findyourmatch.data.notifications.Notifica
-import com.example.findyourmatch.data.user.LocaleHelper
-import com.example.findyourmatch.data.user.UserSettings
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun Notifica(notifica: Notifica, navController: NavHostController) {
-    val context = LocalContext.current
-    val userSettings = remember { UserSettings(context) }
-    val language by userSettings.language.collectAsState(initial = "it")
-    val localizedContext = remember(language) {
-        LocaleHelper.updateLocale(context, language)
-    }
 
     Box(
         modifier = Modifier

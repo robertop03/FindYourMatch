@@ -115,7 +115,7 @@ fun RecuperaPassword(navController: NavHostController) {
 
             Text(
                 text = buildAnnotatedString {
-                    append("Email")
+                    append(localizedContext.getString(R.string.email))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,

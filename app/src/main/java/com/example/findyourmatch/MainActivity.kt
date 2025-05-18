@@ -18,13 +18,19 @@ import com.example.findyourmatch.navigation.NavGraph
 import com.example.findyourmatch.ui.screens.CustomTopAppBar
 import com.example.findyourmatch.ui.screens.Footer
 import com.example.findyourmatch.ui.theme.FindYourMatchTheme
+import com.example.findyourmatch.viewmodel.NotificheViewModel
+import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-                FindYourMatchTheme(dynamicColor = false) {
+            val notificheViewModel: NotificheViewModel = viewModel(
+                factory = NotificheViewModelFactory(application)
+            )
+
+            FindYourMatchTheme(dynamicColor = false) {
                     val navController = rememberNavController()
                     val context = LocalContext.current
                     val sessionViewModel: SessionViewModel = viewModel(
@@ -32,10 +38,10 @@ class MainActivity : FragmentActivity() {
                     )
                     Scaffold(
                         topBar = { CustomTopAppBar(navController) },
-                        bottomBar = { Footer(navController, sessionViewModel) },
+                        bottomBar = { Footer(navController, sessionViewModel, notificheViewModel) },
                         modifier = Modifier.fillMaxSize()
                     ) { innerPadding ->
-                        NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this)
+                        NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this, notificheViewModel)
                     }
                 }
         }

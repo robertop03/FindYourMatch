@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.material)
     implementation(libs.kotlinx.datetime)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.datastore.preferences.v116)

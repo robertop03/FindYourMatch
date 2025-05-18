@@ -153,7 +153,7 @@ fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionVi
             // Conferma password
             Text(
                 text = buildAnnotatedString {
-                    append("Conferma password")
+                    append(localizedContext.getString(R.string.conferma_password))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
