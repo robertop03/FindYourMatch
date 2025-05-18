@@ -109,7 +109,6 @@ fun CreaAccount(navController: NavHostController) {
     val localizedContext = remember(language) {
         LocaleHelper.updateLocale(context, language)
     }
-    val ctx = localizedContext
 
     Scaffold(
         snackbarHost = { androidx.compose.material3.SnackbarHost(snackbarHostState) },
@@ -131,12 +130,12 @@ fun CreaAccount(navController: NavHostController) {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = ctx.getString(R.string.indietro),
+                            contentDescription = localizedContext.getString(R.string.indietro),
                             modifier = Modifier.size(24.dp)
                         )
                     }
                     Text(
-                        text = ctx.getString(R.string.crea_account),
+                        text = localizedContext.getString(R.string.crea_account),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -211,20 +210,35 @@ fun CreaAccount(navController: NavHostController) {
                 Spacer(Modifier.height(16.dp))
             }
 
-            campoObbligatorio(ctx.getString(R.string.email), email, { email = it }, ctx.getString(R.string.email_placeholder))
-            campoObbligatorio(ctx.getString(R.string.nome), nome, { nome = it }, ctx.getString(R.string.nome_placeholder))
-            campoObbligatorio(ctx.getString(R.string.cognome), cognome, { cognome = it }, ctx.getString(R.string.cognome_placeholder))
-            campoObbligatorioPasswords(
-                ctx.getString(R.string.password),
-                password,
-                { password = it },
-                ctx.getString(R.string.password_placeholder)
+            campoObbligatorio(
+                localizedContext.getString(R.string.email),
+                email,
+                { email = it },
+                localizedContext.getString(R.string.email_placeholder)
+            )
+            campoObbligatorio(
+                localizedContext.getString(R.string.nome),
+                nome,
+                { nome = it },
+                localizedContext.getString(R.string.nome_placeholder)
+            )
+            campoObbligatorio(
+                localizedContext.getString(R.string.cognome),
+                cognome,
+                { cognome = it },
+                localizedContext.getString(R.string.cognome_placeholder)
             )
             campoObbligatorioPasswords(
-                ctx.getString(R.string.conferma_password),
+                localizedContext.getString(R.string.password),
+                password,
+                { password = it },
+                localizedContext.getString(R.string.password_placeholder)
+            )
+            campoObbligatorioPasswords(
+                localizedContext.getString(R.string.conferma_password),
                 confermaPassword,
                 { confermaPassword = it },
-                ctx.getString(R.string.password_placeholder)
+                localizedContext.getString(R.string.password_placeholder)
             )
 
             Spacer(Modifier.height(16.dp))
@@ -232,7 +246,7 @@ fun CreaAccount(navController: NavHostController) {
 
             Text(
                 text = buildAnnotatedString {
-                    append(ctx.getString(R.string.data_di_nascita))
+                    append(localizedContext.getString(R.string.data_di_nascita))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -246,7 +260,7 @@ fun CreaAccount(navController: NavHostController) {
             TextField(
                 value = dataNascita,
                 readOnly = true,
-                placeholder = { Text(ctx.getString(R.string.data_placeholder))},
+                placeholder = { Text(localizedContext.getString(R.string.data_placeholder))},
                 onValueChange = {},
                 singleLine = true,
                 interactionSource = remember { MutableInteractionSource() }
@@ -287,7 +301,7 @@ fun CreaAccount(navController: NavHostController) {
             Spacer(Modifier.height(16.dp))
             Text(
                 text = buildAnnotatedString {
-                    append(ctx.getString(R.string.sesso))
+                    append(localizedContext.getString(R.string.sesso))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -303,7 +317,10 @@ fun CreaAccount(navController: NavHostController) {
                     .width(330.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                listOf(ctx.getString(R.string.maschio), ctx.getString(R.string.femmina)).forEach { label ->
+                listOf(
+                    localizedContext.getString(R.string.maschio),
+                    localizedContext.getString(R.string.femmina)
+                ).forEach { label ->
                     Row(
                         modifier = Modifier
                             .clickable { sesso = label }
@@ -321,7 +338,7 @@ fun CreaAccount(navController: NavHostController) {
             // Numero di telefono con prefisso
             Text(
                 text = buildAnnotatedString {
-                    append(ctx.getString(R.string.cellulare))
+                    append(localizedContext.getString(R.string.cellulare))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -370,7 +387,7 @@ fun CreaAccount(navController: NavHostController) {
                 OutlinedTextField(
                     value = cellulare,
                     onValueChange = { cellulare = it },
-                    placeholder = { Text(ctx.getString(R.string.cellulare_placeholder)) },
+                    placeholder = { Text(localizedContext.getString(R.string.cellulare_placeholder)) },
                     singleLine = true,
                     modifier = Modifier.weight(0.9f)
                 )
@@ -381,7 +398,7 @@ fun CreaAccount(navController: NavHostController) {
             // Indirizzo
             Text(
                 text = buildAnnotatedString {
-                    append(ctx.getString(R.string.indirizzo))
+                    append(localizedContext.getString(R.string.indirizzo))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -406,7 +423,7 @@ fun CreaAccount(navController: NavHostController) {
                         .menuAnchor()
                         .width(330.dp),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(statoExpanded) },
-                    placeholder = { Text(ctx.getString(R.string.stato)) }
+                    placeholder = { Text(localizedContext.getString(R.string.stato)) }
                 )
                 LaunchedEffect(Unit) {
                     stati = fetchEUCountries(httpClient)
@@ -450,7 +467,7 @@ fun CreaAccount(navController: NavHostController) {
                         .menuAnchor()
                         .width(330.dp),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(provinciaExpanded) },
-                    placeholder = { Text(ctx.getString(R.string.provincia))}
+                    placeholder = { Text(localizedContext.getString(R.string.provincia))}
                 )
                 ExposedDropdownMenu(
                     expanded = provinciaExpanded,
@@ -473,9 +490,18 @@ fun CreaAccount(navController: NavHostController) {
 
             // Campi con solo placeholder
             val campiIndirizzo: List<Triple<String, String, (String) -> Unit>> = listOf(
-                Triple(ctx.getString(R.string.citta), citta, { nuovo: String -> citta = nuovo }),
-                Triple(ctx.getString(R.string.via), via, { nuovo: String -> via = nuovo }),
-                Triple(ctx.getString(R.string.civico), civico, { nuovo: String -> civico = nuovo })
+                Triple(
+                    localizedContext.getString(R.string.citta),
+                    citta
+                ) { nuovo: String -> citta = nuovo },
+                Triple(
+                    localizedContext.getString(R.string.via),
+                    via
+                ) { nuovo: String -> via = nuovo },
+                Triple(
+                    localizedContext.getString(R.string.civico),
+                    civico
+                ) { nuovo: String -> civico = nuovo }
             )
 
             campiIndirizzo.forEach { (placeholder, value, onChange) ->
@@ -501,7 +527,7 @@ fun CreaAccount(navController: NavHostController) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = buildAnnotatedString {
-                        append(ctx.getString(R.string.termini_privacy))
+                        append(localizedContext.getString(R.string.termini_privacy))
                         withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                     },
                     fontWeight = FontWeight.SemiBold,
@@ -532,33 +558,38 @@ fun CreaAccount(navController: NavHostController) {
                     try {
                         // 1. Campi vuoti
                         val campi = listOf(
-                            ctx.getString(R.string.email) to email,
-                            ctx.getString(R.string.nome) to nome,
-                            ctx.getString(R.string.cognome) to cognome,
-                            ctx.getString(R.string.password) to password,
-                            ctx.getString(R.string.conferma_password) to confermaPassword,
-                            ctx.getString(R.string.data_di_nascita) to dataNascita,
-                            ctx.getString(R.string.cellulare) to cellulare,
-                            ctx.getString(R.string.stato) to stato,
-                            ctx.getString(R.string.provincia) to provincia,
-                            ctx.getString(R.string.citta) to citta,
-                            ctx.getString(R.string.via) to via,
-                            ctx.getString(R.string.civico) to civico
+                            localizedContext.getString(R.string.email) to email,
+                            localizedContext.getString(R.string.nome) to nome,
+                            localizedContext.getString(R.string.cognome) to cognome,
+                            localizedContext.getString(R.string.password) to password,
+                            localizedContext.getString(R.string.conferma_password) to confermaPassword,
+                            localizedContext.getString(R.string.data_di_nascita) to dataNascita,
+                            localizedContext.getString(R.string.cellulare) to cellulare,
+                            localizedContext.getString(R.string.stato) to stato,
+                            localizedContext.getString(R.string.provincia) to provincia,
+                            localizedContext.getString(R.string.citta) to citta,
+                            localizedContext.getString(R.string.via) to via,
+                            localizedContext.getString(R.string.civico) to civico
                         )
                         campi.forEach { (nomeCampo, valore) ->
                             if (valore.isBlank()) {
-                                val message = ctx.getString(R.string.campo_non_vuoto, nomeCampo)
+                                val message =
+                                    localizedContext.getString(R.string.campo_non_vuoto, nomeCampo)
                                 throw Exception(message)
                             }
                         }
 
                         // 2. Password
-                        if (password != confermaPassword) throw Exception(ctx.getString(R.string.password_non_coincide))
-                        if (password.length < 8) throw Exception(ctx.getString(R.string.password_troppo_corta))
+                        if (password != confermaPassword) throw Exception(
+                            localizedContext.getString(
+                                R.string.password_non_coincide
+                            )
+                        )
+                        if (password.length < 8) throw Exception(localizedContext.getString(R.string.password_troppo_corta))
 
                         // 3. Email
                         val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
-                        if (!emailRegex.matches(email)) throw Exception(ctx.getString(R.string.email_non_valida))
+                        if (!emailRegex.matches(email)) throw Exception(localizedContext.getString(R.string.email_non_valida))
 
                         // 3.1 Età minima → almeno 14 anni eta_minima
                         try {
@@ -566,34 +597,55 @@ fun CreaAccount(navController: NavHostController) {
                             val dataNascitaParsed = java.time.LocalDate.parse(dataNascita, formatter)
                             val oggi = java.time.LocalDate.now()
                             val anni = java.time.Period.between(dataNascitaParsed, oggi).years
-                            if (anni < 14) throw Exception(ctx.getString(R.string.eta_minima))
+                            if (anni < 14) throw Exception(localizedContext.getString(R.string.eta_minima))
                         } catch (e: Exception) {
-                            throw Exception(ctx.getString(R.string.errore_eta))
+                            throw Exception(localizedContext.getString(R.string.errore_eta))
                         }
 
                         // 4. Nome, Cognome, Via, Città → nessun numero
                         val noNumeriRegex = Regex(".*\\d.*")
-                        if (noNumeriRegex.containsMatchIn(nome)) throw Exception(ctx.getString(R.string.nome_con_numeri))
-                        if (noNumeriRegex.containsMatchIn(cognome)) throw Exception(ctx.getString(R.string.cognome_con_numeri))
-                        if (noNumeriRegex.containsMatchIn(via)) throw Exception(ctx.getString(R.string.via_con_numeri))
-                        if (noNumeriRegex.containsMatchIn(citta)) throw Exception(ctx.getString(R.string.citta_con_numeri))
+                        if (noNumeriRegex.containsMatchIn(nome)) throw Exception(
+                            localizedContext.getString(
+                                R.string.nome_con_numeri
+                            )
+                        )
+                        if (noNumeriRegex.containsMatchIn(cognome)) throw Exception(
+                            localizedContext.getString(
+                                R.string.cognome_con_numeri
+                            )
+                        )
+                        if (noNumeriRegex.containsMatchIn(via)) throw Exception(
+                            localizedContext.getString(
+                                R.string.via_con_numeri
+                            )
+                        )
+                        if (noNumeriRegex.containsMatchIn(citta)) throw Exception(
+                            localizedContext.getString(
+                                R.string.citta_con_numeri
+                            )
+                        )
 
                         // 5. Cellulare → numero, con minimo di 8 e un max di 15 cifre
-                        if (!cellulare.matches(Regex("^\\d+$"))) throw Exception(ctx.getString(R.string.numero_telefono_non_valido))
-                        if (cellulare.length !in 8..15) throw Exception(ctx.getString(R.string.numero_telefono_lunghezza))
+                        if (!cellulare.matches(Regex("^\\d+$"))) throw Exception(
+                            localizedContext.getString(
+                                R.string.numero_telefono_non_valido
+                            )
+                        )
+                        if (cellulare.length !in 8..15) throw Exception(localizedContext.getString(R.string.numero_telefono_lunghezza))
 
                         // 6. Civico → numero tra 1 e 100000
                         val civicoInt = civico.toIntOrNull()
-                            ?: throw Exception(ctx.getString(R.string.civico_non_numero))
-                        if (civicoInt !in 1..100000) throw Exception(ctx.getString(R.string.civico_fuori_range))
+                            ?: throw Exception(localizedContext.getString(R.string.civico_non_numero))
+                        if (civicoInt !in 1..100000) throw Exception(localizedContext.getString(R.string.civico_fuori_range))
 
                         // 7. Checkbox condizioni
-                        if (!accettoCondizioni) throw Exception(ctx.getString(R.string.checkbox_non_accettata))
+                        if (!accettoCondizioni) throw Exception(localizedContext.getString(R.string.checkbox_non_accettata))
 
                         // Tutto ok
                         onSuccess()
                     } catch (e: Exception) {
-                        snackbarHostState.showSnackbar(e.message ?: ctx.getString(R.string.errore_validazione))
+                        snackbarHostState.showSnackbar(
+                            e.message ?: localizedContext.getString(R.string.errore_validazione))
                     }
                 }
             }
@@ -636,10 +688,10 @@ fun CreaAccount(navController: NavHostController) {
                             )
 
                             if (result.isSuccess) {
-                                snackbarHostState.showSnackbar(ctx.getString(R.string.registrazione_completata))
+                                snackbarHostState.showSnackbar(localizedContext.getString(R.string.registrazione_completata))
                                 navController.navigate(NavigationRoute.Home)
                             } else {
-                                snackbarHostState.showSnackbar("${ctx.getString(R.string.errore_registrazione)}: ${result.exceptionOrNull()?.message}")
+                                snackbarHostState.showSnackbar("${localizedContext.getString(R.string.errore_registrazione)}: ${result.exceptionOrNull()?.message}")
                             }
                         }
                     }
@@ -652,16 +704,19 @@ fun CreaAccount(navController: NavHostController) {
                     contentColor = MaterialTheme.colorScheme.background
                 )
             ) {
-                Text(ctx.getString(R.string.crea_account), fontWeight = FontWeight.Bold)
+                Text(
+                    localizedContext.getString(R.string.crea_account),
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Spacer(Modifier.height(12.dp))
 
             // Login link
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Text(ctx.getString(R.string.gia_account))
+                Text(localizedContext.getString(R.string.gia_account))
                 Text(
-                    text = ctx.getString(R.string.login),
+                    text = localizedContext.getString(R.string.login),
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.secondary,
                     textDecoration = TextDecoration.Underline,

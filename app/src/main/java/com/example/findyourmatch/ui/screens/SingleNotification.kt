@@ -53,7 +53,6 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
     val localizedContext = remember(language) {
         LocaleHelper.updateLocale(context, language)
     }
-    val ctx = localizedContext
 
     Box(
         modifier = Modifier
@@ -80,22 +79,6 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (!notifica.stato) {
-                        Box(
-                            modifier = Modifier
-                                .background(Color(0xFF2E7D32), RoundedCornerShape(8.dp))
-                                .padding(horizontal = 8.dp, vertical = 2.dp)
-                        ) {
-                            Text(
-                                text = ctx.getString(R.string.nuova),
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    } else {
-                        Spacer(modifier = Modifier)
-                    }
 
                     IconButton(onClick = { navController.navigateUp() }) {
                         Text("X", fontWeight = FontWeight.Bold, color = Color.Black)

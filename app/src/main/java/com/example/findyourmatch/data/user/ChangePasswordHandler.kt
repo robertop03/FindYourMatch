@@ -1,6 +1,7 @@
 package com.example.findyourmatch.data.user
 
 import android.content.Context
+import com.example.findyourmatch.utils.NetworkJson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -12,7 +13,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 suspend fun cambiaPasswordUtente(context: Context, nuovaPassword: String): Result<Unit> = withContext(Dispatchers.IO) {
     try {
-        var accessToken = SessionManager.getAccessToken(context)
+        val accessToken = SessionManager.getAccessToken(context)
             ?: return@withContext Result.failure(Exception("Token mancante. Effettua il login."))
 
         var result = tryUpdatePassword(accessToken, nuovaPassword)
@@ -86,8 +87,7 @@ suspend fun refreshAccessToken(context: Context): Result<String> = withContext(D
             )
         }
 
-        val session = Json { ignoreUnknownKeys = true }
-            .decodeFromString(SessionData.serializer(), responseBody)
+        val session = NetworkJson.json.decodeFromString(SessionData.serializer(), responseBody)
 
         SessionManager.saveTokens(context, session.accessToken, session.refreshToken)
         Result.success(session.accessToken)

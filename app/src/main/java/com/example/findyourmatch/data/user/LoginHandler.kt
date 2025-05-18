@@ -1,6 +1,7 @@
 package com.example.findyourmatch.data.user
 
 import android.content.Context
+import com.example.findyourmatch.utils.NetworkJson
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -55,10 +56,7 @@ suspend fun loginSupabase(
         val bodyString = response.body?.string()
             ?: return@withContext Result.failure(Exception("Corpo della risposta vuoto"))
 
-        val session = Json {
-            ignoreUnknownKeys = true
-        }.decodeFromString(SessionData.serializer(), bodyString)
-
+        val session = NetworkJson.json.decodeFromString(SessionData.serializer(), bodyString)
 
         SessionManager.saveTokens(context.applicationContext, session.accessToken, session.refreshToken)
         sessionViewModel.updateLoginStatus(true)

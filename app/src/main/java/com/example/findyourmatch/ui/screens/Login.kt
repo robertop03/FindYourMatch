@@ -75,7 +75,6 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
     val localizedContext = remember(language) {
         LocaleHelper.updateLocale(context, language)
     }
-    val ctx = localizedContext
 
     val fingerprintEnabled by userSettings.fingerprintEnabled.collectAsState(initial = true)
 
@@ -102,12 +101,12 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = ctx.getString(R.string.indietro),
+                            contentDescription = localizedContext.getString(R.string.indietro),
                             modifier = Modifier.size(24.dp)
                         )
                     }
                     Text(
-                        text = ctx.getString(R.string.login),
+                        text = localizedContext.getString(R.string.login),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -119,7 +118,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
 
             Text(
                 text = buildAnnotatedString {
-                    append(ctx.getString(R.string.email))
+                    append(localizedContext.getString(R.string.email))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -130,7 +129,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text(ctx.getString(R.string.email_placeholder)) },
+                placeholder = { Text(localizedContext.getString(R.string.email_placeholder)) },
                 singleLine = true,
                 modifier = Modifier
                     .width(330.dp)
@@ -141,7 +140,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
 
             Text(
                 text = buildAnnotatedString {
-                    append(ctx.getString(R.string.password))
+                    append(localizedContext.getString(R.string.password))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -152,13 +151,16 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text(ctx.getString(R.string.password_placeholder)) },
+                placeholder = { Text(localizedContext.getString(R.string.password_placeholder)) },
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icon, contentDescription = ctx.getString(R.string.mostra_nascondi_pw))
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = localizedContext.getString(R.string.mostra_nascondi_pw)
+                        )
                     }
                 },
                 modifier = Modifier
@@ -175,29 +177,37 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                 coroutineScope.launch {
                     try {
                         // 1. Validazione campi
-                        val campi = listOf(ctx.getString(R.string.email) to email, ctx.getString(R.string.password) to password)
+                        val campi = listOf(
+                            localizedContext.getString(R.string.email) to email,
+                            localizedContext.getString(R.string.password) to password)
                         campi.forEach { (nomeCampo, valore) ->
-                            if (valore.isBlank()) throw Exception(ctx.getString(R.string.campo_non_vuoto, nomeCampo))
+                            if (valore.isBlank()) throw Exception(
+                                localizedContext.getString(
+                                    R.string.campo_non_vuoto,
+                                    nomeCampo
+                                )
+                            )
                         }
 
                         val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
-                        if (!emailRegex.matches(email)) throw Exception(ctx.getString(R.string.email_non_valida))
+                        if (!emailRegex.matches(email)) throw Exception(localizedContext.getString(R.string.email_non_valida))
 
                         // 2. Chiamata alla loginSupabase
                         val result = loginSupabase(context, email, password, sessionViewModel)
 
                         if (result.isSuccess) {
-                            snackbarHostState.showSnackbar(ctx.getString(R.string.login_successo))
+                            snackbarHostState.showSnackbar(localizedContext.getString(R.string.login_successo))
                             navController.navigate(NavigationRoute.Profile) {
                                 popUpTo(NavigationRoute.Login) { inclusive = true }
                             }
                         } else {
                             val ex = result.exceptionOrNull()
-                            throw ex ?: Exception(ctx.getString(R.string.email_non_valida))
+                            throw ex ?: Exception(localizedContext.getString(R.string.email_non_valida))
                         }
 
                     } catch (e: Exception) {
-                        snackbarHostState.showSnackbar(e.message ?: ctx.getString(R.string.login_errore))
+                        snackbarHostState.showSnackbar(
+                            e.message ?: localizedContext.getString(R.string.login_errore))
                     }
                 }
             }
@@ -220,7 +230,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                                             popUpTo(NavigationRoute.Login) { inclusive = true }
                                         }
                                     } else {
-                                        snackbarHostState.showSnackbar(ctx.getString(R.string.login_errore))
+                                        snackbarHostState.showSnackbar(localizedContext.getString(R.string.login_errore))
                                     }
                                 }
                             },
@@ -229,7 +239,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                                     snackbarHostState.showSnackbar(it)
                                 }
                             },
-                            ctx
+                            localizedContext
                         )
                     },
                     modifier = Modifier
@@ -237,7 +247,10 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                         .width(330.dp)
                         .height(50.dp)
                 ) {
-                    Text(ctx.getString(R.string.accedi_con_impronta), fontWeight = FontWeight.Bold)
+                    Text(
+                        localizedContext.getString(R.string.accedi_con_impronta),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -256,13 +269,13 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                     contentColor = MaterialTheme.colorScheme.background
                 )
             ) {
-                Text(ctx.getString(R.string.accedi), fontWeight = FontWeight.Bold)
+                Text(localizedContext.getString(R.string.accedi), fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = ctx.getString(R.string.password_dimenticata),
+                text = localizedContext.getString(R.string.password_dimenticata),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier
@@ -277,9 +290,9 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text(ctx.getString(R.string.no_account))
+                Text(localizedContext.getString(R.string.no_account))
                 Text(
-                    text = ctx.getString(R.string.crea_account),
+                    text = localizedContext.getString(R.string.crea_account),
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.clickable {

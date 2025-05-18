@@ -1,6 +1,7 @@
 package com.example.findyourmatch.data.user
 
 import android.content.Context
+import com.example.findyourmatch.utils.NetworkJson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
@@ -12,6 +13,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.time.LocalDate
+
 
 @Serializable
 data class SignupRequest(val email: String, val password: String)
@@ -97,9 +99,7 @@ suspend fun registraUtenteSupabase(
         val loginString = loginResponse.body?.string()
             ?: return@withContext Result.failure(Exception("Nessuna risposta dal login"))
 
-        val session = Json { ignoreUnknownKeys = true }
-            .decodeFromString(SignupResponse.serializer(), loginString)
-
+        val session = NetworkJson.json.decodeFromString(SignupResponse.serializer(), loginString)
 
         // 2. Salva i token
         SessionManager.saveTokens(context, session.accessToken, session.refreshToken)

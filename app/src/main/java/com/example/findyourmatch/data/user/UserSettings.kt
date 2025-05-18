@@ -57,7 +57,6 @@ class UserSettings(private val context: Context) {
             prefs[BIOMETRIC_READY_KEY] = enabled
         }
     }
-
 }
 
 

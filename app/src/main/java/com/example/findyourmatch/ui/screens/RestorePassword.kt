@@ -62,7 +62,6 @@ fun RecuperaPassword(navController: NavHostController) {
     val localizedContext = remember(language) {
         LocaleHelper.updateLocale(context, language)
     }
-    val ctx = localizedContext
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -88,13 +87,13 @@ fun RecuperaPassword(navController: NavHostController) {
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = ctx.getString(R.string.indietro),
+                        contentDescription = localizedContext.getString(R.string.indietro),
                         modifier = Modifier.size(24.dp)
                     )
                 }
 
                 Text(
-                    text = ctx.getString(R.string.recupera_pw),
+                    text = localizedContext.getString(R.string.recupera_pw),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -104,7 +103,7 @@ fun RecuperaPassword(navController: NavHostController) {
             Spacer(Modifier.height(50.dp))
             Text(
                 text = buildAnnotatedString {
-                    append(ctx.getString(R.string.inserisci_email))
+                    append(localizedContext.getString(R.string.inserisci_email))
                 },
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
@@ -128,7 +127,7 @@ fun RecuperaPassword(navController: NavHostController) {
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text(ctx.getString(R.string.email_placeholder)) },
+                placeholder = { Text(localizedContext.getString(R.string.email_placeholder)) },
                 singleLine = true,
                 modifier = Modifier
                     .width(330.dp)
@@ -145,15 +144,15 @@ fun RecuperaPassword(navController: NavHostController) {
                     onClick = {
                         coroutineScope.launch {
                             if (email.isBlank()) {
-                                snackbarHostState.showSnackbar(ctx.getString(R.string.email_valida))
+                                snackbarHostState.showSnackbar(localizedContext.getString(R.string.email_valida))
                                 return@launch
                             }
 
                             val result = inviaEmailRecuperoPassword(email)
                             if (result.isSuccess) {
-                                snackbarHostState.showSnackbar(ctx.getString(R.string.controlla_email))
+                                snackbarHostState.showSnackbar(localizedContext.getString(R.string.controlla_email))
                             } else {
-                                snackbarHostState.showSnackbar("${ctx.getString(R.string.errore_registrazione)}: ${result.exceptionOrNull()?.message}")
+                                snackbarHostState.showSnackbar("${localizedContext.getString(R.string.errore_registrazione)}: ${result.exceptionOrNull()?.message}")
                             }
                         }
                     },
@@ -165,7 +164,7 @@ fun RecuperaPassword(navController: NavHostController) {
                         contentColor = Color.White
                     )
                 ) {
-                    Text(ctx.getString(R.string.invia), fontWeight = FontWeight.Bold)
+                    Text(localizedContext.getString(R.string.invia), fontWeight = FontWeight.Bold)
                 }
             }
         }
