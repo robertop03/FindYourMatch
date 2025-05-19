@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.data.notifications.Notifica
+import com.example.findyourmatch.ui.theme.LightGreen
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -51,7 +52,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(550.dp)
-                .border(2.dp, Color(0xFF2E7D32), RoundedCornerShape(16.dp))
+                .border(2.dp, LightGreen, RoundedCornerShape(16.dp))
                 .background(Color.White, RoundedCornerShape(16.dp))
                 .padding(24.dp)
         ) {
