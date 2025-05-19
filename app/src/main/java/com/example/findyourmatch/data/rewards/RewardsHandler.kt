@@ -37,9 +37,9 @@ suspend fun caricaRaggiungimenti(context: Context, email: String): List<RewardAc
         .addHeader("Accept", "application/json")
         .build()
 
-    val response = client.newCall(request).execute()
-    if (!response.isSuccessful) return@withContext emptyList()
-
-    val json = response.body?.string() ?: return@withContext emptyList()
-    return@withContext Json.decodeFromString(ListSerializer(RewardAchievement.serializer()), json)
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) return@withContext emptyList()
+        val json = response.body?.string() ?: return@withContext emptyList()
+        return@withContext Json.decodeFromString(ListSerializer(RewardAchievement.serializer()), json)
+    }
 }
