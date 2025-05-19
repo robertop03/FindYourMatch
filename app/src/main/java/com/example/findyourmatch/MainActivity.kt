@@ -26,16 +26,15 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val notificheViewModel: NotificheViewModel = viewModel(
-                factory = NotificheViewModelFactory(application)
-            )
-
             FindYourMatchTheme(dynamicColor = false) {
                     val navController = rememberNavController()
                     val context = LocalContext.current
                     val sessionViewModel: SessionViewModel = viewModel(
                         factory = SessionViewModelFactory(context.applicationContext as Application)
                     )
+                val notificheViewModel: NotificheViewModel = viewModel(
+                    factory = NotificheViewModelFactory(application)
+                )
                     Scaffold(
                         topBar = { CustomTopAppBar(navController) },
                         bottomBar = { Footer(navController, sessionViewModel, notificheViewModel) },

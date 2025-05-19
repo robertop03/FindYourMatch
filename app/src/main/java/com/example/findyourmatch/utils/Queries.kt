@@ -1,7 +1,6 @@
 package com.example.findyourmatch.utils
 
 import android.content.Context
-import android.util.Log
 import com.example.findyourmatch.data.user.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -16,7 +15,6 @@ import java.io.IOException
 suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatchers.IO) {
     val accessToken = SessionManager.getAccessToken(context)
     if (accessToken.isNullOrBlank()) {
-        Log.w("getLoggedUserEmail", "Access token is null or blank")
         return@withContext null
     }
 
@@ -28,19 +26,17 @@ suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatch
         .get()
         .build()
 
-    repeat(3) { attempt ->
+    repeat(3) {
         try {
             val response = client.newCall(request).execute()
 
             if (!response.isSuccessful) {
-                Log.e("getLoggedUserEmail", "Attempt $attempt - HTTP ${response.code}: ${response.message}")
-                delay(150L) // retry dopo un piccolo delay
+                delay(150L)
                 return@repeat
             }
 
             val body = response.body?.string()
             if (body.isNullOrBlank()) {
-                Log.e("getLoggedUserEmail", "Empty body in response")
                 return@repeat
             }
 
@@ -50,15 +46,9 @@ suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatch
 
             if (email != null) {
                 return@withContext email
-            } else {
-                Log.e("getLoggedUserEmail", "Email not found in response JSON")
             }
 
-        } catch (e: IOException) {
-            Log.e("getLoggedUserEmail", "IOException: ${e.localizedMessage}")
-        } catch (e: Exception) {
-            Log.e("getLoggedUserEmail", "Exception: ${e.localizedMessage}")
-        }
+        } catch (_: IOException) { } catch (_: Exception) { }
 
         delay(150L)
     }

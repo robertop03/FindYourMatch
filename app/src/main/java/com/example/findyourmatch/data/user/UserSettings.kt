@@ -12,7 +12,6 @@ import java.util.Locale
 import android.os.LocaleList
 
 
-// Extension property per ottenere il DataStore
 val Context.dataStore by preferencesDataStore("user_preferences")
 val BIOMETRIC_READY_KEY = booleanPreferencesKey("biometric_ready")
 
