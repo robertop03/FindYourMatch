@@ -2,9 +2,6 @@ package com.example.findyourmatch.viewmodel
 
 import android.app.Application
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -13,7 +10,7 @@ import com.example.findyourmatch.data.notifications.Notifica
 import com.example.findyourmatch.data.notifications.caricaNotificheUtente
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.dataStore
-import com.example.findyourmatch.utils.getLoggedUserEmail
+import com.example.findyourmatch.data.user.getLoggedUserEmail
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch

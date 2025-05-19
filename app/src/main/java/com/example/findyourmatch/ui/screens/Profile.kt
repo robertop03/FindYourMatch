@@ -38,8 +38,8 @@ import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.navigation.NavigationRoute
-import com.example.findyourmatch.utils.getLoggedUserEmail
 
 @Composable
 fun Profile(navController: NavHostController) {

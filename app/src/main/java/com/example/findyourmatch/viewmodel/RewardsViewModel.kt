@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.findyourmatch.data.rewards.RewardAchievement
 import com.example.findyourmatch.data.rewards.caricaRaggiungimenti
-import com.example.findyourmatch.utils.getLoggedUserEmail
+import com.example.findyourmatch.data.user.getLoggedUserEmail
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
