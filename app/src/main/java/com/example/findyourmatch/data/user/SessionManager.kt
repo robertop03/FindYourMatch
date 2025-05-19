@@ -6,6 +6,10 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.Dispatchers
+import okhttp3.OkHttpClient
+import kotlinx.coroutines.withContext
+import okhttp3.Request
 
 object SessionManager {
     private val ACCESS_TOKEN = stringPreferencesKey("access_token")
@@ -33,6 +37,26 @@ object SessionManager {
         }.first()
         return refreshToken
     }
+
+    suspend fun isTokenStillValid(context: Context): Boolean = withContext(Dispatchers.IO) {
+        val token = getAccessToken(context) ?: return@withContext false
+
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url("https://ugtxgylfzblkvudpnagi.supabase.co/auth/v1/user")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+            .get()
+            .build()
+
+        return@withContext try {
+            val response = client.newCall(request).execute()
+            response.isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
+
 
     fun logout(sessionViewModel: SessionViewModel) {
         sessionViewModel.updateLoginStatus(false)

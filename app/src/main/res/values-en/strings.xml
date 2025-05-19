@@ -62,8 +62,8 @@
     <string name="accedi_con_impronta_digitale">Log in with fingerprint</string>
     <string name="accedi_con_impronta">Log in with fingerprint</string>
     <string name="autenticazione_fallita">Authentication failed</string>
-
-
+    <string name="sessione_scaduta">Your session has expired. Please log in again..</string>
+    
     <!-- CAMBIA PASSWORD -->
     <string name="cambia_pw">Change password</string>
     <string name="inserisci_nuova_pw">Insert a new password</string>

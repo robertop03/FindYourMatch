@@ -234,10 +234,14 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                                     val refreshToken = SessionManager.getRefreshToken(context)
 
                                     if (!accessToken.isNullOrBlank() && !refreshToken.isNullOrBlank()) {
-                                        sessionViewModel.updateLoginStatus(true)
-
-                                        navController.navigate(NavigationRoute.Profile) {
-                                            popUpTo(NavigationRoute.Login) { inclusive = true }
+                                        val isValid = SessionManager.isTokenStillValid(context)
+                                        if (isValid) {
+                                            sessionViewModel.updateLoginStatus(true)
+                                            navController.navigate(NavigationRoute.Profile) {
+                                                popUpTo(NavigationRoute.Login) { inclusive = true }
+                                            }
+                                        } else {
+                                            snackbarHostState.showSnackbar(localizedContext.getString(R.string.sessione_scaduta))
                                         }
                                     } else {
                                         snackbarHostState.showSnackbar(localizedContext.getString(R.string.login_errore))

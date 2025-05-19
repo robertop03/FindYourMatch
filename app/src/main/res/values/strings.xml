@@ -60,6 +60,7 @@
     <string name="accedi_con_impronta_digitale">Accedi con impronta digitale</string>
     <string name="accedi_con_impronta">Accedi con impronta</string>
     <string name="autenticazione_fallita">Autenticazione fallita </string>
+    <string name="sessione_scaduta">La sessione è scaduta. Effettua nuovamente il login.</string>
 
     <!-- CAMBIA PASSWORD -->
     <string name="cambia_pw">Cambia password</string>
