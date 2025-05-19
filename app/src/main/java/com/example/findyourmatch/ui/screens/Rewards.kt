@@ -39,9 +39,11 @@ import com.example.findyourmatch.R
 import com.example.findyourmatch.data.rewards.Badge
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.findyourmatch.data.rewards.RewardAchievement
+import com.example.findyourmatch.ui.theme.Bronze
+import com.example.findyourmatch.ui.theme.Gold
+import com.example.findyourmatch.ui.theme.Silver
 import com.example.findyourmatch.viewmodel.RewardsViewModel
 
 
@@ -151,9 +153,9 @@ fun BadgeGrid(achievements: List<RewardAchievement>) {
 fun BadgeItem(badge: Badge) {
     val backgroundAlpha = if (badge.reached) 1f else 0.2f
     val badgeColor = when (badge.value) {
-        20 -> Color(0xFFFFD700)
-        15 -> Color(0xFFC0C0C0)
-        10 -> Color(0xFFCD7F32)
+        20 -> Gold
+        15 -> Silver
+        10 -> Bronze
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
 

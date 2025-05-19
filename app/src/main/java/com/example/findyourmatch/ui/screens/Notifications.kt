@@ -58,6 +58,13 @@ import com.example.findyourmatch.data.notifications.segnaNotificaComeLetta
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
+import com.example.findyourmatch.ui.theme.Blue
+import com.example.findyourmatch.ui.theme.LightBlue
+import com.example.findyourmatch.ui.theme.LightGreen
+import com.example.findyourmatch.ui.theme.LightLightGreen
+import com.example.findyourmatch.ui.theme.LightRed
+import com.example.findyourmatch.ui.theme.Purple
+import com.example.findyourmatch.ui.theme.Silver
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
 import kotlinx.coroutines.launch
@@ -80,13 +87,13 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
     )
 
     val coloreBordo = when (notifica.tipologia) {
-        "accettato" -> Color(0xFF4CAF50)
-        "rifiutato" -> Color(0xFFF44336)
-        "partita" -> Color(0xFF2E7D32)
-        "recensione" -> Color(0xFF1976D2)
-        "obiettivo" -> Color(0xFF8976D2)
-        "richiesta" -> Color(0xFF0079D2)
-        else ->Color(0xFF1976D2)
+        "accettato" -> LightLightGreen
+        "rifiutato" -> LightRed
+        "partita" -> LightGreen
+        "recensione" -> Blue
+        "obiettivo" -> Purple
+        "richiesta" -> LightBlue
+        else -> Silver
     }
 
     val icona = when (notifica.tipologia) {

@@ -55,6 +55,9 @@ import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.cambiaPasswordUtente
 import com.example.findyourmatch.navigation.NavigationRoute
+import com.example.findyourmatch.ui.theme.Green
+import com.example.findyourmatch.ui.theme.Red
+import com.example.findyourmatch.ui.theme.White
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -225,8 +228,8 @@ fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionVi
                         .width(150.dp)
                         .height(42.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF88001B),
-                        contentColor = Color.White
+                        containerColor = Red,
+                        contentColor = White
                     )
                 ) {
                     Text(localizedContext.getString(R.string.annulla), fontWeight = FontWeight.Bold)
@@ -300,9 +303,9 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String, sess
                     }
                 },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF1B836C),
-                    focusedLabelColor = Color(0xFF1B836C),
-                    cursorColor = Color(0xFF1B836C)
+                    focusedBorderColor = Green,
+                    focusedLabelColor = Green,
+                    cursorColor =Green
                 ),
                 modifier = Modifier.width(330.dp).align(Alignment.CenterHorizontally)
             )
@@ -336,9 +339,9 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String, sess
                     }
                 },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF1B836C),
-                    focusedLabelColor = Color(0xFF1B836C),
-                    cursorColor = Color(0xFF1B836C)
+                    focusedBorderColor = Green,
+                    focusedLabelColor = Green,
+                    cursorColor = Green
                 ),
                 modifier = Modifier.width(330.dp).align(Alignment.CenterHorizontally)
             )
