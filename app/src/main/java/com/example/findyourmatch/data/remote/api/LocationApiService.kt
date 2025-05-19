@@ -1,6 +1,5 @@
 package com.example.findyourmatch.data.remote.api
 
-import android.util.Log
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -13,8 +12,6 @@ suspend fun fetchEUCountries(client: HttpClient): List<String> {
             append("X-Parse-REST-API-Key", "0072qRjDbUoPphEGUXKAfVVMzlwpfqXFpcPE1U14")
         }
     }
-    val body = response.bodyAsText()
-    Log.d("Risposta server ", body)
 
     val json = Json.decodeFromString<JsonObject>(response.bodyAsText())
     val results = json["results"]?.jsonArray

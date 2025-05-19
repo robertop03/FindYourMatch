@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -22,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -34,8 +36,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
+import com.example.findyourmatch.data.rewards.Badge
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
+import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.findyourmatch.data.rewards.RewardAchievement
+import com.example.findyourmatch.viewmodel.RewardsViewModel
+
 
 @Composable
 fun Rewards(navController: NavHostController) {
@@ -45,13 +53,18 @@ fun Rewards(navController: NavHostController) {
     val localizedContext = remember(language) {
         LocaleHelper.updateLocale(context, language)
     }
+    val viewModel: RewardsViewModel = viewModel()
+    val achievements by viewModel.achievements.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.loadAchievements()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.secondaryContainer)
     ) {
         val showBackButton = navController.previousBackStackEntry != null
-
 
         Column(
             modifier = Modifier
@@ -86,11 +99,89 @@ fun Rewards(navController: NavHostController) {
                     )
                 }
             }
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
+            BadgeGrid(achievements = achievements)
+            Spacer(modifier = Modifier.height(32.dp))
             LegendBox()
         }
     }
 }
+
+@Composable
+fun BadgeGrid(achievements: List<RewardAchievement>) {
+    val badgeSteps = listOf(10, 15, 20)
+    val getColorFromColore = { colore: String ->
+        when (colore.lowercase()) {
+            "oro" -> 20
+            "argento" -> 15
+            "bronzo" -> 10
+            else -> -1
+        }
+    }
+
+    val goalMedals = achievements.filter { it.tipologia == "goal_fatti" }.map { getColorFromColore(it.colore) }
+    val playedMedals = achievements.filter { it.tipologia == "partite_giocate" }.map { getColorFromColore(it.colore) }
+    val wonMedals = achievements.filter { it.tipologia == "partite_vinte" }.map { getColorFromColore(it.colore) }
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        badgeSteps.reversed().forEach { step ->
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                BadgeItem(
+                    Badge(step, wonMedals.contains(step), Icons.Default.EmojiEvents, "$step")
+                )
+                BadgeItem(
+                    Badge(step, goalMedals.contains(step), Icons.Default.SportsSoccer, "$step")
+                )
+                BadgeItem(
+                    Badge(step, playedMedals.contains(step), Icons.AutoMirrored.Filled.DirectionsRun, "$step")
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun BadgeItem(badge: Badge) {
+    val backgroundAlpha = if (badge.reached) 1f else 0.2f
+    val badgeColor = when (badge.value) {
+        20 -> Color(0xFFFFD700)
+        15 -> Color(0xFFC0C0C0)
+        10 -> Color(0xFFCD7F32)
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
+    val iconTint = if (badge.reached) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .size(80.dp)
+            .background(color = badgeColor.copy(alpha = backgroundAlpha), shape = MaterialTheme.shapes.medium)
+            .padding(8.dp)
+    ) {
+        Icon(
+            imageVector = badge.icon,
+            contentDescription = badge.description,
+            tint = iconTint,
+            modifier = Modifier.size(28.dp)
+        )
+        Text(
+            text = badge.value.toString(),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = iconTint
+        )
+    }
+}
+
 
 
 @Composable
