@@ -46,12 +46,11 @@ suspend fun caricaNotificheUtente(context: Context, email: String): List<Notific
         .addHeader("Accept", "application/json")
         .build()
 
-    val response = client.newCall(request).execute()
-    if (!response.isSuccessful) return@withContext emptyList()
-
-    val json = response.body?.string() ?: return@withContext emptyList()
-
-    return@withContext Json.decodeFromString(ListSerializer(Notifica.serializer()), json)
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) return@withContext emptyList()
+        val json = response.body?.string() ?: return@withContext emptyList()
+        return@withContext Json.decodeFromString(ListSerializer(Notifica.serializer()), json)
+    }
 }
 
 suspend fun segnaNotificaComeLetta(context: Context, notifica: Notifica): Boolean = withContext(Dispatchers.IO) {
@@ -72,6 +71,7 @@ suspend fun segnaNotificaComeLetta(context: Context, notifica: Notifica): Boolea
         .addHeader("Content-Type", "application/json")
         .build()
 
-    val response = client.newCall(request).execute()
-    return@withContext response.isSuccessful
+    client.newCall(request).execute().use { response ->
+        return@withContext response.isSuccessful
+    }
 }

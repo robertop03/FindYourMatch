@@ -69,12 +69,12 @@ suspend fun registraUtenteSupabase(
             .post(requestBody)
             .build()
 
-        val signupResponse = client.newCall(signupRequest).execute()
-
-        if (!signupResponse.isSuccessful) {
-            return@withContext Result.failure(
-                Exception("Registrazione fallita, un account con questa email è già registrato")
-            )
+        client.newCall(signupRequest).execute().use { signupResponse ->
+            if (!signupResponse.isSuccessful) {
+                return@withContext Result.failure(
+                    Exception("Registrazione fallita, un account con questa email è già registrato")
+                )
+            }
         }
 
         val loginBody = """
@@ -91,15 +91,14 @@ suspend fun registraUtenteSupabase(
             .post(loginBody)
             .build()
 
-        val loginResponse = client.newCall(loginRequest).execute()
-        if (!loginResponse.isSuccessful) {
-            return@withContext Result.failure(Exception("Login fallito dopo la registrazione (${loginResponse.code})"))
+        val session = client.newCall(loginRequest).execute().use { loginResponse ->
+            if (!loginResponse.isSuccessful) {
+                return@withContext Result.failure(Exception("Login fallito dopo la registrazione (${loginResponse.code})"))
+            }
+            val body = loginResponse.body?.string()
+                ?: return@withContext Result.failure(Exception("Nessuna risposta dal login"))
+            NetworkJson.json.decodeFromString(SignupResponse.serializer(), body)
         }
-
-        val loginString = loginResponse.body?.string()
-            ?: return@withContext Result.failure(Exception("Nessuna risposta dal login"))
-
-        val session = NetworkJson.json.decodeFromString(SignupResponse.serializer(), loginString)
 
         // 2. Salva i token
         SessionManager.saveTokens(context, session.accessToken, session.refreshToken)
@@ -112,15 +111,14 @@ suspend fun registraUtenteSupabase(
             .addHeader("Accept", "application/json")
             .build()
 
-        val checkResponse = client.newCall(checkRequest).execute()
-
-        if (!checkResponse.isSuccessful) {
-            return@withContext Result.failure(Exception("Errore nel controllo duplicato email: ${checkResponse.code}"))
-        }
-
-        val checkBody = checkResponse.body?.string() ?: "[]"
-        if (checkBody.contains(email.trim(), ignoreCase = true)) {
-            return@withContext Result.failure(Exception("Un account con questa email è già registrato."))
+        client.newCall(checkRequest).execute().use { checkResponse ->
+            if (!checkResponse.isSuccessful) {
+                return@withContext Result.failure(Exception("Errore nel controllo duplicato email: ${checkResponse.code}"))
+            }
+            val checkBody = checkResponse.body?.string() ?: "[]"
+            if (checkBody.contains(email.trim(), ignoreCase = true)) {
+                return@withContext Result.failure(Exception("Un account con questa email è già registrato."))
+            }
         }
 
         // 4. Inserimento nella tabella `utenti`
@@ -139,10 +137,9 @@ suspend fun registraUtenteSupabase(
             civico = civico
         )
 
-        val utenteJson = Json.encodeToString(utente)
-        val utenteBody = utenteJson.toRequestBody("application/json".toMediaType())
+        val utenteBody = Json.encodeToString(utente).toRequestBody("application/json".toMediaType())
 
-        val insertRequest = Request.Builder()
+        var insertRequest = Request.Builder()
             .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti")
             .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
             .addHeader("Authorization", "Bearer ${session.accessToken}")
@@ -150,37 +147,36 @@ suspend fun registraUtenteSupabase(
             .post(utenteBody)
             .build()
 
-        val tokenToUse: String
+        val insertResponse = client.newCall(insertRequest).execute()
+        insertResponse.use { response ->
+            if (response.code == 401 || response.code == 403) {
+                val refreshResult = refreshTokenIfNeeded(context, client, session.refreshToken)
+                if (refreshResult.isSuccess) {
+                    val newSession = refreshResult.getOrThrow()
+                    val tokenToUse = newSession.accessToken
 
-        var insertResponse = client.newCall(insertRequest).execute()
+                    insertRequest = insertRequest.newBuilder()
+                        .removeHeader("Authorization")
+                        .addHeader("Authorization", "Bearer $tokenToUse")
+                        .build()
 
-        if (insertResponse.code == 401 || insertResponse.code == 403) {
-            // Token scaduto, tentiamo refresh
-            val refreshResult = refreshTokenIfNeeded(context, client, session.refreshToken)
-            if (refreshResult.isSuccess) {
-                val newSession = refreshResult.getOrThrow()
-                tokenToUse = newSession.accessToken
-
-                // Nuova richiesta con token aggiornato
-                val retryInsertRequest = insertRequest.newBuilder()
-                    .removeHeader("Authorization")
-                    .addHeader("Authorization", "Bearer $tokenToUse")
-                    .build()
-
-                insertResponse = client.newCall(retryInsertRequest).execute()
-            } else {
-                return@withContext Result.failure(Exception("Refresh del token fallito"))
+                    client.newCall(insertRequest).execute().use { retryResponse ->
+                        if (!retryResponse.isSuccessful && retryResponse.code != 201) {
+                            val errorBody = retryResponse.body?.string()
+                            return@withContext Result.failure(Exception("Inserimento fallito (${retryResponse.code}): $errorBody"))
+                        }
+                    }
+                } else {
+                    return@withContext Result.failure(Exception("Refresh del token fallito"))
+                }
+            } else if (!response.isSuccessful && response.code != 201) {
+                val errorBody = response.body?.string()
+                return@withContext Result.failure(Exception("Inserimento fallito (${response.code}): $errorBody"))
             }
         }
-
-        if (!insertResponse.isSuccessful && insertResponse.code != 201) {
-            val errorBody = insertResponse.body?.string()
-            return@withContext Result.failure(
-                Exception("Inserimento fallito (${insertResponse.code}): $errorBody")
-            )
-        }
-
         return@withContext Result.success(Unit)
+
+
     } catch (e: Exception) {
         Result.failure(e)
     }
@@ -205,18 +201,20 @@ suspend fun refreshTokenIfNeeded(
             .post(body)
             .build()
 
-        val response = client.newCall(request).execute()
-        if (!response.isSuccessful) {
-            return@withContext Result.failure(Exception("Refresh token fallito (${response.code})"))
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                return@withContext Result.failure(Exception("Refresh token fallito (${response.code})"))
+            }
+
+            val responseBody = response.body?.string()
+                ?: return@withContext Result.failure(Exception("Corpo della risposta nullo"))
+
+            val newSession = Json.decodeFromString(SignupResponse.serializer(), responseBody)
+            SessionManager.saveTokens(context, newSession.accessToken, newSession.refreshToken)
+
+            return@withContext Result.success(newSession)
         }
 
-        val responseBody = response.body?.string()
-            ?: return@withContext Result.failure(Exception("Corpo della risposta nullo"))
-
-        val newSession = Json.decodeFromString(SignupResponse.serializer(), responseBody)
-        SessionManager.saveTokens(context, newSession.accessToken, newSession.refreshToken)
-
-        Result.success(newSession)
     } catch (e: Exception) {
         Result.failure(e)
     }
