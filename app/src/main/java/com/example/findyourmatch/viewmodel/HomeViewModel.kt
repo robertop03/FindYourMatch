@@ -33,8 +33,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     var isFetching by mutableStateOf(false)
         private set
 
-    var areDataLoaded = false
-        private set
+    private var ultimaMaxDistance: Float? = null
     var errore: String? = null
 
     fun loadPartite(
@@ -44,95 +43,83 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         fusedLocationClient: FusedLocationProviderClient,
         forzaRicarica: Boolean = false
     ) {
-        if ((areDataLoaded && !forzaRicarica) || isFetching) return
+        val shouldReload = forzaRicarica || ultimaMaxDistance != maxDistance
+
+        if (!shouldReload || isFetching) return
 
         isFetching = true
         val context = getApplication<Application>().applicationContext
 
         viewModelScope.launch {
             try {
-                val tempoTotale = measureTimeMillis {
-                    Log.d("HomeVM", "Inizio loadPartite()")
+                ultimaMaxDistance = maxDistance
 
-                    val tempoPartite = measureTimeMillis {
-                        Log.d("HomeVM", "Inizio fetch partite da Supabase")
-                        val tuttePartite = getPartiteConCampo(context)
-                        Log.d("HomeVM", "Fine fetch partite: ${tuttePartite.size} partite")
+                val tuttePartite = getPartiteConCampo(context)
+                val indirizzoUtente = if (isLoggedIn) getIndirizzoUtente(context) else null
 
-                        val indirizzoUtente = if (isLoggedIn) getIndirizzoUtente(context) else null
-                        Log.d("HomeVM", "Indirizzo utente: $indirizzoUtente")
-
-                        val tempoFiltraggio = measureTimeMillis {
-                            partiteFiltrate = when {
-                                isLoggedIn && indirizzoUtente != null -> {
-                                    tuttePartite.map { partita ->
-                                        async {
-                                            val inizio = System.currentTimeMillis()
-                                            val distanzaKm = calcolaDistanzaTraIndirizzi(
-                                                indirizzo1 = "${indirizzoUtente.via}, ${indirizzoUtente.civico}, ${indirizzoUtente.citta}, ${indirizzoUtente.provincia}, ${indirizzoUtente.stato}",
-                                                indirizzo2 = "${partita.campo.via}, ${partita.campo.civico}, ${partita.campo.citta}, ${partita.campo.provincia}, ${partita.campo.nazione}"
-                                            )
-                                            val fine = System.currentTimeMillis()
-                                            Log.d("HomeVM", "Distanza (${partita.campo.nome}): $distanzaKm km in ${fine - inizio}ms")
-                                            Log.d("AAAA",
-                                                (distanzaKm != null && distanzaKm <= maxDistance).toString()
-                                            )
-                                            if (distanzaKm != null && distanzaKm <= maxDistance) partita else null
-                                        }
-                                    }.awaitAll().filterNotNull()
-                                }
-
-                                isPermissionGranted && ContextCompat.checkSelfPermission(
-                                    context,
-                                    Manifest.permission.ACCESS_FINE_LOCATION
-                                ) == PackageManager.PERMISSION_GRANTED -> {
-                                    try {
-                                        val location = fusedLocationClient
-                                            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-                                            .await()
-                                        Log.d("HomeVM", "Posizione corrente: ${location.latitude}, ${location.longitude}")
-
-                                        tuttePartite.map { partita ->
-                                            async {
-                                                val inizio = System.currentTimeMillis()
-                                                val distanzaKm = calcolaDistanzaTraIndirizzi(
-                                                    indirizzo1 = "${location.latitude}, ${location.longitude}",
-                                                    indirizzo2 = "${partita.campo.via}, ${partita.campo.civico}, ${partita.campo.citta}, ${partita.campo.provincia}, ${partita.campo.nazione}"
-                                                )
-                                                val fine = System.currentTimeMillis()
-                                                Log.d("HomeVM", "Distanza (${partita.campo.nome}): $distanzaKm km in ${fine - inizio}ms")
-                                                Log.d("AAAA",
-                                                    (distanzaKm != null && distanzaKm <= maxDistance).toString()
-                                                )
-                                                Log.d("maxDistance", maxDistance.toString())
-                                                if (distanzaKm != null && distanzaKm <= maxDistance) partita else null
-                                            }
-                                        }.awaitAll().filterNotNull()
-                                    } catch (e: Exception) {
-                                        errore = "Errore localizzazione: ${e.message}"
-                                        Log.e("HomeVM", errore ?: "")
-                                        emptyList()
-                                    }
-                                }
-
-                                else -> emptyList()
+                partiteFiltrate = when {
+                    isLoggedIn && indirizzoUtente != null -> {
+                        tuttePartite.map { partita ->
+                            async {
+                                val distanzaKm = calcolaDistanzaTraIndirizzi(
+                                    indirizzo1 = "${indirizzoUtente.via}, ${indirizzoUtente.civico}, ${indirizzoUtente.citta}, ${indirizzoUtente.provincia}, ${indirizzoUtente.stato}",
+                                    indirizzo2 = "${partita.campo.via}, ${partita.campo.civico}, ${partita.campo.citta}, ${partita.campo.provincia}, ${partita.campo.nazione}"
+                                )
+                                if (distanzaKm != null && distanzaKm <= maxDistance) partita else null
                             }
-                        }
-                        Log.d("HomeVM", "Tempo filtraggio partite: ${tempoFiltraggio}ms")
+                        }.awaitAll().filterNotNull()
                     }
 
-                    Log.d("HomeVM", "Tempo totale caricamento: ${tempoPartite}ms")
-                    areDataLoaded = true
+                    isPermissionGranted && ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED -> {
+                        val location = fusedLocationClient
+                            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                            .await()
+
+                        tuttePartite.map { partita ->
+                            async {
+                                val distanzaKm = calcolaDistanzaTraIndirizzi(
+                                    indirizzo1 = "${location.latitude}, ${location.longitude}",
+                                    indirizzo2 = "${partita.campo.via}, ${partita.campo.civico}, ${partita.campo.citta}, ${partita.campo.provincia}, ${partita.campo.nazione}"
+                                )
+                                if (distanzaKm != null && distanzaKm <= maxDistance) partita else null
+                            }
+                        }.awaitAll().filterNotNull()
+                    }
+
+                    else -> emptyList()
                 }
-                Log.d("HomeVM", "Fine loadPartite(). Durata totale: ${tempoTotale}ms")
             } catch (e: Exception) {
                 errore = e.message
-                Log.e("HomeVM", "Errore durante il caricamento: ${e.message}")
+                partiteFiltrate = emptyList()
             } finally {
                 isFetching = false
             }
         }
     }
+
+    fun refreshPartite(
+        isLoggedIn: Boolean,
+        isPermissionGranted: Boolean,
+        maxDistance: Float,
+        fusedLocationClient: FusedLocationProviderClient,
+        onComplete: () -> Unit
+    ) {
+        loadPartite(
+            isLoggedIn = isLoggedIn,
+            isPermissionGranted = isPermissionGranted,
+            maxDistance = maxDistance,
+            fusedLocationClient = fusedLocationClient,
+            forzaRicarica = true
+        )
+        viewModelScope.launch {
+            // Attendiamo fino al termine del caricamento
+            while (isFetching) kotlinx.coroutines.delay(100)
+            onComplete()
+        }
+    }
+
 }
 
 class HomeViewModelFactory(private val application: Application) : ViewModelProvider.Factory {

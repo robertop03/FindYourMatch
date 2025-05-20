@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.CalendarToday
@@ -65,7 +66,11 @@ import com.google.android.gms.location.LocationServices
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val context = LocalContext.current
@@ -92,6 +97,25 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
         )
     }
 
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = {
+            if (maxDistance != null) {
+                isRefreshing = true
+                homeViewModel.refreshPartite(
+                    isLoggedIn = isLoggedIn,
+                    isPermissionGranted = isPermissionGranted,
+                    maxDistance = maxDistance,
+                    fusedLocationClient = fusedLocationClient
+                ) {
+                    isRefreshing = false
+                }
+            }
+        }
+    )
+
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted: Boolean ->
@@ -117,23 +141,23 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     }
 
     // Chiamata iniziale per caricare le partite (una sola volta)
-    if (readyToLoad) {
-        LaunchedEffect(isLoggedIn, isPermissionGranted, maxDistance) {
-            Log.d("maxDistance", maxDistance.toString())
+    LaunchedEffect(maxDistance) {
+        if (readyToLoad && maxDistance != null) {
             homeViewModel.loadPartite(
                 isLoggedIn = isLoggedIn,
                 isPermissionGranted = isPermissionGranted,
-                maxDistance = maxDistance!!,
-                fusedLocationClient = fusedLocationClient,
-                forzaRicarica = true
+                maxDistance = maxDistance,
+                fusedLocationClient = fusedLocationClient
             )
         }
     }
+
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.secondaryContainer)
+            .pullRefresh(pullRefreshState)
     ) {
         Column(
             modifier = Modifier
@@ -170,6 +194,11 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                 }
             }
         }
+        PullRefreshIndicator(
+            refreshing = isRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 
     if (showSettingsDialog.value) {
@@ -290,4 +319,3 @@ fun PartitaCard(partita: PartitaConCampo) {
         }
     }
 }
-
