@@ -38,23 +38,30 @@ data class PartitaConCampo(
 )
 
 suspend fun getPartiteConCampo(context: Context): List<PartitaConCampo> = withContext(Dispatchers.IO) {
+    val start = System.currentTimeMillis()
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext emptyList()
     val isValid = SessionManager.isTokenStillValid(context)
-    Log.d("TOKEN", token)
-    val requestBuilder  = Request.Builder()
+
+    val requestBuilder = Request.Builder()
         .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/partite?select=*,campo:luogo(*)")
         .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
         .addHeader("Accept", "application/json")
 
     if (token.isNotEmpty() && isValid) {
-        requestBuilder .addHeader("Authorization", "Bearer $token")
+        requestBuilder.addHeader("Authorization", "Bearer $token")
     }
 
-    val response = client.newCall(requestBuilder.build()).execute()
-    if (!response.isSuccessful) return@withContext emptyList()
+    val timeStart = System.currentTimeMillis()
 
-    val json = response.body?.string() ?: return@withContext emptyList()
+    return@withContext client.newCall(requestBuilder.build()).execute().use { response ->
+        val timeEnd = System.currentTimeMillis()
+        Log.d("Supabase", "Richiesta completata in ${timeEnd - timeStart}ms")
 
-    return@withContext Json.decodeFromString(ListSerializer(PartitaConCampo.serializer()), json)
+        if (!response.isSuccessful) return@use emptyList()
+
+        val json = response.body?.string() ?: return@use emptyList()
+        Json.decodeFromString(ListSerializer(PartitaConCampo.serializer()), json)
+    }
 }
+
