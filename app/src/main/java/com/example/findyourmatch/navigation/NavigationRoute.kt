@@ -58,7 +58,7 @@ fun NavGraph(
         modifier = modifier
     ) {
         composable<NavigationRoute.Home> {
-            Home(navController)
+            Home(navController, sessionViewModel)
         }
         composable<NavigationRoute.Settings> {
             Settings(navController, sessionViewModel)

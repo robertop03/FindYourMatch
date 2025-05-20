@@ -2,7 +2,6 @@ package com.example.findyourmatch.viewmodel
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -40,10 +39,10 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
             .build()
 
         return@withContext try {
-            val response = OkHttpClient().newCall(request).execute()
-            response.isSuccessful
+            OkHttpClient().newCall(request).execute().use { response ->
+                response.isSuccessful
+            }
         } catch (e: Exception) {
-            Log.e("SessionViewModel", "Token check failed: ${e.localizedMessage}")
             false
         }
     }

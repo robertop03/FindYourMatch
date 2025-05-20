@@ -42,6 +42,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.material)
     implementation(libs.kotlinx.datetime)
     implementation(libs.androidx.biometric)

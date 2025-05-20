@@ -70,8 +70,10 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel,
     val notifiche by notificheViewModel.notifiche.collectAsState()
     val unreadCount by remember { derivedStateOf { notifiche.count { !it.stato } } }
 
-    LaunchedEffect(currentRoute) {
-        if (currentRoute == NavigationRoute.Notifications::class.qualifiedName) {
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
+
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
             notificheViewModel.ricaricaNotifiche()
         }
     }

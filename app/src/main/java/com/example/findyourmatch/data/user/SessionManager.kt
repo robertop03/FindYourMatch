@@ -40,7 +40,6 @@ object SessionManager {
 
     suspend fun isTokenStillValid(context: Context): Boolean = withContext(Dispatchers.IO) {
         val token = getAccessToken(context) ?: return@withContext false
-
         val client = OkHttpClient()
         val request = Request.Builder()
             .url("https://ugtxgylfzblkvudpnagi.supabase.co/auth/v1/user")
