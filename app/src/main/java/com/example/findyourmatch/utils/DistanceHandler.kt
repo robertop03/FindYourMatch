@@ -17,23 +17,20 @@ import java.util.regex.Pattern
 
 private const val TAG = "GEOCODING"
 
-private suspend fun geocodeAddress(address: String): Pair<Double, Double>? = withContext(Dispatchers.IO) {
-    Log.d(TAG, "Geocoding indirizzo: $address")
+suspend fun geocodeAddress(address: String): Pair<Double, Double>? = withContext(Dispatchers.IO) {
+    val inizio = System.currentTimeMillis()
+    Log.d(TAG, "Inizio geocoding per $address")
+
     val url = "https://api.openrouteservice.org/geocode/search?api_key=5b3ce3597851110001cf62481dce0cc3e0604d79abbf05952d0d6c86&text=${address.replace(" ", "+")}"
-
     val request = Request.Builder().url(url).get().build()
+
     OkHttpClient().newCall(request).execute().use { response ->
-        if (!response.isSuccessful) {
-            Log.e(TAG, "Geocoding fallito. HTTP code: ${response.code}")
-            return@withContext null
-        }
+        val fine = System.currentTimeMillis()
+        Log.d(TAG, "Geocoding per $address completato in ${fine - inizio}ms")
 
-        val body = response.body?.string()
-        if (body == null) {
-            Log.e(TAG, "Corpo della risposta nullo.")
-            return@withContext null
-        }
+        if (!response.isSuccessful) return@withContext null
 
+        val body = response.body?.string() ?: return@withContext null
         val json = Json.parseToJsonElement(body).jsonObject
 
         val coordinates = json["features"]?.jsonArray?.getOrNull(0)
@@ -42,13 +39,11 @@ private suspend fun geocodeAddress(address: String): Pair<Double, Double>? = wit
         val lon = coordinates?.getOrNull(0)?.jsonPrimitive?.doubleOrNull
         val lat = coordinates?.getOrNull(1)?.jsonPrimitive?.doubleOrNull
 
-        Log.d(TAG, "Geocoding result: lat=$lat, lon=$lon")
-
         if (lat != null && lon != null) Pair(lat, lon) else null
     }
 }
 
-private suspend fun calcolaDistanzaORS(
+ suspend fun calcolaDistanzaORS(
     from: Pair<Double, Double>,
     to: Pair<Double, Double>
 ): Double? = withContext(Dispatchers.IO) {
@@ -97,38 +92,32 @@ suspend fun calcolaDistanzaTraIndirizzi(
     indirizzo1: String,
     indirizzo2: String
 ): Double? {
-    Log.d(TAG, "Calcolo distanza tra:\n - Indirizzo1: $indirizzo1\n - Indirizzo2: $indirizzo2")
+    val inizio = System.currentTimeMillis()
+    Log.d(TAG, "Inizio calcolo distanza fra $indirizzo1 e $indirizzo2")
 
     val coord1 = parseCoordinates(indirizzo1)?.let {
-        Log.d(TAG, "Coord1 riconosciute come lat/lon dirette: $it")
         Pair(it.latitude, it.longitude)
-    } ?: geocodeAddress(indirizzo1).also {
-        Log.d(TAG, "Coord1 ottenute da geocoding: $it")
-    }
+    } ?: geocodeAddress(indirizzo1)
 
     val coord2 = parseCoordinates(indirizzo2)?.let {
-        Log.d(TAG, "Coord2 riconosciute come lat/lon dirette: $it")
         Pair(it.latitude, it.longitude)
-    } ?: geocodeAddress(indirizzo2).also {
-        Log.d(TAG, "Coord2 ottenute da geocoding: $it")
-    }
+    } ?: geocodeAddress(indirizzo2)
 
-    if (coord1 == null) {
-        Log.e(TAG, "Coord1 è null")
-    }
-    if (coord2 == null) {
-        Log.e(TAG, "Coord2 è null")
-    }
+    val fineGeo = System.currentTimeMillis()
+    Log.d(TAG, "Geocoding completato in ${fineGeo - inizio}ms")
 
-    return if (coord1 != null && coord2 != null) {
+    val result = if (coord1 != null && coord2 != null) {
         calcolaDistanzaORS(coord1, coord2)
-    } else {
-        Log.e(TAG, "Una delle due coordinate è nulla, impossibile calcolare la distanza.")
-        null
-    }
+    } else null
+
+    val fineTotale = System.currentTimeMillis()
+    Log.d(TAG, "Distanza finale calcolata in ${fineTotale - inizio}ms")
+
+    return result
 }
 
-private fun parseCoordinates(input: String): LatLng? {
+
+ fun parseCoordinates(input: String): LatLng? {
     val pattern = Pattern.compile("^(-?\\d+\\.?\\d*)[,\\s]*(-?\\d+\\.?\\d*)$")
     val matcher = pattern.matcher(input.trim())
 
