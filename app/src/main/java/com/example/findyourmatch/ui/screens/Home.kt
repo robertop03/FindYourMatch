@@ -11,6 +11,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,6 +70,17 @@ import kotlinx.datetime.toLocalDateTime
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.findyourmatch.data.notifications.segnaNotificaComeLetta
+import com.example.findyourmatch.navigation.NavigationRoute
+import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -79,13 +91,14 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val language by userSettings.language.collectAsState(initial = "it")
     val localizedContext = remember(language) { LocaleHelper.updateLocale(context, language) }
     val showSettingsDialog = remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val maxDistanceState = userSettings.maxDistance.collectAsState(initial = null)
     val maxDistance = maxDistanceState.value
     val readyToLoad = maxDistance != null
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
-    // ViewModel
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory(context.applicationContext as Application))
 
     var isPermissionGranted by remember {
@@ -190,7 +203,14 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                 Text("Nessuna partita trovata entro $maxDistance km.")
             } else {
                 homeViewModel.partiteFiltrate.forEach { partita ->
-                    PartitaCard(partita)
+                    PartitaCard(partita, sessionViewModel,  onLoginRequired = {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Effettua il login per partecipare",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    })
                 }
             }
         }
@@ -198,6 +218,11 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
             refreshing = isRefreshing,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
+        )
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
 
@@ -229,7 +254,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
 
 
 @Composable
-fun PartitaCard(partita: PartitaConCampo) {
+fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, onLoginRequired: () -> Unit) {
     val instant = Instant.parse(partita.dataOraInizio)
     val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
 
@@ -238,6 +263,13 @@ fun PartitaCard(partita: PartitaConCampo) {
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
+            .clickable {
+                if(sessionViewModel.isLoggedIn.value){
+
+                }else{
+                    onLoginRequired()
+                }
+            }
             .padding(16.dp)
     ) {
         Column {
