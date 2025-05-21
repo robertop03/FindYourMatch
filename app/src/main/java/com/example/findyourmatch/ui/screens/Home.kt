@@ -10,6 +10,7 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -75,6 +76,8 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -82,10 +85,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import com.example.findyourmatch.data.user.getLoggedUserEmail
+import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val context = LocalContext.current
@@ -98,7 +103,6 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
 
     val maxDistanceState = userSettings.maxDistance.collectAsState(initial = null)
     val maxDistance = maxDistanceState.value
-    val readyToLoad = maxDistance != null
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -106,6 +110,9 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     var menuEspanso by remember { mutableStateOf(false) }
     var dropdownWidth by remember { mutableIntStateOf(0) }
     var userEmail by remember { mutableStateOf<String?>(null) }
+    val showFilterSheet = remember { mutableStateOf(false) }
+    val selectedTipoPartita = remember { mutableStateOf<String?>(null) }
+    val selectedPrezzo = remember { mutableStateOf<String?>(null) }
 
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory(context.applicationContext as Application))
 
@@ -167,7 +174,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
 
     // Caricamento iniziale
     LaunchedEffect(userEmail, maxDistance) {
-        if (userEmail != null && maxDistance != null) {
+        if (maxDistance != null) {
             homeViewModel.loadPartite(
                 isLoggedIn = isLoggedIn,
                 isPermissionGranted = isPermissionGranted,
@@ -200,6 +207,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.secondaryContainer)
             .pullRefresh(pullRefreshState)
+            .padding(8.dp)
     ) {
 
         Column(
@@ -226,7 +234,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                         .weight(1f)
                         .background(Black, shape = RoundedCornerShape(50))
                         .clickable {
-
+                            showFilterSheet.value = true
                         }
                         .padding(horizontal = 16.dp, vertical = 10.dp),
                     contentAlignment = Alignment.Center
@@ -239,7 +247,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                             modifier = Modifier.size(28.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Filtra", color = White, fontWeight = FontWeight.Bold)
+                        Text(localizedContext.getString(R.string.trova), color = White, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -279,7 +287,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                         onDismissRequest = { menuEspanso = false },
                         modifier = Modifier.width(with(LocalDensity.current) { dropdownWidth.toDp() })
                     ) {
-                        val alternativa = if (trovaTesto == "Trova") "Gestisci" else "Trova"
+                        val alternativa = if (trovaTesto == localizedContext.getString(R.string.trova)) localizedContext.getString(R.string.gestisci) else localizedContext.getString(R.string.trova)
                         DropdownMenuItem(
                             text = { Text(alternativa) },
                             onClick = {
@@ -307,10 +315,43 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                     ) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Caricando partite...", color = MaterialTheme.colorScheme.primary)
+                        Text(localizedContext.getString(R.string.caricamento_partite), color = MaterialTheme.colorScheme.primary)
                     }
                 } else if (homeViewModel.partiteFiltrate.isEmpty()) {
-                    Text("Nessuna partita trovata entro $maxDistance km.")
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top
+                    ) {
+
+                        Image(
+                            painter = painterResource(id = R.drawable.no_matches),
+                            contentDescription = localizedContext.getString(R.string.nessun_calcetto),
+                            modifier = Modifier
+                                .size(120.dp)
+                                .padding(bottom = 16.dp)
+                        )
+
+                        Text(
+                            text = localizedContext.getString(R.string.nessun_calcetto_trovato),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = localizedContext.getString(R.string.cambia_limite_km),
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            textDecoration = TextDecoration.Underline,
+                            modifier = Modifier
+                                .clickable { navController.navigate(NavigationRoute.Settings) }
+                        )
+                    }
                 } else {
                     homeViewModel.partiteFiltrate.forEach { partita ->
                         PartitaCard(
@@ -319,7 +360,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                             onLoginRequired = {
                                 coroutineScope.launch {
                                     snackbarHostState.showSnackbar(
-                                        message = "Effettua il login per partecipare",
+                                        message = localizedContext.getString(R.string.effettua_login),
                                         duration = SnackbarDuration.Short
                                     )
                                 }
@@ -354,17 +395,83 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                     context.startActivity(intent)
                     showSettingsDialog.value = false
                 }) {
-                    Text("Apri impostazioni")
+                    Text(localizedContext.getString(R.string.apri_impostazioni))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showSettingsDialog.value = false }) {
-                    Text("Annulla")
+                    Text(localizedContext.getString(R.string.annulla))
                 }
             },
-            title = { Text("Permesso richiesto") },
-            text = { Text("Per usare la posizione, abilita il permesso manualmente dalle impostazioni.") }
+            title = { Text(localizedContext.getString(R.string.permesso_richiesto)) },
+            text = { Text(localizedContext.getString(R.string.permesso_richiesto_testo)) }
         )
+    }
+
+    if (showFilterSheet.value) {
+        androidx.compose.material3.ModalBottomSheet(
+            onDismissRequest = { showFilterSheet.value = false }
+        ) {
+            Column(Modifier.padding(16.dp)) {
+                Text(localizedContext.getString(R.string.tipo_partita), fontWeight = FontWeight.Bold)
+                listOf(localizedContext.getString(R.string.calcio_a_11), localizedContext.getString(R.string.calcio_a_8), localizedContext.getString(R.string.calcio_a_7), localizedContext.getString(R.string.calcio_a_5)).forEach { tipo ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedTipoPartita.value = tipo }
+                            .padding(vertical = 4.dp)
+                    ) {
+                        RadioButton(
+                            selected = selectedTipoPartita.value == tipo,
+                            onClick = { selectedTipoPartita.value = tipo }
+                        )
+                        Text(tipo)
+                    }
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                Text(localizedContext.getString(R.string.prezzo_previsto), fontWeight = FontWeight.Bold)
+                listOf("0–5€", "5–10€", localizedContext.getString(R.string.sopra_10)).forEach { fascia ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedPrezzo.value = fascia }
+                            .padding(vertical = 4.dp)
+                    ) {
+                        RadioButton(
+                            selected = selectedPrezzo.value == fascia,
+                            onClick = { selectedPrezzo.value = fascia }
+                        )
+                        Text(fascia)
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                TextButton(
+                    onClick = {
+                        showFilterSheet.value = false
+                        homeViewModel.loadPartite(
+                            isLoggedIn = isLoggedIn,
+                            isPermissionGranted = isPermissionGranted,
+                            maxDistance = maxDistance ?: 10f,
+                            fusedLocationClient = fusedLocationClient,
+                            trovaTesto = trovaTesto,
+                            userEmail = userEmail,
+                            tipoFiltro = selectedTipoPartita.value,
+                            fasciaPrezzoFiltro = selectedPrezzo.value,
+                            forzaRicarica = true
+                        )
+
+                    }
+                ) {
+                    Text(localizedContext.getString(R.string.applica_filtri), fontWeight = FontWeight.Bold)
+                }
+            }
+        }
     }
 }
 
@@ -374,6 +481,10 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
 fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, onLoginRequired: () -> Unit) {
     val instant = Instant.parse(partita.dataOraInizio)
     val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    val context = LocalContext.current
+    val userSettings = remember { UserSettings(context) }
+    val language by userSettings.language.collectAsState(initial = "it")
+    val localizedContext = remember(language) { LocaleHelper.updateLocale(context, language) }
 
     Box(
         modifier = Modifier
@@ -416,7 +527,7 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
                         )
                     }
                     Text(
-                        text = "Ore: %02d:%02d".format(dateTime.hour, dateTime.minute),
+                        text = "${localizedContext.getString(R.string.ore)}: %02d:%02d".format(dateTime.hour, dateTime.minute),
                         color = White,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -426,7 +537,7 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Calcio a ${partita.tipo}",
+                text = "${localizedContext.getString(R.string.calcio_a)} ${partita.tipo}",
                 color = White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
@@ -445,7 +556,7 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
             )
 
             Text(
-                text = "Distanza: ${"%.1f".format(partita.distanzaKm)} km",
+                text = "${localizedContext.getString(R.string.distanza)}: ${"%.1f".format(partita.distanzaKm)} km",
                 color = White,
                 fontSize = 14.sp
             )
