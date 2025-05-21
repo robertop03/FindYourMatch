@@ -1,5 +1,6 @@
 package com.example.findyourmatch.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -68,7 +69,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
-
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
 @Composable
 fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionViewModel) {
     var newPassword by remember { mutableStateOf("") }
@@ -87,11 +88,10 @@ fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionVi
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.secondaryContainer
-    ) { paddingValues ->
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .background(MaterialTheme.colorScheme.secondaryContainer)
                 .padding(16.dp),

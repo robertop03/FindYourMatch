@@ -1,5 +1,6 @@
 package com.example.findyourmatch.ui.screens
 
+import android.annotation.SuppressLint
 import android.app.Application
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -64,7 +65,7 @@ import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
 
-
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
 @Composable
 fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, activity: FragmentActivity) {
     var email by remember { mutableStateOf("") }
@@ -90,39 +91,23 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.secondaryContainer
-    ) { innerPadding ->
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(innerPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
             val showBackButton = navController.previousBackStackEntry != null
-            if (showBackButton) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = localizedContext.getString(R.string.indietro),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    Text(
-                        text = localizedContext.getString(R.string.login),
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
+            TopBarWithBackButton(
+                navController = navController,
+                title = localizedContext.getString(R.string.login),
+                showBackButton = showBackButton
+            )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = buildAnnotatedString {

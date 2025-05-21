@@ -2,10 +2,10 @@ package com.example.findyourmatch.data.match
 
 import kotlinx.serialization.Serializable
 import android.content.Context
-import android.util.Log
 import com.example.findyourmatch.data.user.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Transient
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
@@ -34,11 +34,13 @@ data class PartitaConCampo(
     val creatore: String,
     val luogo: Int,
     val campo: CampoSportivo,
-    val partecipantiAttuali: Int
+    val partecipantiAttuali: Int,
+
+    @Transient
+    var distanzaKm: Double? = null
 )
 
 suspend fun getPartiteConCampo(context: Context): List<PartitaConCampo> = withContext(Dispatchers.IO) {
-    val start = System.currentTimeMillis()
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext emptyList()
     val isValid = SessionManager.isTokenStillValid(context)
@@ -52,12 +54,7 @@ suspend fun getPartiteConCampo(context: Context): List<PartitaConCampo> = withCo
         requestBuilder.addHeader("Authorization", "Bearer $token")
     }
 
-    val timeStart = System.currentTimeMillis()
-
     return@withContext client.newCall(requestBuilder.build()).execute().use { response ->
-        val timeEnd = System.currentTimeMillis()
-        Log.d("Supabase", "Richiesta completata in ${timeEnd - timeStart}ms")
-
         if (!response.isSuccessful) return@use emptyList()
 
         val json = response.body?.string() ?: return@use emptyList()
