@@ -151,6 +151,7 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
 @Composable
 fun Notifiche(navController: NavHostController, notificheViewModel: NotificheViewModel) {
     val context = LocalContext.current
+    val showBackButton = navController.previousBackStackEntry != null
     var isRefreshing by remember { mutableStateOf(false) }
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -181,26 +182,11 @@ fun Notifiche(navController: NavHostController, notificheViewModel: NotificheVie
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            if (navController.previousBackStackEntry != null) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = localizedContext.getString(R.string.indietro),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    Text(
-                        text = localizedContext.getString(R.string.notifiche),
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
+            TopBarWithBackButton(
+                navController = navController,
+                title = localizedContext.getString(R.string.notifiche),
+                showBackButton = showBackButton
+            )
 
             Spacer(Modifier.height(16.dp))
 

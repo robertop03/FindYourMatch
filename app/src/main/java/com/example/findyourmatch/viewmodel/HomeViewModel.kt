@@ -3,7 +3,6 @@ package com.example.findyourmatch.viewmodel
 import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.findyourmatch.data.match.PartitaConCampo
 import com.example.findyourmatch.data.match.getPartiteConCampo
-import com.example.findyourmatch.data.user.IndirizzoUtente
 import com.example.findyourmatch.data.user.getIndirizzoUtente
 import com.example.findyourmatch.utils.calcolaDistanzaTraIndirizzi
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -23,18 +21,15 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlin.system.measureTimeMillis
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
-    private val geocodingCache = mutableMapOf<String, Pair<Double, Double>>()
-
     var partiteFiltrate by mutableStateOf<List<PartitaConCampo>>(emptyList())
         private set
     var isFetching by mutableStateOf(false)
         private set
 
     private var ultimaMaxDistance: Float? = null
-    var errore: String? = null
+    private var errore: String? = null
 
     fun loadPartite(
         isLoggedIn: Boolean,
@@ -65,7 +60,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                                     indirizzo1 = "${indirizzoUtente.via}, ${indirizzoUtente.civico}, ${indirizzoUtente.citta}, ${indirizzoUtente.provincia}, ${indirizzoUtente.stato}",
                                     indirizzo2 = "${partita.campo.via}, ${partita.campo.civico}, ${partita.campo.citta}, ${partita.campo.provincia}, ${partita.campo.nazione}"
                                 )
-                                if (distanzaKm != null && distanzaKm <= maxDistance) partita else null
+                                if (distanzaKm != null && distanzaKm <= maxDistance){
+                                    partita.distanzaKm = distanzaKm
+                                    partita
+                                } else null
                             }
                         }.awaitAll().filterNotNull()
                     }
@@ -83,7 +81,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                                     indirizzo1 = "${location.latitude}, ${location.longitude}",
                                     indirizzo2 = "${partita.campo.via}, ${partita.campo.civico}, ${partita.campo.citta}, ${partita.campo.provincia}, ${partita.campo.nazione}"
                                 )
-                                if (distanzaKm != null && distanzaKm <= maxDistance) partita else null
+                                if (distanzaKm != null && distanzaKm <= maxDistance){
+                                    partita.distanzaKm = distanzaKm
+                                    partita
+                                } else null
                             }
                         }.awaitAll().filterNotNull()
                     }

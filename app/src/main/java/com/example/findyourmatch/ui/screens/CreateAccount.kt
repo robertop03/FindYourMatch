@@ -14,12 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -77,7 +75,6 @@ import com.example.findyourmatch.data.user.UserSettings
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreaAccount(navController: NavHostController) {
-    val showBackButton = navController.previousBackStackEntry != null
     var email by remember { mutableStateOf("") }
     var nome by remember { mutableStateOf("") }
     var cognome by remember { mutableStateOf("") }
@@ -122,28 +119,9 @@ fun CreaAccount(navController: NavHostController) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.Top
         ) {
-            if (showBackButton) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = localizedContext.getString(R.string.indietro),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    Text(
-                        text = localizedContext.getString(R.string.crea_account),
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
 
-            Spacer(Modifier.height(24.dp))
+            TopBarWithBackButton(navController, localizedContext.getString(R.string.crea_account))
+
 
             @Composable
             fun campoObbligatorio(

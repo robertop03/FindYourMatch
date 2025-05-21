@@ -72,31 +72,12 @@ fun Profile(navController: NavHostController) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            if (showBackButton) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    IconButton(
-                        onClick = { navController.navigateUp() },
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = localizedContext.getString(R.string.indietro),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
 
-                    Text(
-                        text = localizedContext.getString(R.string.profilo),
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-
-                Spacer(Modifier.height(24.dp))
+            TopBarWithBackButton(
+                navController = navController,
+                title = localizedContext.getString(R.string.profilo),
+                showBackButton = showBackButton
+            )
 
                 // Mostra l’email utente se disponibile
                 emailUtente?.let {
@@ -128,7 +109,6 @@ fun Profile(navController: NavHostController) {
                         contentDescription = localizedContext.getString(R.string.vedi_tutte_medaglie)
                     )
                 }
-            }
         }
     }
 }

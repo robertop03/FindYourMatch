@@ -27,7 +27,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -73,6 +75,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.painterResource
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -165,13 +168,11 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
             .background(MaterialTheme.colorScheme.secondaryContainer)
             .pullRefresh(pullRefreshState)
     ) {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
+                .padding(16.dp)
         ) {
             Text(
                 text = localizedContext.getString(R.string.miei_calcetti),
@@ -180,33 +181,93 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
-            Spacer(modifier = Modifier.height(16.dp))
 
-            if (homeViewModel.isFetching) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(Black, shape = RoundedCornerShape(50))
+                        .clickable { /* logica filtro */ }
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Caricando partite...", color = MaterialTheme.colorScheme.primary)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = null,
+                            tint = White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Filtra", color = White, fontWeight = FontWeight.Bold)
+                    }
                 }
-            } else if (homeViewModel.partiteFiltrate.isEmpty()) {
-                Text("Nessuna partita trovata entro $maxDistance km.")
-            } else {
-                homeViewModel.partiteFiltrate.forEach { partita ->
-                    PartitaCard(partita, sessionViewModel,  onLoginRequired = {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Effettua il login per partecipare",
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    })
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(Black, shape = RoundedCornerShape(50))
+                        .clickable { /* logica trova */ }
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Trova", color = White, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = null,
+                            tint = White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                if (homeViewModel.isFetching) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Caricando partite...", color = MaterialTheme.colorScheme.primary)
+                    }
+                } else if (homeViewModel.partiteFiltrate.isEmpty()) {
+                    Text("Nessuna partita trovata entro $maxDistance km.")
+                } else {
+                    homeViewModel.partiteFiltrate.forEach { partita ->
+                        PartitaCard(
+                            partita = partita,
+                            sessionViewModel = sessionViewModel,
+                            onLoginRequired = {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Effettua il login per partecipare",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
+
+
         PullRefreshIndicator(
             refreshing = isRefreshing,
             state = pullRefreshState,
@@ -318,6 +379,12 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
             Text(
                 text = partita.campo.citta,
                 color = White
+            )
+
+            Text(
+                text = "Distanza: ${"%.1f".format(partita.distanzaKm)} km",
+                color = White,
+                fontSize = 14.sp
             )
 
             Spacer(modifier = Modifier.height(8.dp))
