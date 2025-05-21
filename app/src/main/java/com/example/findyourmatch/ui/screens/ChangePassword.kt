@@ -203,7 +203,7 @@ fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionVi
 
                             val result = cambiaPasswordUtente(context, newPassword)
                             if (result.isSuccess) {
-                                SessionManager.logout(sessionViewModel)
+                                SessionManager.logout(context, sessionViewModel)
                                 snackbarHostState.showSnackbar(localizedContext.getString(R.string.aggiornamento_pw))
                                 navController.navigate(NavigationRoute.Login)
                             } else {
@@ -362,7 +362,7 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String, sess
 
                         val result = aggiornaPasswordConToken(token, newPassword)
                         if (result.isSuccess) {
-                            SessionManager.logout(sessionViewModel)
+                            SessionManager.logout(context, sessionViewModel)
                             snackbarHostState.showSnackbar(localizedContext.getString(R.string.aggiornamento_pw))
                             navController.navigate(NavigationRoute.Login)
                         } else {

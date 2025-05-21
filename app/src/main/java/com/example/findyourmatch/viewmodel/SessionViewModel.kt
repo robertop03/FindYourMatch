@@ -21,12 +21,15 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     init {
         viewModelScope.launch {
             val context = getApplication<Application>().applicationContext
-            _isLoggedIn.value = isTokenValid(context)
+            _isLoggedIn.value = SessionManager.isLoggedInFlow(context).first()
         }
     }
 
-    fun updateLoginStatus(isLogged: Boolean) {
+    fun updateLoginStatus(context: Context, isLogged: Boolean) {
         _isLoggedIn.value = isLogged
+        viewModelScope.launch {
+            SessionManager.setLoggedIn(context, isLogged)
+        }
     }
 
     private suspend fun isTokenValid(context: Context): Boolean = withContext(Dispatchers.IO) {

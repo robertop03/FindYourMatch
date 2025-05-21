@@ -281,7 +281,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                         onClick = {
                             showLogoutDialog = false
                             coroutineScope.launch {
-                                SessionManager.logout(sessionViewModel)
+                                SessionManager.logout(context, sessionViewModel)
                                 navController.navigate(NavigationRoute.Login) {
                                     popUpTo(NavigationRoute.Profile) { inclusive = true }
                                 }
