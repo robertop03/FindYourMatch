@@ -3,7 +3,6 @@ package com.example.findyourmatch.ui.screens
 import android.Manifest
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -32,6 +31,7 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.CalendarToday
@@ -475,8 +475,6 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     }
 }
 
-
-
 @Composable
 fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, onLoginRequired: () -> Unit) {
     val instant = Instant.parse(partita.dataOraInizio)
@@ -492,15 +490,14 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
             .padding(vertical = 8.dp)
             .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
             .clickable {
-                if(sessionViewModel.isLoggedIn.value){
-
-                }else{
+                if (!sessionViewModel.isLoggedIn.value) {
                     onLoginRequired()
                 }
             }
             .padding(16.dp)
     ) {
         Column {
+            // Data e ora
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -536,13 +533,44 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = "${localizedContext.getString(R.string.calcio_a)} ${partita.tipo}",
-                color = White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
+            // Titolo + icona posizione
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${localizedContext.getString(R.string.calcio_a)} ${partita.tipo}",
+                    color = White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
 
+                Box(
+                    modifier = Modifier
+                        .size(45.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.tertiary,
+                            shape = RoundedCornerShape(50)
+                        )
+                        .clickable {
+                            val indirizzoCompleto = "${partita.campo.via} ${partita.campo.civico}, ${partita.campo.citta}, ${partita.campo.provincia}"
+                            val mapUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encode(indirizzoCompleto)}")
+                            val mapIntent = Intent(Intent.ACTION_VIEW, mapUri)
+                            context.startActivity(mapIntent)
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = White,
+                        modifier = Modifier.size(35.dp)
+                    )
+                }
+            }
+
+            // Campo e città
             Text(
                 text = partita.campo.nome,
                 color = White,
@@ -563,24 +591,37 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Box(
-                modifier = Modifier
-                    .background(Black, shape = RoundedCornerShape(8.dp))
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            // Partecipanti e prezzo
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "${partita.partecipantiAttuali}/${partita.maxGiocatori}",
-                        color = White
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = White,
-                        modifier = Modifier.size(15.dp)
-                    )
+                Box(
+                    modifier = Modifier
+                        .background(Black, shape = RoundedCornerShape(8.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "${partita.partecipantiAttuali}/${partita.maxGiocatori}",
+                            color = White
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            tint = White,
+                            modifier = Modifier.size(15.dp)
+                        )
+                    }
                 }
+
+                Text(
+                    text = "%.2f€".format(partita.importoPrevisto),
+                    color = White,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }
