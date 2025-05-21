@@ -98,6 +98,27 @@
     <string name="miei_calcetti">I miei calcetti…</string>
     <string name="impostazioni">Impostazioni</string>
     <string name="aggiungi">Aggiungi</string>
+    <string name="trova">Trova</string>
+    <string name="gestisci">Gestisci</string>
+    <string name="caricamento_partite">Caricando partite…</string>
+    <string name="nessun_calcetto">Nessun calcetto</string>
+    <string name="nessun_calcetto_trovato">Nessun calcetto trovato</string>
+    <string name="cambia_limite_km">Cambia il limite di km dalle impostazioni</string>
+    <string name="effettua_login">Effettua il login per partecipare</string>
+    <string name="apri_impostazioni">Apri impostazioni</string>
+    <string name="permesso_richiesto">Permesso richiesto</string>
+    <string name="permesso_richiesto_testo">Per usare la posizione, abilita il permesso manualmente dalle impostazioni</string>
+    <string name="tipo_partita">Tipo di partita</string>
+    <string name="prezzo_previsto">Prezzo previsto</string>
+    <string name="applica_filtri">Applica filtri</string>
+    <string name="calcio_a">Calcio a</string>
+    <string name="calcio_a_11">Calcio a 11</string>
+    <string name="calcio_a_8">Calcio a 8</string>
+    <string name="calcio_a_7">Calcio a 7</string>
+    <string name="calcio_a_5">Calcio a 5</string>
+    <string name="sopra_10">Sopra 10€</string>
+    <string name="ore">Ore</string>
+    <string name="distanza">Distanza</string>
 
     <!-- NOTIFICHE -->
     <string name="notifiche">Notifiche</string>

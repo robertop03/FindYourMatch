@@ -1,6 +1,5 @@
 package com.example.findyourmatch.utils
 
-import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -15,19 +14,13 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.regex.Pattern
 
-private const val TAG = "GEOCODING"
 
 suspend fun geocodeAddress(address: String): Pair<Double, Double>? = withContext(Dispatchers.IO) {
-    val inizio = System.currentTimeMillis()
-    Log.d(TAG, "Inizio geocoding per $address")
 
     val url = "https://api.openrouteservice.org/geocode/search?api_key=5b3ce3597851110001cf62481dce0cc3e0604d79abbf05952d0d6c86&text=${address.replace(" ", "+")}"
     val request = Request.Builder().url(url).get().build()
 
     OkHttpClient().newCall(request).execute().use { response ->
-        val fine = System.currentTimeMillis()
-        Log.d(TAG, "Geocoding per $address completato in ${fine - inizio}ms")
-
         if (!response.isSuccessful) return@withContext null
 
         val body = response.body?.string() ?: return@withContext null
@@ -47,7 +40,6 @@ suspend fun geocodeAddress(address: String): Pair<Double, Double>? = withContext
     from: Pair<Double, Double>,
     to: Pair<Double, Double>
 ): Double? = withContext(Dispatchers.IO) {
-    Log.d(TAG, "Calcolo distanza da $from a $to")
 
     val bodyJson = """
         {
@@ -67,15 +59,10 @@ suspend fun geocodeAddress(address: String): Pair<Double, Double>? = withContext
 
     OkHttpClient().newCall(request).execute().use { response ->
         if (!response.isSuccessful) {
-            Log.e(TAG, "Errore OpenRouteService: ${response.code}")
             return@withContext null
         }
 
-        val body = response.body?.string()
-        if (body == null) {
-            Log.e(TAG, "Corpo risposta OpenRoute nullo.")
-            return@withContext null
-        }
+        val body = response.body?.string() ?: return@withContext null
 
         val json = Json.parseToJsonElement(body).jsonObject
         val distanceMeters = json["routes"]
@@ -83,7 +70,6 @@ suspend fun geocodeAddress(address: String): Pair<Double, Double>? = withContext
             ?.get("summary")?.jsonObject
             ?.get("distance")?.jsonPrimitive?.doubleOrNull
 
-        Log.d(TAG, "Distanza calcolata: ${distanceMeters?.div(1000)} km")
         return@withContext distanceMeters?.div(1000) // in km
     }
 }
@@ -92,8 +78,6 @@ suspend fun calcolaDistanzaTraIndirizzi(
     indirizzo1: String,
     indirizzo2: String
 ): Double? {
-    val inizio = System.currentTimeMillis()
-    Log.d(TAG, "Inizio calcolo distanza fra $indirizzo1 e $indirizzo2")
 
     val coord1 = parseCoordinates(indirizzo1)?.let {
         Pair(it.latitude, it.longitude)
@@ -103,15 +87,9 @@ suspend fun calcolaDistanzaTraIndirizzi(
         Pair(it.latitude, it.longitude)
     } ?: geocodeAddress(indirizzo2)
 
-    val fineGeo = System.currentTimeMillis()
-    Log.d(TAG, "Geocoding completato in ${fineGeo - inizio}ms")
-
     val result = if (coord1 != null && coord2 != null) {
         calcolaDistanzaORS(coord1, coord2)
     } else null
-
-    val fineTotale = System.currentTimeMillis()
-    Log.d(TAG, "Distanza finale calcolata in ${fineTotale - inizio}ms")
 
     return result
 }
@@ -126,17 +104,14 @@ suspend fun calcolaDistanzaTraIndirizzi(
             val latitude = matcher.group(1)?.toDouble()
             val longitude = matcher.group(2)?.toDouble()
             if (latitude != null && longitude != null) {
-                Log.d(TAG, "Coordinate parseate da stringa: ($latitude, $longitude)")
                 LatLng(latitude, longitude)
             } else {
                 null
             }
         } catch (e: NumberFormatException) {
-            Log.e(TAG, "Errore nel parsing delle coordinate: ${e.message}")
             null
         }
     } else {
-        Log.d(TAG, "Input non corrisponde a pattern coordinate: $input")
         null
     }
 }

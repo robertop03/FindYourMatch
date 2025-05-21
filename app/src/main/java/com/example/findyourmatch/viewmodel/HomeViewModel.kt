@@ -38,6 +38,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         fusedLocationClient: FusedLocationProviderClient,
         trovaTesto: String,
         userEmail: String?,
+        tipoFiltro: String? = null,
+        fasciaPrezzoFiltro: String? = null,
         forzaRicarica: Boolean = false
     ) {
         val shouldReload = forzaRicarica || ultimaMaxDistance != maxDistance
@@ -63,9 +65,29 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 }
 
+                val partiteFiltrateTipoPrezzo = partiteFiltrateUtente.filter { partita ->
+                    val tipoUtente = tipoFiltro?.removePrefix("Calcio a ")?.trim()
+                    val tipoDb = when (tipoUtente) {
+                        "11" -> "11vs11"
+                        "8" -> "8vs8"
+                        "7" -> "7vs7"
+                        "5" -> "5vs5"
+                        else -> null
+                    }
+                    val tipoOk = tipoDb == null || partita.tipo.equals(tipoDb, ignoreCase = true)
+
+                    val prezzoOk = when (fasciaPrezzoFiltro) {
+                        "0–5€" -> partita.importoPrevisto <= 5
+                        "5–10€" -> partita.importoPrevisto > 5 && partita.importoPrevisto <= 10
+                        "Sopra 10€" -> partita.importoPrevisto > 10
+                        else -> true
+                    }
+                    tipoOk && prezzoOk
+                }
+
                 partiteFiltrate = when {
                     isLoggedIn && indirizzoUtente != null -> {
-                        partiteFiltrateUtente.map { partita ->
+                        partiteFiltrateTipoPrezzo.map { partita ->
                             async {
                                 val distanzaKm = calcolaDistanzaTraIndirizzi(
                                     indirizzo1 = "${indirizzoUtente.via}, ${indirizzoUtente.civico}, ${indirizzoUtente.citta}, ${indirizzoUtente.provincia}, ${indirizzoUtente.stato}",
@@ -86,7 +108,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                             .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
                             .await()
 
-                        tuttePartite.map { partita ->
+                        partiteFiltrateTipoPrezzo.map { partita ->
                             async {
                                 val distanzaKm = calcolaDistanzaTraIndirizzi(
                                     indirizzo1 = "${location.latitude}, ${location.longitude}",
