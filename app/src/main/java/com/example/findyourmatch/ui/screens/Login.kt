@@ -221,7 +221,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                                     if (!accessToken.isNullOrBlank() && !refreshToken.isNullOrBlank()) {
                                         val isValid = SessionManager.isTokenStillValid(context)
                                         if (isValid) {
-                                            sessionViewModel.updateLoginStatus(true)
+                                            sessionViewModel.updateLoginStatus(context, true)
                                             navController.navigate(NavigationRoute.Profile) {
                                                 popUpTo(NavigationRoute.Login) { inclusive = true }
                                             }

@@ -58,7 +58,7 @@ suspend fun loginSupabase(
             val session = NetworkJson.json.decodeFromString(SessionData.serializer(), bodyString)
 
             SessionManager.saveTokens(context.applicationContext, session.accessToken, session.refreshToken)
-            sessionViewModel.updateLoginStatus(true)
+            sessionViewModel.updateLoginStatus(context, true)
             return@withContext Result.success(session.accessToken)
         }
 

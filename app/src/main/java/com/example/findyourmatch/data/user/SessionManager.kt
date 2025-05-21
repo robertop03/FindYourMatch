@@ -1,12 +1,14 @@
 package com.example.findyourmatch.data.user
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import okhttp3.OkHttpClient
 import kotlinx.coroutines.withContext
 import okhttp3.Request
@@ -14,6 +16,7 @@ import okhttp3.Request
 object SessionManager {
     private val ACCESS_TOKEN = stringPreferencesKey("access_token")
     private val REFRESH_TOKEN = stringPreferencesKey("refresh_token")
+    private val LOGGED_IN_KEY = booleanPreferencesKey("is_logged_in")
 
     suspend fun saveTokens(context: Context, accessToken: String, refreshToken: String) {
         context.applicationContext.dataStore.edit { preferences ->
@@ -60,8 +63,17 @@ object SessionManager {
         }
     }
 
-    fun logout(sessionViewModel: SessionViewModel) {
-        sessionViewModel.updateLoginStatus(false)
+    suspend fun setLoggedIn(context: Context, value: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[LOGGED_IN_KEY] = value
+        }
+    }
+
+    fun isLoggedInFlow(context: Context): Flow<Boolean> =
+        context.dataStore.data.map { prefs -> prefs[LOGGED_IN_KEY] ?: false }
+
+    fun logout(context: Context, sessionViewModel: SessionViewModel) {
+        sessionViewModel.updateLoginStatus(context, false)
     }
 
     fun isLoggedIn(sessionViewModel: SessionViewModel): Boolean {

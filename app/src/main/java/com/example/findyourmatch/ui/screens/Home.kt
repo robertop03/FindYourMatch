@@ -225,7 +225,9 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                     modifier = Modifier
                         .weight(1f)
                         .background(Black, shape = RoundedCornerShape(50))
-                        .clickable { /* logica filtro */ }
+                        .clickable {
+
+                        }
                         .padding(horizontal = 16.dp, vertical = 10.dp),
                     contentAlignment = Alignment.Center
                 ) {
