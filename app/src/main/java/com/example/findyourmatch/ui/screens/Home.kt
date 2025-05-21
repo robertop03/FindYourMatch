@@ -3,6 +3,7 @@ package com.example.findyourmatch.ui.screens
 import android.Manifest
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -25,6 +26,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+//noinspection UsingMaterialAndMaterial3Libraries
+import androidx.compose.material.DropdownMenu
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -71,11 +74,15 @@ import kotlinx.datetime.toLocalDateTime
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import com.example.findyourmatch.data.user.getLoggedUserEmail
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -94,6 +101,11 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val readyToLoad = maxDistance != null
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+
+    var trovaTesto by remember { mutableStateOf("Trova") }
+    var menuEspanso by remember { mutableStateOf(false) }
+    var dropdownWidth by remember { mutableIntStateOf(0) }
+    var userEmail by remember { mutableStateOf<String?>(null) }
 
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory(context.applicationContext as Application))
 
@@ -117,7 +129,10 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                     isLoggedIn = isLoggedIn,
                     isPermissionGranted = isPermissionGranted,
                     maxDistance = maxDistance,
-                    fusedLocationClient = fusedLocationClient
+                    fusedLocationClient = fusedLocationClient,
+                    trovaTesto = trovaTesto,
+                    userEmail = userEmail,
+
                 ) {
                     isRefreshing = false
                 }
@@ -135,6 +150,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     var hasRequestedPermission by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        userEmail = getLoggedUserEmail(context)
         if (!isPermissionGranted && !hasRequestedPermission) {
             hasRequestedPermission = true
             val shouldShow = ActivityCompat.shouldShowRequestPermissionRationale(
@@ -149,18 +165,35 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
         }
     }
 
-    // Chiamata iniziale per caricare le partite (una sola volta)
-    LaunchedEffect(maxDistance) {
-        if (readyToLoad && maxDistance != null) {
+    // Caricamento iniziale
+    LaunchedEffect(userEmail, maxDistance) {
+        if (userEmail != null && maxDistance != null) {
             homeViewModel.loadPartite(
                 isLoggedIn = isLoggedIn,
                 isPermissionGranted = isPermissionGranted,
                 maxDistance = maxDistance,
-                fusedLocationClient = fusedLocationClient
+                fusedLocationClient = fusedLocationClient,
+                trovaTesto = trovaTesto,
+                userEmail = userEmail
             )
         }
     }
 
+
+    // Chiamata per il cambio di modalità
+    LaunchedEffect(key1 = trovaTesto) {
+        if (userEmail != null && maxDistance != null) {
+            homeViewModel.loadPartite(
+                isLoggedIn = isLoggedIn,
+                isPermissionGranted = isPermissionGranted,
+                maxDistance = maxDistance,
+                fusedLocationClient = fusedLocationClient,
+                trovaTesto = trovaTesto,
+                userEmail = userEmail,
+                forzaRicarica = true
+            )
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -211,23 +244,51 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .background(Black, shape = RoundedCornerShape(50))
-                        .clickable { /* logica trova */ }
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    contentAlignment = Alignment.Center
+                        .onGloballyPositioned { coordinates ->
+                            dropdownWidth = coordinates.size.width
+                        }
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Trova", color = White, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = null,
-                            tint = White,
-                            modifier = Modifier.size(28.dp)
+                    // Bottone
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Black, shape = RoundedCornerShape(50))
+                            .clickable {
+                                menuEspanso = true
+                            }
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(trovaTesto, color = White, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = null,
+                                tint = White,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
+
+                    // Dropdown con stessa larghezza del bottone
+                    DropdownMenu(
+                        expanded = menuEspanso,
+                        onDismissRequest = { menuEspanso = false },
+                        modifier = Modifier.width(with(LocalDensity.current) { dropdownWidth.toDp() })
+                    ) {
+                        val alternativa = if (trovaTesto == "Trova") "Gestisci" else "Trova"
+                        DropdownMenuItem(
+                            text = { Text(alternativa) },
+                            onClick = {
+                                trovaTesto = alternativa
+                                menuEspanso = false
+                            }
                         )
                     }
                 }
             }
+
 
             Spacer(modifier = Modifier.height(12.dp))
 

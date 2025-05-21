@@ -36,6 +36,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         isPermissionGranted: Boolean,
         maxDistance: Float,
         fusedLocationClient: FusedLocationProviderClient,
+        trovaTesto: String,
+        userEmail: String?,
         forzaRicarica: Boolean = false
     ) {
         val shouldReload = forzaRicarica || ultimaMaxDistance != maxDistance
@@ -49,12 +51,21 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 ultimaMaxDistance = maxDistance
 
-                val tuttePartite = getPartiteConCampo(context)
+                val tuttePartite = getPartiteConCampo(context).filter { it.visibile }
+
                 val indirizzoUtente = if (isLoggedIn) getIndirizzoUtente(context) else null
+
+                val partiteFiltrateUtente = tuttePartite.filter { partita ->
+                    when (trovaTesto) {
+                        "Gestisci" -> partita.creatore == userEmail
+                        "Trova" -> partita.creatore != userEmail
+                        else -> true
+                    }
+                }
 
                 partiteFiltrate = when {
                     isLoggedIn && indirizzoUtente != null -> {
-                        tuttePartite.map { partita ->
+                        partiteFiltrateUtente.map { partita ->
                             async {
                                 val distanzaKm = calcolaDistanzaTraIndirizzi(
                                     indirizzo1 = "${indirizzoUtente.via}, ${indirizzoUtente.civico}, ${indirizzoUtente.citta}, ${indirizzoUtente.provincia}, ${indirizzoUtente.stato}",
@@ -105,6 +116,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         isPermissionGranted: Boolean,
         maxDistance: Float,
         fusedLocationClient: FusedLocationProviderClient,
+        trovaTesto: String,
+        userEmail: String?,
         onComplete: () -> Unit
     ) {
         loadPartite(
@@ -112,7 +125,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             isPermissionGranted = isPermissionGranted,
             maxDistance = maxDistance,
             fusedLocationClient = fusedLocationClient,
-            forzaRicarica = true
+            trovaTesto = trovaTesto,
+            userEmail = userEmail,
+            forzaRicarica = true,
+
         )
         viewModelScope.launch {
             // Attendiamo fino al termine del caricamento
