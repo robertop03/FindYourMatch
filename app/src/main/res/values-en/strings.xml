@@ -113,6 +113,7 @@
     <string name="tipo_partita">Match type</string>
     <string name="prezzo_previsto">Expected price</string>
     <string name="applica_filtri">Apply filters</string>
+    <string name="filtra">Filter</string>
     <string name="calcio_a">Soccer to</string>
     <string name="calcio_a_11">11-a-side Soccer</string>
     <string name="calcio_a_8">8-a-side Soccer</string>
@@ -141,4 +142,8 @@
 
     <!-- CREA PARTITA -->
     <string name="crea_partita">Create match</string>
+
+    <!-- SINGOLA PARTITA -->
+    <string name="partita">Match</string>
+
 </resources>

@@ -111,6 +111,7 @@
     <string name="tipo_partita">Tipo di partita</string>
     <string name="prezzo_previsto">Prezzo previsto</string>
     <string name="applica_filtri">Applica filtri</string>
+    <string name="filtra">Filtra</string>
     <string name="calcio_a">Calcio a</string>
     <string name="calcio_a_11">Calcio a 11</string>
     <string name="calcio_a_8">Calcio a 8</string>
@@ -141,4 +142,8 @@
 
     <!-- CREA PARTITA -->
     <string name="crea_partita">Crea partita</string>
+
+    <!-- SINGOLA PARTITA -->
+    <string name="partita">Partita</string>
+
 </resources>

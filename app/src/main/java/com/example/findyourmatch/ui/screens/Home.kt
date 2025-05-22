@@ -247,7 +247,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                             modifier = Modifier.size(28.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(localizedContext.getString(R.string.trova), color = White, fontWeight = FontWeight.Bold)
+                        Text(localizedContext.getString(R.string.filtra), color = White, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -533,7 +533,6 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Titolo + icona posizione
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -570,7 +569,6 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
                 }
             }
 
-            // Campo e città
             Text(
                 text = partita.campo.nome,
                 color = White,
@@ -591,7 +589,6 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Partecipanti e prezzo
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
