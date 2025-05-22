@@ -44,6 +44,8 @@ sealed interface NavigationRoute {
     data object Rewards : NavigationRoute
     @Serializable
     data object Match : NavigationRoute
+    @Serializable
+    data object Reviews : NavigationRoute
 }
 
 @Composable
@@ -102,6 +104,9 @@ fun NavGraph(
         }
         composable<NavigationRoute.Match> {
             Partita(navController)
+        }
+        composable<NavigationRoute.Reviews> {
+            Recensioni(navController)
         }
         composable(
             route = "password-reset?access_token={access_token}",

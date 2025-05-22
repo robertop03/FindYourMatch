@@ -9,6 +9,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -73,5 +77,59 @@ suspend fun segnaNotificaComeLetta(context: Context, notifica: Notifica): Boolea
 
     client.newCall(request).execute().use { response ->
         return@withContext response.isSuccessful
+    }
+}
+
+suspend fun prendiNomeCognomeDaEmail(context: Context, email: String): Pair<String, String>? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti?email=eq.${email}&select=nome,cognome")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) return@withContext null
+        val json = response.body?.string() ?: return@withContext null
+        val result = Json.parseToJsonElement(json).jsonArray
+        if (result.isNotEmpty()) {
+            val obj = result[0].jsonObject
+            val nome = obj["nome"]?.jsonPrimitive?.content ?: ""
+            val cognome = obj["cognome"]?.jsonPrimitive?.content ?: ""
+            return@withContext nome to cognome
+        }
+        return@withContext null
+    }
+}
+
+suspend fun prendiPunteggioRecensione(
+    context: Context,
+    destinatario: String,
+    autore: String,
+    partita: String
+): Int? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/recensioni?" +
+                "recensito=eq.${destinatario}&autore=eq.${autore}&partita=eq.${partita}&select=punteggio")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) return@withContext null
+        val json = response.body?.string() ?: return@withContext null
+        val result = Json.parseToJsonElement(json).jsonArray
+        if (result.isNotEmpty()) {
+            val obj = result[0].jsonObject
+            return@withContext obj["punteggio"]?.jsonPrimitive?.intOrNull
+        }
+        return@withContext null
     }
 }
