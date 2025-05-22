@@ -175,7 +175,6 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                             }
                         }
 
-                        // Autore recensione: Nome e congnome
                         Text(
                             text = "Autore: $nome $cognome",
                             fontSize = 16.sp,
@@ -183,7 +182,6 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                             textAlign = TextAlign.Center
                         )
 
-                        // Contatto: Email
                         Text(
                             text = "Contatto: ${notifica.autoreRecensione}",
                             fontSize = 16.sp,
@@ -191,26 +189,23 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                             textAlign = TextAlign.Center
                         )
 
-                        // Stelle recensione
                         Row(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            // Stelle piene
                             repeat(voto) {
                                 Icon(
                                     imageVector = Icons.Filled.Star,
-                                    contentDescription = "Stella piena",
+                                    contentDescription = null,
                                     tint = Gold,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
 
-                            // Stelle vuote
                             repeat(5 - voto) {
                                 Icon(
                                     imageVector = Icons.Outlined.Star,
-                                    contentDescription = "Stella vuota",
+                                    contentDescription = null,
                                     tint = Color.Gray,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -219,6 +214,23 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
 
 
                         // Clicca qui per andare alla partita di riferimento (devo passare l'id)
+                        Text(
+                            text = "Clicca qui per andare alla partita",
+                            fontSize = 14.sp,
+                            color = Black,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .clickable {
+                                    val id = notifica.partitaRiferimentoRecensione?.toIntOrNull()
+                                    if (id != null) {
+                                        navController.navigate("partita/$id")
+                                    }
+                                },
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                textDecoration = TextDecoration.Underline
+                            )
+                        )
 
                     }
                     "obiettivo" -> {

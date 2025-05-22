@@ -7,11 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.findyourmatch.data.user.SessionManager
+import com.example.findyourmatch.data.user.SessionManager.isLoggedInFlow
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.viewmodel.SessionViewModelFactory
 import com.example.findyourmatch.navigation.NavGraph
@@ -20,6 +23,7 @@ import com.example.findyourmatch.ui.screens.Footer
 import com.example.findyourmatch.ui.theme.FindYourMatchTheme
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
+import kotlinx.coroutines.flow.first
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +39,11 @@ class MainActivity : FragmentActivity() {
                 val notificheViewModel: NotificheViewModel = viewModel(
                     factory = NotificheViewModelFactory(application)
                 )
+
+                LaunchedEffect(Unit) {
+                    val isValid = SessionManager.isTokenStillValid(context) && isLoggedInFlow(context).first()
+                    sessionViewModel.updateLoginStatus(context, isValid)
+                }
                     Scaffold(
                         topBar = { CustomTopAppBar(navController) },
                         bottomBar = { Footer(navController, sessionViewModel, notificheViewModel) },
