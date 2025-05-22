@@ -25,7 +25,7 @@ import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 
 @Composable
-fun Partita(navController: NavHostController) {
+fun Partita(navController: NavHostController, idPartita: Int) {
     val context = LocalContext.current
     val showBackButton = navController.previousBackStackEntry != null
 

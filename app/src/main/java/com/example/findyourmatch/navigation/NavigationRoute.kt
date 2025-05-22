@@ -102,9 +102,14 @@ fun NavGraph(
         composable<NavigationRoute.Rewards> {
             Rewards(navController)
         }
-        composable<NavigationRoute.Match> {
-            Partita(navController)
+        composable(
+            route = "partita/{idPartita}",
+            arguments = listOf(navArgument("idPartita") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val idPartita = backStackEntry.arguments?.getInt("idPartita") ?: -1
+            Partita(navController = navController, idPartita = idPartita)
         }
+
         composable<NavigationRoute.Reviews> {
             Recensioni(navController)
         }
