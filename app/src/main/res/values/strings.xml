@@ -121,11 +121,13 @@
     <string name="ore">Ore</string>
     <string name="distanza">Distanza</string>
 
+
     <!-- NOTIFICHE -->
     <string name="notifiche">Notifiche</string>
     <string name="nuova">Nuova</string>
 
     <!-- SINGOLA NOTIFICA -->
+    <string name="vedi_tuoi_obiettivi">Visualizza i tuoi obiettivi</string>
 
     <!-- GAMIFICATION -->
     <string name="tue_medaglie">Le tue medaglie</string>

@@ -1,8 +1,9 @@
 package com.example.findyourmatch.ui.screens
 
-import android.graphics.drawable.Icon
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,6 @@ import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.SportsSoccer
@@ -29,27 +29,51 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.findyourmatch.R
 import com.example.findyourmatch.data.notifications.Notifica
+import com.example.findyourmatch.data.user.LocaleHelper
+import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.navigation.NavigationRoute
+import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.Bronze
 import com.example.findyourmatch.ui.theme.Gold
 import com.example.findyourmatch.ui.theme.LightGreen
 import com.example.findyourmatch.ui.theme.Silver
+import com.example.findyourmatch.viewmodel.NotificheViewModel
+import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun Notifica(notifica: Notifica, navController: NavHostController) {
+    val context = LocalContext.current
+    val userSettings = remember { UserSettings(context) }
+    val language by userSettings.language.collectAsState(initial = "it")
+    val localizedContext = remember(language) {
+        LocaleHelper.updateLocale(context, language)
+    }
+    val coroutineScope = rememberCoroutineScope()
+    val notificheViewModel: NotificheViewModel = viewModel(
+        factory = NotificheViewModelFactory(context.applicationContext as Application)
+    )
 
     Box(
         modifier = Modifier
@@ -133,58 +157,41 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                     "obiettivo" -> {
                         var badgeColor: Color? = null
                         var icon: ImageVector? = null
-                        when (notifica.coloreMedagliaRaggiunta) {
-                            "bronzo" -> {
-                                badgeColor = Bronze
-                                when (notifica.titoloMedagliaRaggiunta) {
-                                    "partite_giocate" -> {
-                                        icon = Icons.AutoMirrored.Filled.DirectionsRun
-                                    }
+                        var stringaObiettivo: String? = null
 
-                                    "goal_fatti" -> {
-                                        icon = Icons.Default.SportsSoccer
-                                    }
-
-                                    "partite_vinte" -> {
-                                        icon = Icons.Default.EmojiEvents
-                                    }
-                                }
-                            }
-                            "argento" -> {
-                                badgeColor = Silver
-                                when (notifica.titoloMedagliaRaggiunta) {
-                                    "partite_giocate" -> {
-                                        icon = Icons.AutoMirrored.Filled.DirectionsRun
-                                    }
-
-                                    "goal_fatti" -> {
-                                        icon = Icons.Default.SportsSoccer
-                                    }
-
-                                    "partite_vinte" -> {
-                                        icon = Icons.Default.EmojiEvents
-                                    }
-                                }
-                            }
-                            "oro" -> {
-                                badgeColor = Gold
-                                when (notifica.titoloMedagliaRaggiunta) {
-                                    "partite_giocate" -> {
-                                        icon = Icons.AutoMirrored.Filled.DirectionsRun
-                                    }
-                                    "goal_fatti" -> {
-                                        icon = Icons.Default.SportsSoccer
-                                    }
-                                    "partite_vinte" -> {
-                                        icon = Icons.Default.EmojiEvents
-                                    }
-                                }
-                            }
+                        val (colore, numero) = when (notifica.coloreMedagliaRaggiunta) {
+                            "bronzo" -> "bronzo" to 10
+                            "argento" -> "argento" to 15
+                            "oro" -> "oro" to 20
+                            else -> null to null
                         }
+
+                        badgeColor = when (colore) {
+                            "bronzo" -> Bronze
+                            "argento" -> Silver
+                            "oro" -> Gold
+                            else -> null
+                        }
+
+                        icon = when (notifica.titoloMedagliaRaggiunta) {
+                            "partite_giocate" -> Icons.AutoMirrored.Filled.DirectionsRun
+                            "goal_fatti" -> Icons.Default.SportsSoccer
+                            "partite_vinte" -> Icons.Default.EmojiEvents
+                            else -> null
+                        }
+
+                        stringaObiettivo = when (notifica.titoloMedagliaRaggiunta) {
+                            "partite_giocate" -> "Hai partecipato a $numero partite!"
+                            "partite_vinte" -> "Hai vinto $numero partite!"
+                            "goal_fatti" -> "Hai segnato $numero goal!"
+                            else -> null
+                        }
+
+                        Spacer(Modifier.height(32.dp))
                         if (badgeColor != null && icon != null) {
                             Box(
                                 modifier = Modifier
-                                    .size(40.dp)
+                                    .size(70.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(badgeColor),
                                 contentAlignment = Alignment.Center
@@ -193,9 +200,33 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                     imageVector = icon,
                                     contentDescription = null,
                                     tint = Color.Black,
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(44.dp)
                                 )
                             }
+
+                            Text(
+                                text = stringaObiettivo!!,
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                textAlign = TextAlign.Center
+                            )
+
+                            Spacer(modifier = Modifier.height(20.dp))
+
+                            Text(
+                                text = localizedContext.getString(R.string.vedi_tuoi_obiettivi),
+                                fontSize = 14.sp,
+                                color = Black,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .clickable {
+                                        navController.navigate(NavigationRoute.Rewards)
+                                    },
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    textDecoration = TextDecoration.Underline
+                                )
+                            )
                         }
 
                     }
