@@ -24,15 +24,20 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +53,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.notifications.Notifica
+import com.example.findyourmatch.data.notifications.prendiNomeCognomeDaEmail
+import com.example.findyourmatch.data.notifications.prendiPunteggioRecensione
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
@@ -58,6 +65,7 @@ import com.example.findyourmatch.ui.theme.LightGreen
 import com.example.findyourmatch.ui.theme.Silver
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -74,6 +82,10 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
     val notificheViewModel: NotificheViewModel = viewModel(
         factory = NotificheViewModelFactory(context.applicationContext as Application)
     )
+    var nome by remember { mutableStateOf("") }
+    var cognome by remember { mutableStateOf("") }
+    var voto by remember { mutableIntStateOf(0) }
+
 
     Box(
         modifier = Modifier
@@ -138,6 +150,8 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                     textAlign = TextAlign.Center
                 )
 
+                Spacer(Modifier.height(32.dp))
+
                 when (notifica.tipologia) {
                     "accettato" -> {
 
@@ -151,13 +165,63 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
 
                     }
                     "recensione" -> {
+                        LaunchedEffect(notifica.autoreRecensione) {
+                            coroutineScope.launch {
+                                val (n, c) = prendiNomeCognomeDaEmail(context, notifica.autoreRecensione!!) ?: ("" to "")
+                                nome = n
+                                cognome = c
+                                val v = prendiPunteggioRecensione(context, notifica.destinatarioRecensione!!, notifica.autoreRecensione, notifica.partitaRiferimentoRecensione!!)
+                                voto = v!!
+                            }
+                        }
 
+                        // Autore recensione: Nome e congnome
+                        Text(
+                            text = "Autore: $nome $cognome",
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+
+                        // Contatto: Email
+                        Text(
+                            text = "Contatto: ${notifica.autoreRecensione}",
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+
+                        // Stelle recensione
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            // Stelle piene
+                            repeat(voto) {
+                                Icon(
+                                    imageVector = Icons.Filled.Star,
+                                    contentDescription = "Stella piena",
+                                    tint = Gold,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            // Stelle vuote
+                            repeat(5 - voto) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Star,
+                                    contentDescription = "Stella vuota",
+                                    tint = Color.Gray,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+
+
+                        // Clicca qui per andare alla partita di riferimento (devo passare l'id)
 
                     }
                     "obiettivo" -> {
-                        var badgeColor: Color? = null
-                        var icon: ImageVector? = null
-                        var stringaObiettivo: String? = null
 
                         val (colore, numero) = when (notifica.coloreMedagliaRaggiunta) {
                             "bronzo" -> "bronzo" to 10
@@ -166,28 +230,27 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                             else -> null to null
                         }
 
-                        badgeColor = when (colore) {
+                        val badgeColor: Color? = when (colore) {
                             "bronzo" -> Bronze
                             "argento" -> Silver
                             "oro" -> Gold
                             else -> null
                         }
 
-                        icon = when (notifica.titoloMedagliaRaggiunta) {
+                        val icon: ImageVector? = when (notifica.titoloMedagliaRaggiunta) {
                             "partite_giocate" -> Icons.AutoMirrored.Filled.DirectionsRun
                             "goal_fatti" -> Icons.Default.SportsSoccer
                             "partite_vinte" -> Icons.Default.EmojiEvents
                             else -> null
                         }
 
-                        stringaObiettivo = when (notifica.titoloMedagliaRaggiunta) {
+                        val stringaObiettivo: String? = when (notifica.titoloMedagliaRaggiunta) {
                             "partite_giocate" -> "Hai partecipato a $numero partite!"
                             "partite_vinte" -> "Hai vinto $numero partite!"
                             "goal_fatti" -> "Hai segnato $numero goal!"
                             else -> null
                         }
 
-                        Spacer(Modifier.height(32.dp))
                         if (badgeColor != null && icon != null) {
                             Box(
                                 modifier = Modifier
@@ -231,7 +294,6 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
 
                     }
                     "richiesta" -> {
-
 
                     }
                 }

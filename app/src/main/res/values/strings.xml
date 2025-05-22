@@ -141,6 +141,9 @@
     <!-- PROFILO -->
     <string name="profilo">Profilo</string>
 
+    <!-- RECENSIONI -->
+    <string name="recensioni">Recensioni</string>
+
 
     <!-- CREA PARTITA -->
     <string name="crea_partita">Crea partita</string>
