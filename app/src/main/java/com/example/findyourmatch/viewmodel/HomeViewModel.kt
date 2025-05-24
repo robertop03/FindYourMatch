@@ -21,6 +21,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
     var partiteFiltrate by mutableStateOf<List<PartitaConCampo>>(emptyList())
@@ -40,7 +45,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         userEmail: String?,
         tipoFiltro: String? = null,
         fasciaPrezzoFiltro: String? = null,
-        forzaRicarica: Boolean = false
+        forzaRicarica: Boolean = false,
+        dataInizioFiltro: LocalDate? = null,
+        dataFineFiltro: LocalDate? = null
     ) {
         val shouldReload = forzaRicarica || ultimaMaxDistance != maxDistance
 
@@ -82,8 +89,22 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                         "Sopra 10€" -> partita.importoPrevisto > 10
                         else -> true
                     }
-                    tipoOk && prezzoOk
+
+                    val dataOk = if (dataInizioFiltro == null && dataFineFiltro == null) {
+                        true
+                    } else {
+                        try {
+                            val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                            val dataPartita = ZonedDateTime.parse(partita.dataOraInizio, formatter).toLocalDate()
+                            (dataInizioFiltro == null || !dataPartita.isBefore(dataInizioFiltro)) &&
+                                    (dataFineFiltro == null || !dataPartita.isAfter(dataFineFiltro))
+                        } catch (e: Exception) {
+                            false
+                        }
+                    }
+                    tipoOk && prezzoOk && dataOk
                 }
+
 
                 partiteFiltrate = when {
                     isLoggedIn && indirizzoUtente != null -> {

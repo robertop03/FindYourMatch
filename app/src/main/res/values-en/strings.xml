@@ -122,6 +122,10 @@
     <string name="sopra_10">Over 10€</string>
     <string name="ore">Hours</string>
     <string name="distanza">Distance</string>
+    <string name="periodo">Period</string>
+    <string name="dal">From</string>
+    <string name="al">To</string>
+    <string name="seleziona">Select</string>
 
     <!-- NOTIFICHE -->
     <string name="notifiche">Notifications</string>
