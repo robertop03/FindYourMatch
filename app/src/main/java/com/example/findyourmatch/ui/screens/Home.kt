@@ -366,7 +366,8 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                                         duration = SnackbarDuration.Short
                                     )
                                 }
-                            }
+                            },
+                            navController = navController
                         )
                     }
                 }
@@ -478,7 +479,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
 }
 
 @Composable
-fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, onLoginRequired: () -> Unit) {
+fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, onLoginRequired: () -> Unit, navController: NavHostController) {
     val instant = Instant.parse(partita.dataOraInizio)
     val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     val context = LocalContext.current
@@ -500,9 +501,6 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
         }
     }
 
-
-
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -511,6 +509,9 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
             .clickable {
                 if (!sessionViewModel.isLoggedIn.value) {
                     onLoginRequired()
+                }else{
+                    val id = partita.idPartita
+                    navController.navigate("partita/$id")
                 }
             }
             .padding(16.dp)
