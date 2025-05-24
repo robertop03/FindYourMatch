@@ -128,6 +128,29 @@
 
     <!-- SINGOLA NOTIFICA -->
     <string name="vedi_tuoi_obiettivi">Visualizza i tuoi obiettivi</string>
+    <string name="autore">Autore</string>
+    <string name="contatto">Contatto</string>
+    <string name="vai_a_partita">Clicca qui per andare alla partita</string>
+    <string name="hai_partecipato_a">Hai partecipato a</string>
+    <string name="hai_vinto">Hai vinto</string>
+    <string name="hai_segnato">Hai segnato</string>
+    <string name="partite">partite</string>
+    <string name="richiedente">Richiedente</string>
+    <string name="accetta">Accetta</string>
+    <string name="rifiuta">Rifiuta</string>
+    <string name="conferma_richiesta">Conferma richiesta</string>
+    <string name="vuoi_ammettere">Vuoi ammettere</string>
+    <string name="a_partecipare">a partecipare</string>
+    <string name="conferma_rifiuto">Conferma rifiuto</string>
+    <string name="rifiutare_richiesta_partecipazione">Vuoi rifiutare la richiesta di partecipazione di</string>
+    <string name="vedi_recensioni">Clicca qui per vedere le sue recensioni</string>
+    <string name="richiesta_gestita">Richiesta già gestita</string>
+    <string name="scegli_squadra">Scegli una squadra</string>
+    <string name="squadra_completa">Squadra al completo</string>
+    <string name="aggiunto_a">aggiunto a</string>
+    <string name="squadre_al_completo">Entrambe le squadre sono al completo</string>
+    <string name="chiudi">Chiudi</string>
+
 
     <!-- GAMIFICATION -->
     <string name="tue_medaglie">Le tue medaglie</string>
@@ -136,6 +159,7 @@
     <string name="goal_fatti">Goal fatti</string>
     <string name="partite_giocate">Partite giocate</string>
     <string name="obiettivi">Obiettivi</string>
+
 
 
     <!-- PROFILO -->

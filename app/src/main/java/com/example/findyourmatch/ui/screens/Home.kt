@@ -86,6 +86,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import com.example.findyourmatch.data.notifications.prendiNomiSquadreDaPartita
+import com.example.findyourmatch.data.notifications.prendiNumeroPartecipantiInSquadra
 import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
@@ -483,6 +485,23 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
     val localizedContext = remember(language) { LocaleHelper.updateLocale(context, language) }
+    val coroutineScope = rememberCoroutineScope()
+
+    var partecipantiAttuali by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(partita.idPartita) {
+        coroutineScope.launch {
+            val squadre = prendiNomiSquadreDaPartita(context, partita.idPartita)
+            val squadra1 = squadre.getOrNull(0) ?: "?"
+            val squadra2 = squadre.getOrNull(1) ?: "?"
+            val partecipanti1 = prendiNumeroPartecipantiInSquadra(context, squadra1, partita.idPartita)
+            val partecipanti2 = prendiNumeroPartecipantiInSquadra(context, squadra2, partita.idPartita)
+            partecipantiAttuali = partecipanti1 + partecipanti2
+        }
+    }
+
+
+
 
     Box(
         modifier = Modifier
@@ -601,7 +620,7 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "${partita.partecipantiAttuali}/${partita.maxGiocatori}",
+                            text = "${partecipantiAttuali}/${partita.maxGiocatori}",
                             color = White
                         )
                         Spacer(Modifier.width(4.dp))

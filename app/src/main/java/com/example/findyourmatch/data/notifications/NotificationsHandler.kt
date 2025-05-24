@@ -1,6 +1,7 @@
 package com.example.findyourmatch.data.notifications
 
 import android.content.Context
+import android.util.Log
 import kotlinx.datetime.Instant
 import com.example.findyourmatch.data.user.SessionManager
 import kotlinx.coroutines.Dispatchers
@@ -30,13 +31,14 @@ data class Notifica(
     val testo: String,
     @SerialName("testo_en") val testoEn: String,
     val richiedente: String? = null,
-    val partita: String? = null,
+    val partita: Int? = null,
     @SerialName("colore_medaglia_raggiunta") val coloreMedagliaRaggiunta: String? = null,
     @SerialName("tipo_medaglia_raggiunta") val titoloMedagliaRaggiunta: String? = null,
     @SerialName("destinatario_recensione") val destinatarioRecensione: String? = null,
     @SerialName("autore_recensione") val autoreRecensione: String? = null,
     @SerialName("partita_riferimento_recensione") val partitaRiferimentoRecensione: String? = null,
-)
+    @SerialName("gestita") val gestita: Boolean? = false
+    )
 
 suspend fun caricaNotificheUtente(context: Context, email: String): List<Notifica> = withContext(Dispatchers.IO) {
 
@@ -132,4 +134,205 @@ suspend fun prendiPunteggioRecensione(
         }
         return@withContext null
     }
+}
+
+suspend fun prendiNomiSquadreDaPartita(context: Context, idPartita: Int): List<String> = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext emptyList()
+    Log.d("TOKEN prendiNomiSquadreDaPartita", token)
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/squadre?partita=eq.$idPartita&select=nome")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) return@withContext emptyList()
+        val json = response.body?.string() ?: return@withContext emptyList()
+        val result = Json.parseToJsonElement(json).jsonArray
+        return@withContext result.mapNotNull {
+            it.jsonObject["nome"]?.jsonPrimitive?.content
+        }
+    }
+}
+
+suspend fun prendiNumeroMassimoPartecipanti(context: Context, idPartita: Int): Int? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+    Log.d("TOKEN prendiNumeroMassimoPartecipanti", token)
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/partite?idPartita=eq.$idPartita&select=tipo")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) return@withContext null
+        val json = response.body?.string() ?: return@withContext null
+        val result = Json.parseToJsonElement(json).jsonArray
+        if (result.isNotEmpty()) {
+            val tipo = result[0].jsonObject["tipo"]?.jsonPrimitive?.content ?: return@withContext null
+            val numero = tipo.substringBefore("vs").toIntOrNull()
+            return@withContext numero
+        }
+        return@withContext null
+    }
+}
+
+suspend fun prendiNumeroPartecipantiInSquadra(
+    context: Context,
+    nomeSquadra: String,
+    idPartita: Int
+): Int = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext 0
+    Log.d("TOKEN prendiNumeroPartecipantiInSquadra", token)
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/giocatori_squadra?partita=eq.$idPartita&squadra=eq.$nomeSquadra&select=utente")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) return@withContext 0
+        val json = response.body?.string() ?: return@withContext 0
+        val result = Json.parseToJsonElement(json).jsonArray
+        Log.d("RESULT", result.toString())
+        Log.d("RESULT SIZE", result.size.toString())
+        return@withContext result.size
+    }
+}
+
+suspend fun aggiungiGiocatoreAllaSquadra(
+    context: Context,
+    email: String,
+    squadra: String,
+    idPartita: Int
+): Boolean = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext false
+    Log.d("TOKEN", token)
+    val jsonBody = """
+        {
+            "utente": "$email",
+            "squadra": "$squadra",
+            "partita": $idPartita
+        }
+    """.trimIndent()
+
+    val requestBody = jsonBody.toRequestBody("application/json".toMediaTypeOrNull())
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/giocatori_squadra")
+        .post(requestBody)
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        return@withContext response.isSuccessful
+    }
+}
+
+suspend fun aggiungiNotificaRifiuto(
+    context: Context,
+    titolo: String,
+    testo: String,
+    destinatario: String,
+    tipologia: String = "rifiutato",
+    titoloEn: String,
+    testoEn: String,
+    idPartita: Int
+    ): Boolean = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext false
+
+    val jsonBody = """
+        {
+            "titolo": "$titolo",
+            "testo": "$testo",
+            "destinatario": "$destinatario",
+            "tipologia": "$tipologia",
+            "titolo_en": "$titoloEn",
+            "testo_en": "$testoEn",
+            "partita":"$idPartita"
+        }
+    """.trimIndent()
+
+    val requestBody = jsonBody.toRequestBody("application/json".toMediaTypeOrNull())
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/notifiche")
+        .post(requestBody)
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        return@withContext response.isSuccessful
+    }
+}
+
+
+suspend fun aggiungiNotificaAccettazione(
+    context: Context,
+    titolo: String,
+    testo: String,
+    destinatario: String,
+    tipologia: String = "accettato",
+    titoloEn: String,
+    testoEn: String,
+    idPartita: Int
+): Boolean = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext false
+
+    val jsonBody = """
+        {
+            "titolo": "$titolo",
+            "testo": "$testo",
+            "destinatario": "$destinatario",
+            "tipologia": "$tipologia",
+            "titolo_en": "$titoloEn",
+            "testo_en": "$testoEn",
+            "partita": $idPartita
+        }
+    """.trimIndent()
+
+    val requestBody = jsonBody.toRequestBody("application/json".toMediaTypeOrNull())
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/notifiche")
+        .post(requestBody)
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        return@withContext response.isSuccessful
+    }
+}
+
+suspend fun segnaNotificaComeGestita(context: Context, idNotifica: Int): Boolean = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext false
+    val body = """{ "gestita": true }""".toRequestBody("application/json".toMediaTypeOrNull())
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/notifiche?idNotifica=eq.$idNotifica")
+        .method("PATCH", body)
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response -> response.isSuccessful }
 }

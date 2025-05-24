@@ -129,6 +129,29 @@
 
     <!-- SINGOLA NOTIFICA -->
     <string name="vedi_tuoi_obiettivi">View your goals</string>
+    <string name="autore">Author</string>
+    <string name="contatto">Contact</string>
+    <string name="vai_a_partita">Click here to see details of match</string>
+    <string name="hai_partecipato_a">You participated in</string>
+    <string name="hai_vinto">You won</string>
+    <string name="hai_segnato">You scored</string>
+    <string name="partite">matches</string>
+    <string name="richiedente">Wants to play</string>
+    <string name="accetta">Accept</string>
+    <string name="rifiuta">Reject</string>
+    <string name="conferma_richiesta">Confirm request</string>
+    <string name="vuoi_ammettere">Do you want to admit</string>
+    <string name="a_partecipare">to participate</string>
+    <string name="conferma_rifiuto">Confirm rejection</string>
+    <string name="rifiutare_richiesta_partecipazione">Do you want to reject the participation request from</string>
+    <string name="vedi_recensioni">Click here to see their reviews</string>
+    <string name="richiesta_gestita">Request already managed</string>
+    <string name="scegli_squadra">Choose a team</string>
+    <string name="squadra_completa">Team full</string>
+    <string name="aggiunto_a">added to</string>
+    <string name="squadre_al_completo">Both teams are full</string>
+    <string name="chiudi">Close</string>
+
 
     <!-- GAMIFICATION -->
     <string name="tue_medaglie">Your rewards</string>
