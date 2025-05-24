@@ -174,16 +174,46 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
 
                 when (notifica.tipologia) {
                     "accettato" -> {
-                        // Nome e cognome tuo + compliemnti sei stato accetto per partecipare al calcetto
-
                         // link per andare alla partita relativa
-
+                        Spacer(modifier = Modifier.height(40.dp))
+                        Text(
+                            text = localizedContext.getString(R.string.vai_a_partita),
+                            fontSize = 14.sp,
+                            color = Black,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .clickable {
+                                    val id = notifica.partita
+                                    if (id != null) {
+                                        navController.navigate("partita/$id")
+                                    }
+                                },
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                textDecoration = TextDecoration.Underline
+                            )
+                        )
                     }
                     "rifiutato" -> {
-                        // Nome e cognome tuo + compliemnti sei stato accetto per partecipare al calcetto
-
                         // link per andare alla partita relativa
-
+                        Spacer(modifier = Modifier.height(40.dp))
+                        Text(
+                            text = localizedContext.getString(R.string.vai_a_partita),
+                            fontSize = 14.sp,
+                            color = Black,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .clickable {
+                                    val id = notifica.partita
+                                    if (id != null) {
+                                        navController.navigate("partita/$id")
+                                    }
+                                },
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                textDecoration = TextDecoration.Underline
+                            )
+                        )
 
                     }
                     "partita" -> {
@@ -192,7 +222,23 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                         // Ehy, tra 1 ora inizierà la partita!! Sei pronto?
 
                         // link per andare alla partita relativa
-
+                        Text(
+                            text = localizedContext.getString(R.string.vai_a_partita),
+                            fontSize = 14.sp,
+                            color = Black,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .clickable {
+                                    val id = notifica.partita
+                                    if (id != null) {
+                                        navController.navigate("partita/$id")
+                                    }
+                                },
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                textDecoration = TextDecoration.Underline
+                            )
+                        )
                     }
                     "recensione" -> {
                         LaunchedEffect(notifica.autoreRecensione) {

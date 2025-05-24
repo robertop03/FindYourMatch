@@ -114,6 +114,7 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
             .clip(cornerRadius)
             .border(2.dp, coloreBordo, MaterialTheme.shapes.medium)
             .background(coloreSfondo)
+            .height(120.dp)
             .clickable {
                 val notificaJson = URLEncoder.encode(Json.encodeToString(notifica), StandardCharsets.UTF_8.toString())
                 coroutineScope.launch {
