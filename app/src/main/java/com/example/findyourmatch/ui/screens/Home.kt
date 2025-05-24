@@ -91,11 +91,37 @@ import com.example.findyourmatch.data.notifications.prendiNumeroPartecipantiInSq
 import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
+import android.app.DatePickerDialog
+import androidx.compose.material3.ModalBottomSheet
+import java.util.Calendar
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val context = LocalContext.current
+    val dataInizio = remember { mutableStateOf<LocalDate?>(null) }
+    val dataFine = remember { mutableStateOf<LocalDate?>(null) }
+    val calendar = Calendar.getInstance()
+
+    val datePickerInizio = remember {
+        DatePickerDialog(context).apply {
+            datePicker.minDate = calendar.timeInMillis
+            setOnDateSetListener { _, year, month, dayOfMonth ->
+                dataInizio.value = LocalDate.of(year, month + 1, dayOfMonth)
+            }
+        }
+    }
+
+    val datePickerFine = remember {
+        DatePickerDialog(context).apply {
+            datePicker.minDate = calendar.timeInMillis
+            setOnDateSetListener { _, year, month, dayOfMonth ->
+                dataFine.value = LocalDate.of(year, month + 1, dayOfMonth)
+            }
+        }
+    }
+
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
@@ -115,6 +141,8 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val showFilterSheet = remember { mutableStateOf(false) }
     val selectedTipoPartita = remember { mutableStateOf<String?>(null) }
     val selectedPrezzo = remember { mutableStateOf<String?>(null) }
+
+
 
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory(context.applicationContext as Application))
 
@@ -412,7 +440,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     }
 
     if (showFilterSheet.value) {
-        androidx.compose.material3.ModalBottomSheet(
+        ModalBottomSheet(
             onDismissRequest = { showFilterSheet.value = false }
         ) {
             Column(Modifier.padding(16.dp)) {
@@ -432,6 +460,21 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                         Text(tipo)
                     }
                 }
+                Spacer(Modifier.height(16.dp))
+                Text(localizedContext.getString(R.string.periodo), fontWeight = FontWeight.Bold)
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(onClick = { datePickerInizio.show() }) {
+                        Text("${localizedContext.getString(R.string.dal)}: ${dataInizio.value?.toString() ?: localizedContext.getString(R.string.seleziona)}")
+                    }
+                    TextButton(onClick = { datePickerFine.show() }) {
+                        Text("${localizedContext.getString(R.string.al)}: ${dataFine.value?.toString() ?: localizedContext.getString(R.string.seleziona)}")
+                    }
+                }
+
 
                 Spacer(Modifier.height(12.dp))
 
@@ -466,6 +509,8 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                             userEmail = userEmail,
                             tipoFiltro = selectedTipoPartita.value,
                             fasciaPrezzoFiltro = selectedPrezzo.value,
+                            dataInizioFiltro = dataInizio.value,
+                            dataFineFiltro = dataFine.value,
                             forzaRicarica = true
                         )
 

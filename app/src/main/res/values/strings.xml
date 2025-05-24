@@ -120,6 +120,10 @@
     <string name="sopra_10">Sopra 10€</string>
     <string name="ore">Ore</string>
     <string name="distanza">Distanza</string>
+    <string name="periodo">Periodo</string>
+    <string name="dal">Dal</string>
+    <string name="al">Al</string>
+    <string name="seleziona">Seleziona</string>
 
 
     <!-- NOTIFICHE -->
