@@ -34,8 +34,6 @@ data class PartitaConCampo(
     val creatore: String,
     val luogo: Int,
     val campo: CampoSportivo,
-    val partecipantiAttuali: Int,
-
     @Transient
     var distanzaKm: Double? = null
 )

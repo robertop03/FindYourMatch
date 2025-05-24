@@ -110,9 +110,20 @@ fun NavGraph(
             Partita(navController = navController, idPartita = idPartita)
         }
 
-        composable<NavigationRoute.Reviews> {
-            Recensioni(navController)
+        composable(
+            route = "reviews?email={email}",
+            arguments = listOf(
+                navArgument("email") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email")
+            Recensioni(navController, email)
         }
+
         composable(
             route = "password-reset?access_token={access_token}",
             arguments = listOf(

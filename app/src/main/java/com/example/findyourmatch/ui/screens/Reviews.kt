@@ -27,7 +27,7 @@ import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.getLoggedUserEmail
 
 @Composable
-fun Recensioni(navController: NavHostController) {
+fun Recensioni(navController: NavHostController, email: String?) {
     val context = LocalContext.current
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
