@@ -1,4 +1,4 @@
-name: Esegui funzione Supabase ogni 5 minuti
+name: Aggiorna partite visibili ogni 5 min circa
 
 on:
   schedule:
