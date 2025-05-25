@@ -1,0 +1,15 @@
+name: Notifica pre-partita ogni 5 minuti
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # ogni 5 minuti
+  workflow_dispatch:        # permette esecuzione manuale
+
+jobs:
+  call-function:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Esegui funzione Supabase
+        run: |
+          curl -X POST https://ugtxgylfzblkvudpnagi.functions.supabase.co/notifica-prepartita \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
