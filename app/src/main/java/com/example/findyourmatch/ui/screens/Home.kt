@@ -134,7 +134,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
-    var trovaTesto by remember { mutableStateOf("Trova") }
+    var trovaTesto by remember { mutableStateOf(localizedContext.getString(R.string.trova)) }
     var menuEspanso by remember { mutableStateOf(false) }
     var dropdownWidth by remember { mutableIntStateOf(0) }
     var userEmail by remember { mutableStateOf<String?>(null) }

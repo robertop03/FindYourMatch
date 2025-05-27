@@ -75,15 +75,20 @@ fun NavGraph(
         }
         composable(
             route = "${NavigationRoute.Notice}/{notificaJson}",
-            arguments = listOf(navArgument("notificaJson") { type = NavType.StringType })
+            arguments = listOf(navArgument("notificaJson") { type = NavType.StringType }),
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "findyourmatch://notice/{notificaJson}"
+                }
+            )
         ) { backStackEntry ->
             val notificaJson = backStackEntry.arguments?.getString("notificaJson") ?: ""
             val notifica = Json.decodeFromString<Notifica>(
                 URLDecoder.decode(notificaJson, StandardCharsets.UTF_8.toString())
             )
-
             Notifica(notifica = notifica, navController = navController)
         }
+
         composable<NavigationRoute.CreateMatch> {
             CreaPartita(navController)
         }

@@ -4,8 +4,12 @@ agp = "8.7.3"
 androidDatabaseSqlcipher = "4.5.3"
 androidxDatastorePreferences = "1.1.6"
 biometric = "1.1.0"
+coreKtxVersion = "1.16.0"
 datastorePreferences = "1.1.5"
 datastorePreferencesVersion = "1.0.0"
+firebaseBom = "33.14.0"
+firebaseMessaging = "24.1.1"
+googleAuthLibraryOauth2Http = "1.18.0"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -39,6 +43,7 @@ accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiper
 android-database-sqlcipher = { module = "net.zetetic:android-database-sqlcipher", version.ref = "androidDatabaseSqlcipher" }
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-ktx-v1160 = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-datastore-preferences-v100 = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferencesVersion" }
 androidx-datastore-preferences-v116 = { module = "androidx.datastore:datastore-preferences", version.ref = "androidxDatastorePreferences" }
@@ -49,6 +54,10 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-sqlite = { module = "androidx.sqlite:sqlite", version.ref = "sqliteFramework" }
 androidx-sqlite-framework = { module = "androidx.sqlite:sqlite-framework", version.ref = "sqliteFramework" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessaging" }
+google-auth-library-oauth2-http = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuthLibraryOauth2Http" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

@@ -17,6 +17,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import okhttp3.RequestBody.Companion.toRequestBody
 
 @Serializable
@@ -335,4 +337,15 @@ suspend fun segnaNotificaComeGestita(context: Context, idNotifica: Int): Boolean
         .build()
 
     client.newCall(request).execute().use { response -> response.isSuccessful }
+}
+
+fun creaCanaleNotifiche(context: Context) {
+    val name = "Notifiche Partite"
+    val descriptionText = "Notifiche relative a richieste, accettazioni, ecc."
+    val importance = NotificationManager.IMPORTANCE_DEFAULT
+    val channel = NotificationChannel("PARTITA_CHANNEL_ID", name, importance).apply {
+        description = descriptionText
+    }
+    val notificationManager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    notificationManager.createNotificationChannel(channel)
 }
