@@ -2,6 +2,7 @@ package com.example.findyourmatch.ui.screens
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -59,9 +60,13 @@ import com.example.findyourmatch.data.user.loginSupabase
 import androidx.compose.ui.Alignment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.findyourmatch.data.notifications.aggiornaTokenFCMUtenteSeDiverso
 import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
+import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
 @Composable
@@ -190,6 +195,18 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                         if (result.isSuccess) {
                             snackbarHostState.showSnackbar(localizedContext.getString(R.string.login_successo))
                             notificheViewModel.ricaricaNotifiche()
+                            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val token = task.result
+                                    Log.d("FCM", "TOKEN ottenuto: $token")
+
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        aggiornaTokenFCMUtenteSeDiverso(context = context, nuovoToken = token)
+                                    }
+                                } else {
+                                    Log.e("FCM", "Errore ottenimento token", task.exception)
+                                }
+                            }
                             navController.navigate(NavigationRoute.Profile) {
                                 popUpTo(NavigationRoute.Login) { inclusive = true }
                             }

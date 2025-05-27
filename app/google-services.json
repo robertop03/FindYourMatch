@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "742296736661",
+    "project_id": "findyourmatch-5bc41",
+    "storage_bucket": "findyourmatch-5bc41.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:742296736661:android:c8436aee26b59878b55c9c",
+        "android_client_info": {
+          "package_name": "com.example.findyourmatch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8hwrFCAYQXkvR94E6NKj_rlBmMGLlSYk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

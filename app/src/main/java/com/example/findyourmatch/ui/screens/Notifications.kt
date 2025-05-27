@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.EmojiEvents
@@ -62,6 +63,7 @@ import com.example.findyourmatch.ui.theme.LightGreen
 import com.example.findyourmatch.ui.theme.LightLightGreen
 import com.example.findyourmatch.ui.theme.LightRed
 import com.example.findyourmatch.ui.theme.Purple
+import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.Silver
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
@@ -91,6 +93,7 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
         "recensione" -> Blue
         "obiettivo" -> Purple
         "richiesta" -> LightBlue
+        "annullata" -> Red
         else -> Silver
     }
 
@@ -101,6 +104,7 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
         "recensione" -> Icons.Default.Star
         "obiettivo" -> Icons.Default.EmojiEvents
         "richiesta" -> Icons.AutoMirrored.Filled.Help
+        "annullata" -> Icons.Default.Cancel
         else -> Icons.Default.Notifications
     }
 

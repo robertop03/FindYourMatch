@@ -1,6 +1,5 @@
 package com.example.findyourmatch.ui.screens
 
-import android.app.Application
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -54,7 +53,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.notifications.Notifica
@@ -76,8 +74,6 @@ import com.example.findyourmatch.ui.theme.Gold
 import com.example.findyourmatch.ui.theme.LightGreen
 import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.Silver
-import com.example.findyourmatch.viewmodel.NotificheViewModel
-import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -92,9 +88,6 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
         LocaleHelper.updateLocale(context, language)
     }
     val coroutineScope = rememberCoroutineScope()
-    val notificheViewModel: NotificheViewModel = viewModel(
-        factory = NotificheViewModelFactory(context.applicationContext as Application)
-    )
     var nome by remember { mutableStateOf("") }
     var cognome by remember { mutableStateOf("") }
     var squadra1 by remember { mutableStateOf("") }
@@ -217,10 +210,6 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
 
                     }
                     "partita" -> {
-                        // Questa notifica viene inviato a tutti i componenti delle squadre iscritti a quella partita, 1 ora prima della partita
-
-                        // Ehy, tra 1 ora inizierà la partita!! Sei pronto?
-
                         // link per andare alla partita relativa
                         Text(
                             text = localizedContext.getString(R.string.vai_a_partita),
@@ -626,6 +615,13 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                 textDecoration = TextDecoration.Underline
                             )
                         )
+                    }
+                    "annullata" -> {
+                        // la partita del (data e orario)
+
+                        // che si sarebbe disputata a (luogo) è stata cancellata
+
+
                     }
                 }
 

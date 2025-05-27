@@ -2,6 +2,7 @@ package com.example.findyourmatch
 
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.findyourmatch.data.notifications.aggiornaTokenFCMUtenteSeDiverso
+import com.example.findyourmatch.data.notifications.creaCanaleNotifiche
 import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.data.user.SessionManager.isLoggedInFlow
 import com.example.findyourmatch.viewmodel.SessionViewModel
@@ -23,11 +26,16 @@ import com.example.findyourmatch.ui.screens.Footer
 import com.example.findyourmatch.ui.theme.FindYourMatchTheme
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
+import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        creaCanaleNotifiche(this)
         enableEdgeToEdge()
         setContent {
             FindYourMatchTheme(dynamicColor = false) {
@@ -43,6 +51,21 @@ class MainActivity : FragmentActivity() {
                 LaunchedEffect(Unit) {
                     val isValid = SessionManager.isTokenStillValid(context) && isLoggedInFlow(context).first()
                     sessionViewModel.updateLoginStatus(context, isValid)
+
+                    if (isValid) {
+                        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                val token = task.result
+                                Log.d("FCM", "TOKEN ottenuto: $token")
+
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    aggiornaTokenFCMUtenteSeDiverso(context = context, nuovoToken = token)
+                                }
+                            } else {
+                                Log.e("FCM", "Errore ottenimento token", task.exception)
+                            }
+                        }
+                    }
                 }
                     Scaffold(
                         topBar = { CustomTopAppBar(navController) },
