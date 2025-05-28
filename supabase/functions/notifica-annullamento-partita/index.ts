@@ -23,7 +23,6 @@ serve(async (_req) => {
 
     const now = new Date().toISOString();
 
-    // Prendi partite scadute + data + luogo + campo (join manuale)
     const { data: partiteScadute, error: errorPartite } = await supabase
       .from("partite")
       .select("idPartita, maxGiocatori, dataOraInizio, luogo, campi_sportivi(nome, citta)")
@@ -43,7 +42,6 @@ serve(async (_req) => {
 
       const dataFormattata = formattaData(dataOraInizio);
 
-      // Conta i giocatori iscritti
       const { data: giocatori, error: errorGiocatori } = await supabase
         .from("giocatori_squadra")
         .select("utente")
@@ -55,65 +53,62 @@ serve(async (_req) => {
         idPartiteDaEliminare.push(idPartita);
 
         for (const g of giocatori || []) {
-			const email = g.utente;
-			
-			// Recupera il token FCM dell'utente
-			const { data: utente, error: errorUtente } = await supabase
-				.from("utenti")
-				.select("fcm_token")
-				.eq("email", email)
-				.single();
-			
-			if (errorUtente) {
-				console.warn(`Errore recupero fcm_token per ${email}:`, errorUtente.message);
-			}
-			
-			const fcmToken = utente?.fcm_token;
-			
-			// Costruzione della notifica
-			const notifica = {
-				titolo: "Partita annullata",
-				testo: `La partita del ${dataFormattata} presso ${luogoDescrizione} è stata annullata per mancanza di iscrizioni sufficienti.`,
-				destinatario: email,
-				partita: null,
-				tipologia: "annulla",
-				titolo_en: "Match cancelled",
-				testo_en: `The match on ${dataFormattata} at ${luogoDescrizione} was cancelled due to insufficient registrations.`,
-			};
-			
-			notifiche.push(notifica); // viene comunque inserita nel DB
-			
-			// Invia push solo se esiste fcmToken
-			if (fcmToken) {
-				try {
-				const pushResponse = await fetch("https://fcm-proxy.onrender.com/api/send-notification", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-					fcmToken,
-					notificaJson: {
-						titolo: notifica.titolo,
-						testo: notifica.testo,
-					},
-					}),
-				});
-			
-				if (pushResponse.ok) {
-					console.log(`Push inviata a ${email}`);
-				} else {
-					const err = await pushResponse.text();
-					console.warn(`Push fallita per ${email}:`, err);
-				}
-				} catch (err) {
-				console.error(`Errore invio push a ${email}:`, err);
-				}
-			} else {
-				console.log(`Nessun fcmToken per ${email}, aggiunta solo al DB`);
-			}
-		}
+          const email = g.utente;
+
+          const { data: utente, error: errorUtente } = await supabase
+            .from("utenti")
+            .select("fcm_token")
+            .eq("email", email)
+            .single();
+
+          if (errorUtente) {
+            console.warn(`Errore recupero fcm_token per ${email}:`, errorUtente.message);
+          }
+
+          const fcmToken = utente?.fcm_token;
+
+          const notifica = {
+            titolo: "Partita annullata",
+            testo: `La partita del ${dataFormattata} presso ${luogoDescrizione} è stata annullata per mancanza di iscrizioni sufficienti.`,
+            destinatario: email,
+            partita: null,
+            tipologia: "annulla",
+            titolo_en: "Match cancelled",
+            testo_en: `The match on ${dataFormattata} at ${luogoDescrizione} was cancelled due to insufficient registrations.`,
+          };
+
+          notifiche.push(notifica);
+
+          if (fcmToken) {
+            try {
+              const pushResponse = await fetch("https://fcm-proxy.onrender.com/api/send-notification", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  fcmToken,
+                  notificaJson: {
+                    titolo: notifica.titolo,
+                    testo: notifica.testo,
+                  },
+                }),
+              });
+
+              if (pushResponse.ok) {
+                console.log(`Push inviata a ${email}`);
+              } else {
+                const err = await pushResponse.text();
+                console.warn(`Push fallita per ${email}:`, err);
+              }
+            } catch (err) {
+              console.error(`Errore invio push a ${email}:`, err);
+            }
+          } else {
+            console.log(`Nessun fcmToken per ${email}, aggiunta solo al DB`);
+          }
+        }
+      }
     }
 
-    // Invia notifiche
     if (notifiche.length > 0) {
       const { error: errorInsert } = await supabase
         .from("notifiche")
@@ -121,7 +116,6 @@ serve(async (_req) => {
       if (errorInsert) throw errorInsert;
     }
 
-    // Elimina le partite
     if (idPartiteDaEliminare.length > 0) {
       const { error: errorDelete } = await supabase
         .from("partite")
@@ -147,6 +141,7 @@ serve(async (_req) => {
     );
   }
 });
+
 
 
 
