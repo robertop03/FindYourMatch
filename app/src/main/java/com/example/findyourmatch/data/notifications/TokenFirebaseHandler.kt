@@ -41,7 +41,6 @@ suspend fun aggiornaTokenFCMUtenteSeDiverso(context: Context, nuovoToken: String
         else null
 
         if (tokenAttuale == nuovoToken) {
-            Log.d("FCM", "Token già aggiornato, nessuna azione necessaria")
             return@withContext true
         }
 
@@ -50,7 +49,6 @@ suspend fun aggiornaTokenFCMUtenteSeDiverso(context: Context, nuovoToken: String
                 "fcm_token": "$nuovoToken"
             }
         """.trimIndent().toRequestBody("application/json".toMediaTypeOrNull())
-        Log.d("TOKEN", accessToken)
         val patchRequest = Request.Builder()
             .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti?email=eq.$email")
             .method("PATCH", body)
@@ -62,7 +60,6 @@ suspend fun aggiornaTokenFCMUtenteSeDiverso(context: Context, nuovoToken: String
 
         val patchResponse = client.newCall(patchRequest).execute()
         val ok = patchResponse.isSuccessful
-        Log.d("FCM", "Token aggiornato su Supabase: $ok")
         return@withContext ok
 
     } catch (e: Exception) {
@@ -74,9 +71,8 @@ suspend fun aggiornaTokenFCMUtenteSeDiverso(context: Context, nuovoToken: String
 suspend fun prendiTokenFCMDaEmail(context: Context, email: String): String? = withContext(Dispatchers.IO) {
     val client = OkHttpClient()
     val token = getAccessToken(context) ?: return@withContext null
-
     val request = Request.Builder()
-        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti?email=eq.$email&select=token_fcm")
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti?email=eq.$email&select=fcm_token")
         .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
         .addHeader("Authorization", "Bearer $token")
         .addHeader("Accept", "application/json")
@@ -86,7 +82,7 @@ suspend fun prendiTokenFCMDaEmail(context: Context, email: String): String? = wi
         if (!response.isSuccessful) return@withContext null
         val json = response.body?.string() ?: return@withContext null
         val result = Json.parseToJsonElement(json).jsonArray
-        return@withContext result.getOrNull(0)?.jsonObject?.get("token_fcm")?.jsonPrimitive?.content
+        return@withContext result.getOrNull(0)?.jsonObject?.get("fcm_token")?.jsonPrimitive?.content
     }
 }
 

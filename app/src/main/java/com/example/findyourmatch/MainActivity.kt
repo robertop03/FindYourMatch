@@ -56,7 +56,6 @@ class MainActivity : FragmentActivity() {
                         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                             if (task.isSuccessful) {
                                 val token = task.result
-                                Log.d("FCM", "TOKEN ottenuto: $token")
 
                                 CoroutineScope(Dispatchers.IO).launch {
                                     aggiornaTokenFCMUtenteSeDiverso(context = context, nuovoToken = token)

@@ -93,7 +93,7 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
         "recensione" -> Blue
         "obiettivo" -> Purple
         "richiesta" -> LightBlue
-        "annullata" -> Red
+        "annulla" -> Red
         else -> Silver
     }
 
@@ -104,7 +104,7 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
         "recensione" -> Icons.Default.Star
         "obiettivo" -> Icons.Default.EmojiEvents
         "richiesta" -> Icons.AutoMirrored.Filled.Help
-        "annullata" -> Icons.Default.Cancel
+        "annulla" -> Icons.Default.Cancel
         else -> Icons.Default.Notifications
     }
 

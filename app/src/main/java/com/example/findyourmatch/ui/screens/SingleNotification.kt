@@ -59,11 +59,13 @@ import com.example.findyourmatch.data.notifications.Notifica
 import com.example.findyourmatch.data.notifications.aggiungiGiocatoreAllaSquadra
 import com.example.findyourmatch.data.notifications.aggiungiNotificaAccettazione
 import com.example.findyourmatch.data.notifications.aggiungiNotificaRifiuto
+import com.example.findyourmatch.data.notifications.inviaNotificaPush
 import com.example.findyourmatch.data.notifications.prendiNomeCognomeDaEmail
 import com.example.findyourmatch.data.notifications.prendiNomiSquadreDaPartita
 import com.example.findyourmatch.data.notifications.prendiNumeroMassimoPartecipanti
 import com.example.findyourmatch.data.notifications.prendiNumeroPartecipantiInSquadra
 import com.example.findyourmatch.data.notifications.prendiPunteggioRecensione
+import com.example.findyourmatch.data.notifications.prendiTokenFCMDaEmail
 import com.example.findyourmatch.data.notifications.segnaNotificaComeGestita
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
@@ -78,6 +80,10 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun Notifica(notifica: Notifica, navController: NavHostController) {
@@ -99,6 +105,8 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
     var showDialogAccetta by remember { mutableStateOf(false) }
     var showDialogRifiuta by remember { mutableStateOf(false) }
 
+    val json = Json.encodeToString(notifica)
+    val encoded = URLEncoder.encode(json, StandardCharsets.UTF_8.toString())
 
     Box(
         modifier = Modifier
@@ -458,6 +466,11 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                                                     idPartita = notifica.partita
                                                                 )
                                                                 segnaNotificaComeGestita(context, notifica.idNotifica)
+
+                                                                val tokenFcm = prendiTokenFCMDaEmail(context, notifica.destinatario)
+                                                                if(tokenFcm != null){
+                                                                    inviaNotificaPush("Richiesta accettata", "Sei stato accettato alla partita", tokenFcm)
+                                                                }
                                                                 Toast.makeText(context, "$nome $cognome ${localizedContext.getString(R.string.aggiunto_a)} $squadra1", Toast.LENGTH_SHORT).show()
                                                                 showDialogAccetta = false
                                                                 navController.navigate(NavigationRoute.Notifications) {
@@ -496,6 +509,10 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                                                     idPartita = notifica.partita
                                                                 )
                                                                 segnaNotificaComeGestita(context, notifica.idNotifica)
+                                                                val tokenFcm = prendiTokenFCMDaEmail(context, notifica.destinatario)
+                                                                if(tokenFcm != null){
+                                                                    inviaNotificaPush("Richiesta accettata", "Sei stato accettato alla partita", tokenFcm)
+                                                                }
                                                                 Toast.makeText(context, "$nome $cognome ${localizedContext.getString(R.string.aggiunto_a)} $squadra2", Toast.LENGTH_SHORT).show()
                                                                 showDialogAccetta = false
                                                                 navController.navigate(NavigationRoute.Notifications) {
@@ -557,6 +574,10 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                                         idPartita = notifica.partita!!
                                                     )
                                                     segnaNotificaComeGestita(context, notifica.idNotifica)
+                                                    val tokenFcm = prendiTokenFCMDaEmail(context, notifica.richiedente)
+                                                    if(tokenFcm != null){
+                                                        inviaNotificaPush("Richiesta rifiutata", "L'amministratore ha rifiutato la tua richiesta di partecipazione", tokenFcm)
+                                                    }
                                                     showDialogRifiuta = false
                                                     navController.navigate(NavigationRoute.Notifications) {
                                                         popUpTo(NavigationRoute.Notifications) { inclusive = true }
@@ -616,12 +637,8 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                             )
                         )
                     }
-                    "annullata" -> {
-                        // la partita del (data e orario)
-
-                        // che si sarebbe disputata a (luogo) è stata cancellata
-
-
+                    "annulla" -> {
+                        // la descizione è già contenuta nel testo
                     }
                 }
 

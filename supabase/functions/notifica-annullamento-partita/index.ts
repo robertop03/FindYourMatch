@@ -6,6 +6,14 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+function formattaData(dataISO: string): string {
+  const data = new Date(dataISO);
+  return `${data.toLocaleDateString("it-IT")} alle ${data.toLocaleTimeString("it-IT", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
+}
+
 serve(async (_req) => {
   try {
     const supabase = createClient(
@@ -15,11 +23,11 @@ serve(async (_req) => {
 
     const now = new Date().toISOString();
 
-    // Prendi solo partite con iscrizioni scadute
+    // Prendi partite scadute + data + luogo + campo (join manuale)
     const { data: partiteScadute, error: errorPartite } = await supabase
       .from("partite")
-      .select("idPartita, maxGiocatori")
-      .lte("dataOraFineIscrizioni", now);
+      .select("idPartita, maxGiocatori, dataOraInizio, luogo, campi_sportivi(nome, citta)")
+      .lte("dataOraScadenzaIscrizione", now);
 
     if (errorPartite) throw errorPartite;
 
@@ -27,8 +35,13 @@ serve(async (_req) => {
     const idPartiteDaEliminare: number[] = [];
 
     for (const partita of partiteScadute || []) {
-      const idPartita = partita.idPartita;
-      const maxGiocatori = partita.maxGiocatori;
+      const { idPartita, maxGiocatori, dataOraInizio, campi_sportivi } = partita;
+
+      const luogoDescrizione = campi_sportivi
+        ? `${campi_sportivi.nome} (${campi_sportivi.citta})`
+        : "luogo sconosciuto";
+
+      const dataFormattata = formattaData(dataOraInizio);
 
       // Conta i giocatori iscritti
       const { data: giocatori, error: errorGiocatori } = await supabase
@@ -38,27 +51,69 @@ serve(async (_req) => {
 
       if (errorGiocatori) throw errorGiocatori;
 
-      // Solo se giocatori < maxGiocatori si procede
       if ((giocatori?.length || 0) < maxGiocatori) {
         idPartiteDaEliminare.push(idPartita);
 
         for (const g of giocatori || []) {
-          const email = g.utente;
-
-          notifiche.push({
-            titolo: "Partita annullata",
-            testo: "La partita è stata annullata per mancanza di iscrizioni sufficienti.",
-            destinatario: email,
-            partita: idPartita,
-            tipologia: "annulla",
-            titolo_en: "Match cancelled",
-            testo_en: "The match was cancelled due to insufficient registrations.",
-          });
-        }
-      }
+			const email = g.utente;
+			
+			// Recupera il token FCM dell'utente
+			const { data: utente, error: errorUtente } = await supabase
+				.from("utenti")
+				.select("fcm_token")
+				.eq("email", email)
+				.single();
+			
+			if (errorUtente) {
+				console.warn(`Errore recupero fcm_token per ${email}:`, errorUtente.message);
+			}
+			
+			const fcmToken = utente?.fcm_token;
+			
+			// Costruzione della notifica
+			const notifica = {
+				titolo: "Partita annullata",
+				testo: `La partita del ${dataFormattata} presso ${luogoDescrizione} è stata annullata per mancanza di iscrizioni sufficienti.`,
+				destinatario: email,
+				partita: null,
+				tipologia: "annulla",
+				titolo_en: "Match cancelled",
+				testo_en: `The match on ${dataFormattata} at ${luogoDescrizione} was cancelled due to insufficient registrations.`,
+			};
+			
+			notifiche.push(notifica); // viene comunque inserita nel DB
+			
+			// Invia push solo se esiste fcmToken
+			if (fcmToken) {
+				try {
+				const pushResponse = await fetch("https://fcm-proxy.onrender.com/api/send-notification", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+					fcmToken,
+					notificaJson: {
+						titolo: notifica.titolo,
+						testo: notifica.testo,
+					},
+					}),
+				});
+			
+				if (pushResponse.ok) {
+					console.log(`Push inviata a ${email}`);
+				} else {
+					const err = await pushResponse.text();
+					console.warn(`Push fallita per ${email}:`, err);
+				}
+				} catch (err) {
+				console.error(`Errore invio push a ${email}:`, err);
+				}
+			} else {
+				console.log(`Nessun fcmToken per ${email}, aggiunta solo al DB`);
+			}
+		}
     }
 
-    // Invia notifiche PRIMA dell’eliminazione
+    // Invia notifiche
     if (notifiche.length > 0) {
       const { error: errorInsert } = await supabase
         .from("notifiche")
@@ -66,7 +121,7 @@ serve(async (_req) => {
       if (errorInsert) throw errorInsert;
     }
 
-    // Elimina partite con giocatori insufficienti
+    // Elimina le partite
     if (idPartiteDaEliminare.length > 0) {
       const { error: errorDelete } = await supabase
         .from("partite")
@@ -78,7 +133,7 @@ serve(async (_req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        messaggio: "Notifiche inviate e partite con giocatori insufficienti eliminate",
+        messaggio: "Notifiche inviate e partite eliminate",
         partiteEliminate: idPartiteDaEliminare.length,
         notificheInviate: notifiche.length,
       }),
@@ -92,6 +147,7 @@ serve(async (_req) => {
     );
   }
 });
+
 
 
 

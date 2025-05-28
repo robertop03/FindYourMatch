@@ -1,7 +1,6 @@
 package com.example.findyourmatch.data.notifications
 
 import android.content.Context
-import android.util.Log
 import kotlinx.datetime.Instant
 import com.example.findyourmatch.data.user.SessionManager
 import kotlinx.coroutines.Dispatchers
@@ -141,7 +140,6 @@ suspend fun prendiPunteggioRecensione(
 suspend fun prendiNomiSquadreDaPartita(context: Context, idPartita: Int): List<String> = withContext(Dispatchers.IO) {
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext emptyList()
-    Log.d("TOKEN prendiNomiSquadreDaPartita", token)
 
     val request = Request.Builder()
         .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/squadre?partita=eq.$idPartita&select=nome")
@@ -163,7 +161,6 @@ suspend fun prendiNomiSquadreDaPartita(context: Context, idPartita: Int): List<S
 suspend fun prendiNumeroMassimoPartecipanti(context: Context, idPartita: Int): Int? = withContext(Dispatchers.IO) {
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext null
-    Log.d("TOKEN prendiNumeroMassimoPartecipanti", token)
 
     val request = Request.Builder()
         .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/partite?idPartita=eq.$idPartita&select=tipo")
@@ -192,7 +189,6 @@ suspend fun prendiNumeroPartecipantiInSquadra(
 ): Int = withContext(Dispatchers.IO) {
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext 0
-    Log.d("TOKEN prendiNumeroPartecipantiInSquadra", token)
 
     val request = Request.Builder()
         .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/giocatori_squadra?partita=eq.$idPartita&squadra=eq.$nomeSquadra&select=utente")
@@ -205,8 +201,6 @@ suspend fun prendiNumeroPartecipantiInSquadra(
         if (!response.isSuccessful) return@withContext 0
         val json = response.body?.string() ?: return@withContext 0
         val result = Json.parseToJsonElement(json).jsonArray
-        Log.d("RESULT", result.toString())
-        Log.d("RESULT SIZE", result.size.toString())
         return@withContext result.size
     }
 }
@@ -219,7 +213,6 @@ suspend fun aggiungiGiocatoreAllaSquadra(
 ): Boolean = withContext(Dispatchers.IO) {
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext false
-    Log.d("TOKEN", token)
     val jsonBody = """
         {
             "utente": "$email",
@@ -348,4 +341,30 @@ fun creaCanaleNotifiche(context: Context) {
     }
     val notificationManager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     notificationManager.createNotificationChannel(channel)
+}
+
+suspend fun inviaNotificaPush(titolo: String, testo: String, fcmToken: String): Boolean = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+
+    val bodyJson = """
+    {
+        "fcmToken": "$fcmToken",
+        "notificaJson": {
+            "titolo": "$titolo",
+            "testo": "$testo"
+        }
+    }
+""".trimIndent()
+
+
+    val requestBody = bodyJson.toRequestBody("application/json".toMediaTypeOrNull())
+    val request = Request.Builder()
+        .url("https://fcm-proxy.onrender.com/api/send-notification")
+        .post(requestBody)
+        .addHeader("Content-Type", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        return@withContext response.isSuccessful
+    }
 }
