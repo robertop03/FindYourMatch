@@ -89,7 +89,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
     )
 
     val fingerprintEnabled by userSettings.fingerprintEnabled.collectAsState(initial = true)
-
+    val notificationsEnabled by userSettings.notificationsEnabled.collectAsState(initial = true)
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -195,17 +195,20 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                         if (result.isSuccess) {
                             snackbarHostState.showSnackbar(localizedContext.getString(R.string.login_successo))
                             notificheViewModel.ricaricaNotifiche()
-                            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    val token = task.result
+                            if(notificationsEnabled){
+                                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        val token = task.result
 
-                                    CoroutineScope(Dispatchers.IO).launch {
-                                        aggiornaTokenFCMUtenteSeDiverso(context = context, nuovoToken = token)
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            aggiornaTokenFCMUtenteSeDiverso(context = context, nuovoToken = token)
+                                        }
+                                    } else {
+                                        Log.e("FCM", "Errore ottenimento token", task.exception)
                                     }
-                                } else {
-                                    Log.e("FCM", "Errore ottenimento token", task.exception)
                                 }
                             }
+
                             navController.navigate(NavigationRoute.Profile) {
                                 popUpTo(NavigationRoute.Login) { inclusive = true }
                             }

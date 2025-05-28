@@ -86,3 +86,31 @@ suspend fun prendiTokenFCMDaEmail(context: Context, email: String): String? = wi
     }
 }
 
+suspend fun impostaFcmTokenNull(context: Context, email: String): Boolean = withContext(Dispatchers.IO) {
+    try {
+        val accessToken = getAccessToken(context) ?: return@withContext false
+
+        val client = OkHttpClient()
+
+        val body = """
+            {
+                "fcm_token": null
+            }
+        """.trimIndent().toRequestBody("application/json".toMediaTypeOrNull())
+
+        val request = Request.Builder()
+            .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti?email=eq.$email")
+            .method("PATCH", body)
+            .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+            .addHeader("Authorization", "Bearer $accessToken")
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Prefer", "return=representation")
+            .build()
+
+        val response = client.newCall(request).execute()
+        return@withContext response.isSuccessful
+    } catch (e: Exception) {
+        Log.e("FCM", "Errore durante l’annullamento del token FCM", e)
+        return@withContext false
+    }
+}

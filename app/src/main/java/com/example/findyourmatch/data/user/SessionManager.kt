@@ -45,6 +45,7 @@ object SessionManager {
         val token = getAccessToken(context) ?: return@withContext false
         val client = OkHttpClient()
         val request = Request.Builder()
+
             .url("https://ugtxgylfzblkvudpnagi.supabase.co/auth/v1/user")
             .addHeader("Authorization", "Bearer $token")
             .addHeader(
