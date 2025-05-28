@@ -1,6 +1,7 @@
 package com.example.findyourmatch.ui.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,9 +51,15 @@ import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
 import com.example.findyourmatch.R
+import com.example.findyourmatch.data.notifications.aggiornaTokenFCMUtenteSeDiverso
+import com.example.findyourmatch.data.notifications.impostaFcmTokenNull
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
+import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.viewmodel.SessionViewModel
+import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -169,7 +176,30 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(localizedContext.getString(R.string.notifiche), fontSize = 14.sp)
-                    Switch(checked = notificationsEnabled, onCheckedChange = { notificationsEnabled = it })
+                    Switch(checked = notificationsEnabled, onCheckedChange = {
+                        notificationsEnabled = it
+                        if(!notificationsEnabled){
+                            // setto a null fcm_token se utente è loggato
+                            if (isLoggedIn){
+                                coroutineScope.launch {
+                                    val email = getLoggedUserEmail(context)
+                                    impostaFcmTokenNull(context, email!!)
+                                }
+                            }
+                        }else{
+                            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val token = task.result
+
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        aggiornaTokenFCMUtenteSeDiverso(context = context, nuovoToken = token)
+                                    }
+                                } else {
+                                    Log.e("FCM", "Errore ottenimento token", task.exception)
+                                }
+                            }
+                        }
+                    })
                 }
 
                 Row(
