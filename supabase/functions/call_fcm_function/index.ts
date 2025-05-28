@@ -7,7 +7,7 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { GoogleAuth } from "https://esm.sh/google-auth-library@8.7.0";
 
-import serviceAccount from "./service_account_key.json" assert { type: "json" };
+// import serviceAccount from "./service_account_key.json" assert { type: "json" };
 
 serve(async (req) => {
   try {
@@ -30,9 +30,19 @@ serve(async (req) => {
     }
 
     // Autenticazione tramite service_account_key.json
-    const auth = new GoogleAuth({
-      scopes: ["https://www.googleapis.com/auth/firebase.messaging"],
-    });
+	const rawKey = Deno.env.get("GOOGLE_CREDENTIALS_JSON");
+
+	if (!rawKey) {
+		return new Response("Chiave FCM mancante", { status: 500 });
+	}
+
+	const credentials = JSON.parse(rawKey);
+	
+	const auth = new GoogleAuth({
+		credentials,
+		scopes: ["https://www.googleapis.com/auth/firebase.messaging"],
+	});
+
 
     const client = await auth.getClient();
     const accessToken = await client.getAccessToken();

@@ -50,7 +50,8 @@ serve(async (_req) => {
         if (errorCheck) throw errorCheck;
         if (esiste) continue;
 
-        notifiche.push({
+        // Inserisci la notifica nel DB
+        const notifica = {
           titolo: "Sta per iniziare una partita!",
           testo: "Preparati! Il tuo calcetto inizia tra un'ora.",
           destinatario: email,
@@ -58,7 +59,33 @@ serve(async (_req) => {
           tipologia: "partita",
           titolo_en: "Your match is coming up!",
           testo_en: "Get ready! Your match starts in one hour.",
-        });
+        };
+        notifiche.push(notifica);
+
+        // Controlla se ha un token FCM
+        const { data: utente, error: errorToken } = await supabase
+          .from("utenti")
+          .select("fcm_token")
+          .eq("email", email)
+          .maybeSingle();
+
+        if (errorToken) throw errorToken;
+
+        const fcmToken = utente?.fcm_token;
+        if (fcmToken) {
+          // Invia la notifica via FCM proxy
+          await fetch("https://fcm-proxy.onrender.com/api/send-notification", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fcmToken,
+              notificaJson: {
+                titolo: notifica.titolo,
+                testo: notifica.testo,
+              },
+            }),
+          });
+        }
       }
     }
 
@@ -72,7 +99,7 @@ serve(async (_req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        messaggio: "Notifiche inviate con successo",
+        messaggio: "Notifiche gestite con successo",
         count: notifiche.length,
       }),
       { headers: { "Content-Type": "application/json" } }
@@ -85,6 +112,7 @@ serve(async (_req) => {
     );
   }
 });
+
 
 
 
