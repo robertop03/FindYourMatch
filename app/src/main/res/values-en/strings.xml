@@ -33,7 +33,7 @@
     <string name="login">Login</string>
     <string name="indietro">Back</string>
     <string name="errore_validazione">Validation error.</string>
-    <string name="campo_non_vuoto">Choose from the gallery</string>
+    <string name="campo_non_vuoto">The field &quot;%1$s&quot; cannot be empty.</string>
     <string name="password_non_coincide">Passwords do not match.</string>
     <string name="password_troppo_corta">Password must be at least 8 characters.</string>
     <string name="email_non_valida">The email address is not valid.</string>
