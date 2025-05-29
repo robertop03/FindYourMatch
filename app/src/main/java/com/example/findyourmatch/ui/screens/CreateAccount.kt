@@ -30,6 +30,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -340,7 +341,10 @@ fun CreaAccount(navController: NavHostController) {
                         value = prefisso,
                         onValueChange = {},
                         readOnly = true,
-                        modifier = Modifier.menuAnchor(),
+                        modifier = Modifier.menuAnchor(
+                            type = MenuAnchorType.PrimaryEditable,
+                            enabled = true
+                        ),
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = prefissoExpanded) },
                         singleLine = true
                     )
@@ -398,7 +402,10 @@ fun CreaAccount(navController: NavHostController) {
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(
+                            type = MenuAnchorType.PrimaryEditable,
+                            enabled = true
+                        )
                         .width(330.dp),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(statoExpanded) },
                     placeholder = { Text(localizedContext.getString(R.string.stato)) }
@@ -442,7 +449,10 @@ fun CreaAccount(navController: NavHostController) {
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(
+                            type = MenuAnchorType.PrimaryEditable,
+                            enabled = true
+                        )
                         .width(330.dp),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(provinciaExpanded) },
                     placeholder = { Text(localizedContext.getString(R.string.provincia))}

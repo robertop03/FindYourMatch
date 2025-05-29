@@ -106,7 +106,6 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
     var showDialogRifiuta by remember { mutableStateOf(false) }
 
     val json = Json.encodeToString(notifica)
-    val encoded = URLEncoder.encode(json, StandardCharsets.UTF_8.toString())
 
     Box(
         modifier = Modifier
