@@ -31,7 +31,7 @@ class UserSettings(private val context: Context) {
         .map { it[NOTIFICATIONS_KEY] ?: true }
 
     val fingerprintEnabled: Flow<Boolean> = context.dataStore.data
-        .map { it[FINGERPRINT_KEY] ?: true }
+        .map { it[FINGERPRINT_KEY] ?: false }
 
     val maxDistance: Flow<Float> = context.dataStore.data
         .map { it[MAX_DISTANCE_KEY] ?: 50f }

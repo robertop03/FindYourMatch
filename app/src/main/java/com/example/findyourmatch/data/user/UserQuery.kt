@@ -1,9 +1,12 @@
 package com.example.findyourmatch.data.user
 
 import android.content.Context
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDate
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -19,6 +22,16 @@ data class IndirizzoUtente(
     val citta: String,
     val via: String,
     val civico: String
+)
+
+@Serializable
+data class AnagraficaUtente(
+    val nome: String,
+    val cognome: String,
+    @SerialName("data_nascita") val nascita: String,
+    val sesso: String,
+    @SerialName("data_iscrizione") val iscrizione: String,
+    val email: String
 )
 
 suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatchers.IO) {
@@ -94,3 +107,29 @@ suspend fun getIndirizzoUtente(context: Context): IndirizzoUtente? = withContext
     }
 }
 
+suspend fun getUserInfo(context: Context): AnagraficaUtente? = withContext(Dispatchers.IO) {
+    val email = getLoggedUserEmail(context) ?: return@withContext null
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val client = OkHttpClient()
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti?email=eq.${email}&select=nome,cognome,data_nascita,sesso,data_iscrizione,email")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) return@withContext null
+        val json = response.body?.string() ?: return@withContext null
+        val users = Json.decodeFromString(
+            kotlinx.serialization.builtins.ListSerializer(AnagraficaUtente.serializer()),
+            json
+        )
+        Log.d("SUPABASE", users.toString())
+        return@withContext users.firstOrNull()
+    }
+}
