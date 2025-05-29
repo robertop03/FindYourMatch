@@ -1,11 +1,9 @@
 package com.example.findyourmatch.data.user
 
 import android.content.Context
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -129,7 +127,6 @@ suspend fun getUserInfo(context: Context): AnagraficaUtente? = withContext(Dispa
             kotlinx.serialization.builtins.ListSerializer(AnagraficaUtente.serializer()),
             json
         )
-        Log.d("SUPABASE", users.toString())
         return@withContext users.firstOrNull()
     }
 }
