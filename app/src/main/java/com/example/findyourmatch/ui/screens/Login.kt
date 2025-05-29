@@ -62,6 +62,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.findyourmatch.data.notifications.aggiornaTokenFCMUtenteSeDiverso
 import com.example.findyourmatch.data.user.SessionManager
+import com.example.findyourmatch.ui.theme.Green
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
 import com.google.firebase.messaging.FirebaseMessaging
@@ -117,6 +118,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                     append(localizedContext.getString(R.string.email))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
@@ -125,7 +127,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text(localizedContext.getString(R.string.email_placeholder)) },
+                placeholder = { Text(localizedContext.getString(R.string.email_placeholder), color = MaterialTheme.colorScheme.onSecondaryContainer) },
                 singleLine = true,
                 modifier = Modifier
                     .width(330.dp)
@@ -139,6 +141,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                     append(localizedContext.getString(R.string.password))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
@@ -147,7 +150,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text(localizedContext.getString(R.string.password_placeholder)) },
+                placeholder = { Text(localizedContext.getString(R.string.password_placeholder), color = MaterialTheme.colorScheme.onSecondaryContainer) },
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -255,9 +258,14 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                                     snackbarHostState.showSnackbar(it)
                                 }
                             },
-                            localizedContext
+                            localizedContext,
+
                         )
                     },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Green,
+                        contentColor = MaterialTheme.colorScheme.secondaryContainer
+                    ),
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .width(330.dp)
@@ -281,8 +289,8 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                     .width(330.dp)
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.background
+                    containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.secondaryContainer
                 )
             ) {
                 Text(localizedContext.getString(R.string.accedi), fontWeight = FontWeight.Bold)
@@ -293,7 +301,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
             Text(
                 text = localizedContext.getString(R.string.password_dimenticata),
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .clickable { navController.navigate(NavigationRoute.RestorePassword) },
@@ -306,11 +314,11 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text(localizedContext.getString(R.string.no_account))
+                Text(localizedContext.getString(R.string.no_account), color = MaterialTheme.colorScheme.onSecondaryContainer)
                 Text(
                     text = localizedContext.getString(R.string.crea_account),
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.clickable {
                         navController.navigate(NavigationRoute.CreateAccount)
                     },

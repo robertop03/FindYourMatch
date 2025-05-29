@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,7 +17,6 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -57,7 +55,6 @@ import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.cambiaPasswordUtente
 import com.example.findyourmatch.navigation.NavigationRoute
 import com.example.findyourmatch.ui.theme.Green
-import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.White
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,6 +69,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
 @Composable
 fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionViewModel) {
+    val showBackButton = navController.previousBackStackEntry != null
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -98,28 +96,11 @@ fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionVi
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                IconButton(
-                    onClick = { navController.navigateUp() },
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = localizedContext.getString(R.string.indietro),
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-
-                Text(
-                    text = localizedContext.getString(R.string.cambia_pw),
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-            }
+            TopBarWithBackButton(
+                navController = navController,
+                title = localizedContext.getString(R.string.impostazioni),
+                showBackButton = showBackButton
+            )
 
             Spacer(Modifier.height(24.dp))
 
@@ -129,6 +110,7 @@ fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionVi
                     append(localizedContext.getString(R.string.inserisci_nuova_pw))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
@@ -136,7 +118,7 @@ fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionVi
             OutlinedTextField(
                 value = newPassword,
                 onValueChange = { newPassword = it },
-                placeholder = { Text(localizedContext.getString(R.string.password_placeholder)) },
+                placeholder = { Text(localizedContext.getString(R.string.password_placeholder), color = MaterialTheme.colorScheme.onSecondaryContainer) },
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -159,6 +141,7 @@ fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionVi
                     append(localizedContext.getString(R.string.conferma_password))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
@@ -166,7 +149,7 @@ fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionVi
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                placeholder = { Text(localizedContext.getString(R.string.password_placeholder)) },
+                placeholder = { Text(localizedContext.getString(R.string.password_placeholder), color = MaterialTheme.colorScheme.onSecondaryContainer) },
                 singleLine = true,
                 visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -215,8 +198,8 @@ fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionVi
                         .width(150.dp)
                         .height(42.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black,
-                        contentColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = White
                     )
                 ) {
                     Text(localizedContext.getString(R.string.salva), fontWeight = FontWeight.Bold)
@@ -228,7 +211,7 @@ fun CambiaPassword(navController: NavHostController, sessionViewModel: SessionVi
                         .width(150.dp)
                         .height(42.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Red,
+                        containerColor = MaterialTheme.colorScheme.tertiary,
                         contentColor = White
                     )
                 ) {
