@@ -168,6 +168,8 @@
 
     <!-- PROFILO -->
     <string name="profilo">Profilo</string>
+    <string name="scatta_foto">Scatta una foto</string>
+    <string name="scegli_galleria">Scegli dalla galleria</string>
 
     <!-- RECENSIONI -->
     <string name="recensioni">Recensioni</string>
