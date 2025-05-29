@@ -92,6 +92,7 @@ import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import android.app.DatePickerDialog
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ModalBottomSheet
 import java.util.Calendar
 import java.time.LocalDate
@@ -262,7 +263,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .background(Black, shape = RoundedCornerShape(50))
+                        .background(MaterialTheme.colorScheme.onSecondaryContainer, shape = RoundedCornerShape(50))
                         .clickable {
                             showFilterSheet.value = true
                         }
@@ -273,11 +274,11 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                         Icon(
                             imageVector = Icons.Default.Tune,
                             contentDescription = null,
-                            tint = White,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(28.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(localizedContext.getString(R.string.filtra), color = White, fontWeight = FontWeight.Bold)
+                        Text(localizedContext.getString(R.string.filtra), color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -292,7 +293,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Black, shape = RoundedCornerShape(50))
+                            .background(MaterialTheme.colorScheme.onSecondaryContainer, shape = RoundedCornerShape(50))
                             .clickable {
                                 menuEspanso = true
                             }
@@ -300,13 +301,13 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                         contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(trovaTesto, color = White, fontWeight = FontWeight.Bold)
+                            Text(trovaTesto, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.width(6.dp))
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
                                 contentDescription = null,
-                                tint = White,
-                                modifier = Modifier.size(28.dp)
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(28.dp),
                             )
                         }
                     }
@@ -319,7 +320,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                     ) {
                         val alternativa = if (trovaTesto == localizedContext.getString(R.string.trova)) localizedContext.getString(R.string.gestisci) else localizedContext.getString(R.string.trova)
                         DropdownMenuItem(
-                            text = { Text(alternativa) },
+                            text = { Text(alternativa, color = Black) },
                             onClick = {
                                 trovaTesto = alternativa
                                 menuEspanso = false
