@@ -92,8 +92,8 @@ import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import android.app.DatePickerDialog
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ModalBottomSheet
+import com.example.findyourmatch.ui.theme.Red
 import java.util.Calendar
 import java.time.LocalDate
 
@@ -435,8 +435,8 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                     Text(localizedContext.getString(R.string.annulla))
                 }
             },
-            title = { Text(localizedContext.getString(R.string.permesso_richiesto)) },
-            text = { Text(localizedContext.getString(R.string.permesso_richiesto_testo)) }
+            title = { Text(localizedContext.getString(R.string.permesso_richiesto), color = MaterialTheme.colorScheme.onSecondaryContainer) },
+            text = { Text(localizedContext.getString(R.string.permesso_richiesto_testo), color = MaterialTheme.colorScheme.onSecondaryContainer) }
         )
     }
 
@@ -445,7 +445,11 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
             onDismissRequest = { showFilterSheet.value = false }
         ) {
             Column(Modifier.padding(16.dp)) {
-                Text(localizedContext.getString(R.string.tipo_partita), fontWeight = FontWeight.Bold)
+                Text(
+                    localizedContext.getString(R.string.tipo_partita),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
                 listOf(localizedContext.getString(R.string.calcio_a_11), localizedContext.getString(R.string.calcio_a_8), localizedContext.getString(R.string.calcio_a_7), localizedContext.getString(R.string.calcio_a_5)).forEach { tipo ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -458,28 +462,32 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                             selected = selectedTipoPartita.value == tipo,
                             onClick = { selectedTipoPartita.value = tipo }
                         )
-                        Text(tipo)
+                        Text(tipo, color = MaterialTheme.colorScheme.onSecondaryContainer)
                     }
                 }
                 Spacer(Modifier.height(16.dp))
-                Text(localizedContext.getString(R.string.periodo), fontWeight = FontWeight.Bold)
+                Text(
+                    localizedContext.getString(R.string.periodo),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TextButton(onClick = { datePickerInizio.show() }) {
-                        Text("${localizedContext.getString(R.string.dal)}: ${dataInizio.value?.toString() ?: localizedContext.getString(R.string.seleziona)}")
+                        Text("${localizedContext.getString(R.string.dal)}: ${dataInizio.value?.toString() ?: localizedContext.getString(R.string.seleziona)}", color = MaterialTheme.colorScheme.onSecondaryContainer)
                     }
                     TextButton(onClick = { datePickerFine.show() }) {
-                        Text("${localizedContext.getString(R.string.al)}: ${dataFine.value?.toString() ?: localizedContext.getString(R.string.seleziona)}")
+                        Text("${localizedContext.getString(R.string.al)}: ${dataFine.value?.toString() ?: localizedContext.getString(R.string.seleziona)}", color = MaterialTheme.colorScheme.onSecondaryContainer)
                     }
                 }
 
 
                 Spacer(Modifier.height(12.dp))
 
-                Text(localizedContext.getString(R.string.prezzo_previsto), fontWeight = FontWeight.Bold)
+                Text(localizedContext.getString(R.string.prezzo_previsto), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
                 listOf("0–5€", "5–10€", localizedContext.getString(R.string.sopra_10)).forEach { fascia ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -492,7 +500,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
                             selected = selectedPrezzo.value == fascia,
                             onClick = { selectedPrezzo.value = fascia }
                         )
-                        Text(fascia)
+                        Text(fascia, color = MaterialTheme.colorScheme.onSecondaryContainer)
                     }
                 }
 
@@ -517,7 +525,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
 
                     }
                 ) {
-                    Text(localizedContext.getString(R.string.applica_filtri), fontWeight = FontWeight.Bold)
+                    Text(localizedContext.getString(R.string.applica_filtri), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
                 }
             }
         }
@@ -615,7 +623,7 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
                     modifier = Modifier
                         .size(45.dp)
                         .background(
-                            color = MaterialTheme.colorScheme.tertiary,
+                            color = Red,
                             shape = RoundedCornerShape(50)
                         )
                         .clickable {

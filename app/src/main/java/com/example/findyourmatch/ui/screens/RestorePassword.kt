@@ -43,6 +43,7 @@ import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.inviaEmailRecuperoPassword
+import com.example.findyourmatch.ui.theme.White
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
@@ -83,6 +84,7 @@ fun RecuperaPassword(navController: NavHostController) {
                 text = buildAnnotatedString {
                     append(localizedContext.getString(R.string.inserisci_email))
                 },
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth()
@@ -96,6 +98,7 @@ fun RecuperaPassword(navController: NavHostController) {
                     append(localizedContext.getString(R.string.email))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
@@ -105,7 +108,7 @@ fun RecuperaPassword(navController: NavHostController) {
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text(localizedContext.getString(R.string.email_placeholder)) },
+                placeholder = { Text(localizedContext.getString(R.string.email_placeholder), color = MaterialTheme.colorScheme.onSecondaryContainer) },
                 singleLine = true,
                 modifier = Modifier
                     .width(330.dp)
@@ -138,8 +141,8 @@ fun RecuperaPassword(navController: NavHostController) {
                         .width(200.dp)
                         .height(42.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black,
-                        contentColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = White
                     )
                 ) {
                     Text(localizedContext.getString(R.string.invia), fontWeight = FontWeight.Bold)

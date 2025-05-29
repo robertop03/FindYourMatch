@@ -57,6 +57,7 @@ import com.example.findyourmatch.data.notifications.impostaFcmTokenNull
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.data.user.getLoggedUserEmail
+import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
@@ -67,7 +68,6 @@ import kotlinx.coroutines.Dispatchers
 @Composable
 fun Settings(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val showBackButton = navController.previousBackStackEntry != null
-
     val languages = listOf("it", "en")
     var expanded by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -117,7 +117,8 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
 
             Text(
                 localizedContext.getString(R.string.preferenze),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Spacer(Modifier.height(8.dp))
 
@@ -144,7 +145,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                 ) {
                     languages.forEach { lang ->
                         DropdownMenuItem(
-                            text = { Text(lang) },
+                            text = { Text(lang, color = MaterialTheme.colorScheme.onSecondaryContainer) },
                             onClick = {
                                 selectedLanguage = lang
                                 expanded = false
@@ -158,6 +159,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
 
             Text(
                 localizedContext.getString(R.string.distanza_massima, maxDistance.toInt()),
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 14.sp
             )
 
@@ -171,7 +173,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
             if (isLoggedIn) {
                 HorizontalDivider(Modifier.padding(vertical = 12.dp))
 
-                Text("Privacy", style = MaterialTheme.typography.titleMedium)
+                Text("Privacy", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
                 Spacer(Modifier.height(8.dp))
 
                 Row(
@@ -179,7 +181,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(localizedContext.getString(R.string.notifiche), fontSize = 14.sp)
+                    Text(localizedContext.getString(R.string.notifiche), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSecondaryContainer)
                     Switch(checked = notificationsEnabled, onCheckedChange = {
                         notificationsEnabled = it
                         if(!notificationsEnabled){
@@ -211,7 +213,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(localizedContext.getString(R.string.impronta_digitale), fontSize = 14.sp)
+                    Text(localizedContext.getString(R.string.impronta_digitale), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSecondaryContainer)
                     Switch(checked = fingerprintEnabled, onCheckedChange = { fingerprintEnabled = it })
                 }
 
@@ -219,14 +221,15 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
 
                 Text(
                     localizedContext.getString(R.string.sicurezza),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
                 Spacer(Modifier.height(8.dp))
 
                 Text(
                     text = localizedContext.getString(R.string.cambia_pw),
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier
                         .clickable { navController.navigate(NavigationRoute.ChangePassword) }
@@ -254,12 +257,13 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                     },
                     modifier = Modifier.width(150.dp).height(42.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.background
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = White
                     )
                 ) {
                     Text(
                         localizedContext.getString(R.string.salva),
+                        color = White,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -270,7 +274,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                     modifier = Modifier.width(150.dp).height(42.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.tertiary,
-                        contentColor = MaterialTheme.colorScheme.background
+                        contentColor = White
                     )
                 ) {
                     Text(
@@ -291,8 +295,8 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                         onClick = { showLogoutDialog = true },
                         modifier = Modifier.width(330.dp).height(42.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary,
-                            contentColor = MaterialTheme.colorScheme.background
+                            containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.secondaryContainer
                         )
                     ) {
                         Text(
@@ -323,12 +327,12 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                             }
                         }
                     ) {
-                        Text(localizedContext.getString(R.string.conferma))
+                        Text(localizedContext.getString(R.string.conferma), color = White)
                     }
                 },
                 dismissButton = {
                     Button(onClick = { showLogoutDialog = false }) {
-                        Text(localizedContext.getString(R.string.annulla))
+                        Text(localizedContext.getString(R.string.annulla), color = White)
                     }
                 }
             )
