@@ -135,7 +135,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
-    var trovaTesto by remember { mutableStateOf(localizedContext.getString(R.string.trova)) }
+    var trovaTesto by remember(language) { mutableStateOf(localizedContext.getString(R.string.trova)) }
     var menuEspanso by remember { mutableStateOf(false) }
     var dropdownWidth by remember { mutableIntStateOf(0) }
     var userEmail by remember { mutableStateOf<String?>(null) }
@@ -204,8 +204,14 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     }
 
     // Caricamento iniziale
-    LaunchedEffect(userEmail, maxDistance) {
-        if (maxDistance != null) {
+    LaunchedEffect(language, userEmail, maxDistance) {
+        if (userEmail != null && maxDistance != null) {
+            if (trovaTesto != localizedContext.getString(R.string.trova) &&
+                trovaTesto != localizedContext.getString(R.string.gestisci)
+            ) {
+                trovaTesto = localizedContext.getString(R.string.trova)
+            }
+
             homeViewModel.loadPartite(
                 isLoggedIn = isLoggedIn,
                 isPermissionGranted = isPermissionGranted,

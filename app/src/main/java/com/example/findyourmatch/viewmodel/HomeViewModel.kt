@@ -64,8 +64,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
                 val partiteFiltrateUtente = tuttePartite.filter { partita ->
                     when (trovaTesto) {
-                        "Gestisci" -> partita.creatore == userEmail
-                        "Trova" -> partita.creatore != userEmail
+                        "Gestisci", "Manage" -> partita.creatore == userEmail
+                        "Trova", "Find" -> partita.creatore != userEmail
                         else -> true
                     }
                 }
