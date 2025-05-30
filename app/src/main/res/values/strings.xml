@@ -172,6 +172,8 @@
     <string name="scegli_galleria">Scegli dalla galleria</string>
     <string name="btn_modifica">Modifica profilo</string>
     <string name="btn_vedi_stats">Vedi statistiche</string>
+    <string name="iscrizione">Data di iscrizione</string>
+    <string name="citta_residenza">Città di residenza</string>
 
     <!-- RECENSIONI -->
     <string name="recensioni">Recensioni</string>
