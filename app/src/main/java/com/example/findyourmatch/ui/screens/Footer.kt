@@ -108,6 +108,7 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel,
 
             IconButton(onClick = { navController.navigate(NavigationRoute.CreateMatch){
                 launchSingleTop = true
+                popUpTo(navController.graph.startDestinationId) { saveState = true }
                 restoreState = true
             } }) {
                 Icon(
@@ -123,6 +124,7 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel,
                     if (SessionManager.isLoggedIn(sessionViewModel)) {
                         navController.navigate(NavigationRoute.Profile){
                             launchSingleTop = true
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
                             restoreState = true
                         }
                     } else {
@@ -150,6 +152,7 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel,
                         if (SessionManager.isLoggedIn(sessionViewModel)) {
                             navController.navigate(NavigationRoute.Notifications){
                                 launchSingleTop = true
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
                                 restoreState = true
                             }
                         } else {
