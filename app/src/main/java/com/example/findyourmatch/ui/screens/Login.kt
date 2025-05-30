@@ -314,7 +314,7 @@ fun Login(navController: NavHostController, sessionViewModel: SessionViewModel, 
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text(localizedContext.getString(R.string.no_account), color = MaterialTheme.colorScheme.onSecondaryContainer)
+                Text(localizedContext.getString(R.string.no_account) + " ", color = MaterialTheme.colorScheme.onSecondaryContainer)
                 Text(
                     text = localizedContext.getString(R.string.crea_account),
                     fontWeight = FontWeight.SemiBold,

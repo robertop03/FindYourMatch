@@ -135,25 +135,25 @@ fun Profile(navController: NavHostController) {
 
             Spacer(Modifier.height(24.dp))
 
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .clickable {
-//                        navController.navigate(NavigationRoute.Rewards)
-//                    }
-//                    .padding(vertical = 12.dp),
-//                horizontalArrangement = Arrangement.SpaceBetween,
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Text(
-//                    text = localizedContext.getString(R.string.tue_medaglie),
-//                    style = MaterialTheme.typography.titleMedium
-//                )
-//                Icon(
-//                    imageVector = Icons.Default.ChevronRight,
-//                    contentDescription = localizedContext.getString(R.string.vedi_tutte_medaglie)
-//                )
-//            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(NavigationRoute.Rewards)
+                    }
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = localizedContext.getString(R.string.tue_medaglie),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = localizedContext.getString(R.string.vedi_tutte_medaglie)
+                )
+            }
         }
     }
 
