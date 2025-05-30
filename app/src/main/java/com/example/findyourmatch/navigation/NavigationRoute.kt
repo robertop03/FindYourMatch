@@ -14,6 +14,7 @@ import com.example.findyourmatch.data.notifications.Notifica
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.ui.screens.*
 import com.example.findyourmatch.viewmodel.NotificheViewModel
+import com.example.findyourmatch.viewmodel.ProfileViewModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URLDecoder
@@ -55,7 +56,8 @@ fun NavGraph(
     sessionViewModel: SessionViewModel,
     modifier: Modifier = Modifier,
     activity: FragmentActivity,
-    notificheViewModel: NotificheViewModel
+    notificheViewModel: NotificheViewModel,
+    profileViewModel: ProfileViewModel
 ) {
     NavHost(
         navController = navController,
@@ -72,7 +74,7 @@ fun NavGraph(
             Settings(navController, sessionViewModel)
         }
         composable<NavigationRoute.Profile> {
-            Profile(navController)
+            Profile(navController, profileViewModel)
         }
         composable<NavigationRoute.Notifications> {
             Notifiche(navController, notificheViewModel)
