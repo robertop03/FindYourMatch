@@ -205,7 +205,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
 
     // Caricamento iniziale
     LaunchedEffect(language, userEmail, maxDistance) {
-        if (userEmail != null && maxDistance != null) {
+        if (maxDistance != null) {
             if (trovaTesto != localizedContext.getString(R.string.trova) &&
                 trovaTesto != localizedContext.getString(R.string.gestisci)
             ) {
