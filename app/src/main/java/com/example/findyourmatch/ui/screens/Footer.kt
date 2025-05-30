@@ -88,8 +88,10 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel,
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {
-                navController.navigate(NavigationRoute.Home){
-                    launchSingleTop = true
+                if(!isHomeSelected) {
+                    navController.navigate(NavigationRoute.Home) {
+                        launchSingleTop = true
+                    }
                 }
 
             }) {
@@ -101,11 +103,21 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel,
                 )
             }
 
-            IconButton(onClick = { navController.navigate(NavigationRoute.CreateMatch){
-                launchSingleTop = true
-                // popUpTo(navController.graph.startDestinationId) { saveState = true }
-                restoreState = true
-            } }) {
+            IconButton(onClick = {
+                if(!isCreateMatchSelected && SessionManager.isLoggedIn(sessionViewModel)){
+                    navController.navigate(NavigationRoute.CreateMatch){
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }else{
+                    if(!isLoginSelected) {
+                        navController.navigate(NavigationRoute.Login) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                }
+                 }) {
                 Icon(
                     imageVector = if (isCreateMatchSelected)
                         Icons.Filled.AddCircle else Icons.Outlined.AddCircle,
@@ -117,16 +129,18 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel,
             IconButton(onClick = {
                 coroutineScope.launch {
                     if (SessionManager.isLoggedIn(sessionViewModel)) {
-                        navController.navigate(NavigationRoute.Profile){
-                            launchSingleTop = true
-                            // popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            restoreState = true
+                        if(!isProfileSelected) {
+                            navController.navigate(NavigationRoute.Profile) {
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     } else {
-                        navController.navigate(NavigationRoute.Login){
-                            launchSingleTop = true
-                            // popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            restoreState = true
+                        if (!isLoginSelected) {
+                            navController.navigate(NavigationRoute.Login) {
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     }
                 }
@@ -145,16 +159,18 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel,
                 IconButton(onClick = {
                     coroutineScope.launch {
                         if (SessionManager.isLoggedIn(sessionViewModel)) {
-                            navController.navigate(NavigationRoute.Notifications){
-                                launchSingleTop = true
-                                // popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                restoreState = true
+                            if (!isNotificationSelected) {
+                                navController.navigate(NavigationRoute.Notifications) {
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
                             }
                         } else {
-                            navController.navigate(NavigationRoute.Login){
-                                launchSingleTop = true
-                                // popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                restoreState = true
+                            if (!isLoginSelected) {
+                                navController.navigate(NavigationRoute.Login) {
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
                             }
                         }
                     }
