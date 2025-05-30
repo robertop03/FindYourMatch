@@ -74,16 +74,13 @@ import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.Bronze
 import com.example.findyourmatch.ui.theme.Gold
 import com.example.findyourmatch.ui.theme.LightGreen
+import com.example.findyourmatch.ui.theme.LightGrey
 import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.Silver
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 @Composable
 fun Notifica(notifica: Notifica, navController: NavHostController) {
@@ -105,11 +102,10 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
     var showDialogAccetta by remember { mutableStateOf(false) }
     var showDialogRifiuta by remember { mutableStateOf(false) }
 
-    val json = Json.encodeToString(notifica)
-
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.onPrimary)
             .padding(16.dp),
         contentAlignment = Alignment.TopCenter
     ) {
@@ -118,7 +114,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                 .fillMaxWidth()
                 .height(550.dp)
                 .border(2.dp, LightGreen, RoundedCornerShape(16.dp))
-                .background(Color.White, RoundedCornerShape(16.dp))
+                .background(LightGrey, RoundedCornerShape(16.dp))
                 .padding(24.dp)
         ) {
             Column(
@@ -134,7 +130,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                 ) {
 
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Text("X", fontWeight = FontWeight.Bold, color = Color.Black)
+                        Text("X", fontWeight = FontWeight.Bold, color = Black)
                     }
                 }
 
@@ -151,7 +147,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
 
                 Spacer(Modifier.height(16.dp))
 
-                Icon(imageVector = icona, contentDescription = null, modifier = Modifier.size(48.dp), tint = Color.Black)
+                Icon(imageVector = icona, contentDescription = null, modifier = Modifier.size(48.dp), tint = Black)
 
                 Spacer(Modifier.height(16.dp))
 
@@ -159,6 +155,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                     text = notifica.titolo,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
+                    color = Black,
                     textAlign = TextAlign.Center
                 )
 
@@ -166,6 +163,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
 
                 Text(
                     text = notifica.testo,
+                    color = Black,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center
                 )
@@ -250,14 +248,14 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                         Text(
                             text = "${localizedContext.getString(R.string.autore)}: $nome $cognome",
                             fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = Black,
                             textAlign = TextAlign.Center
                         )
 
                         Text(
                             text = "${localizedContext.getString(R.string.contatto)}: ${notifica.autoreRecensione}",
                             fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = Black,
                             textAlign = TextAlign.Center
                         )
 
@@ -346,7 +344,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                 Icon(
                                     imageVector = icon,
                                     contentDescription = null,
-                                    tint = Color.Black,
+                                    tint = Black,
                                     modifier = Modifier.size(44.dp)
                                 )
                             }
@@ -354,7 +352,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                             Text(
                                 text = stringaObiettivo!!,
                                 fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = Black,
                                 textAlign = TextAlign.Center
                             )
 
@@ -398,7 +396,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                         Text(
                             text = "${localizedContext.getString(R.string.richiedente)}: $nome $cognome",
                             fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = Black,
                             textAlign = TextAlign.Center
                         )
 
@@ -422,7 +420,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                     modifier = Modifier.width(140.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = Red)
                                 ) {
-                                    Text(localizedContext.getString(R.string.rifiuta), color = Color.White)
+                                    Text(localizedContext.getString(R.string.rifiuta), color = Black)
                                 }
                             }
                         } else {
@@ -430,7 +428,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                             Text(
                                 text = localizedContext.getString(R.string.richiesta_gestita),
                                 fontSize = 14.sp,
-                                color = Color.Gray,
+                                color = Black,
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -438,7 +436,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                         if (showDialogAccetta) {
                             AlertDialog(
                                 onDismissRequest = { showDialogAccetta = false },
-                                title = { Text(localizedContext.getString(R.string.scegli_squadra)) },
+                                title = { Text(localizedContext.getString(R.string.scegli_squadra), color = Black) },
                                 text = {
                                     Column {
                                         Row(
@@ -483,6 +481,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                                         Text(
                                                             squadra1,
                                                             maxLines = 1,
+                                                            color = Black,
                                                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                                         )
                                                     }
@@ -490,7 +489,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                             }
 
                                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                Text("$squadra2: $partecipantiSquadra2 / $maxPartecipantiPerSquadra")
+                                                Text("$squadra2: $partecipantiSquadra2 / $maxPartecipantiPerSquadra", color = Black)
                                                 if (partecipantiSquadra2 >= maxPartecipantiPerSquadra) {
                                                     Text(localizedContext.getString(R.string.squadra_completa), color = Color.Red)
                                                 } else {
@@ -525,6 +524,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                                         Text(
                                                             squadra2,
                                                             maxLines = 1,
+                                                            color = Black,
                                                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                                         )
                                                     }
@@ -534,7 +534,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
 
                                         if (partecipantiSquadra1 >= maxPartecipantiPerSquadra && partecipantiSquadra2 >= maxPartecipantiPerSquadra) {
                                             Spacer(Modifier.height(16.dp))
-                                            Text(localizedContext.getString(R.string.squadre_al_completo), color = Color.Red)
+                                            Text(localizedContext.getString(R.string.squadre_al_completo), color = Black)
                                         }
                                     }
                                 },
@@ -544,7 +544,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                         modifier = Modifier
                                             .clickable { showDialogAccetta = false }
                                             .padding(8.dp),
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = Black
                                     )
                                 }
                             )
@@ -553,9 +553,9 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                         if (showDialogRifiuta) {
                             AlertDialog(
                                 onDismissRequest = { showDialogRifiuta = false },
-                                title = { Text(localizedContext.getString(R.string.conferma_rifiuto)) },
+                                title = { Text(localizedContext.getString(R.string.conferma_rifiuto), color = Black) },
                                 text = {
-                                    Text("${localizedContext.getString(R.string.rifiutare_richiesta_partecipazione)} $nome $cognome?")
+                                    Text("${localizedContext.getString(R.string.rifiutare_richiesta_partecipazione)} $nome $cognome?", color = Black)
                                 },
                                 confirmButton = {
                                     Text(
@@ -646,7 +646,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                 Text(
                     text = formattaDataOra(notifica.dataOraInvio),
                     fontSize = 12.sp,
-                    color = Color.DarkGray
+                    color = Black
                 )
             }
         }

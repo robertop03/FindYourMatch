@@ -84,7 +84,8 @@ fun CustomTopAppBar(navController: NavHostController) {
                             NavigationRoute.Settings
                         ) {
                             launchSingleTop = true
-                            popUpTo(NavigationRoute.Home) { inclusive = false }
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            restoreState = true
                         }
                     },
                     modifier = Modifier
