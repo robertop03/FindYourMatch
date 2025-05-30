@@ -1,2 +1,37 @@
 package com.example.findyourmatch.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.example.findyourmatch.data.user.AnagraficaUtente
+import com.example.findyourmatch.data.user.IndirizzoUtente
+import com.example.findyourmatch.data.user.getIndirizzoUtente
+import com.example.findyourmatch.data.user.getUserInfo
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+
+class ProfileViewModel(application: Application) : AndroidViewModel(application) {
+    private val _user = MutableStateFlow<AnagraficaUtente?>(null)
+    private val _userAddress = MutableStateFlow<IndirizzoUtente?>(null)
+    val user = _user
+    val userAddress = _userAddress
+
+    init {
+        viewModelScope.launch {
+            _user.value = getUserInfo(application)
+            _userAddress.value = getIndirizzoUtente(application)
+        }
+    }
+}
+
+class ProfileViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ProfileViewModel(application) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}

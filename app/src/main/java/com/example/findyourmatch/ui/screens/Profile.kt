@@ -1,5 +1,6 @@
 package com.example.findyourmatch.ui.screens
 
+import android.widget.Button
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,12 +14,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,7 +60,10 @@ import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.data.user.getUserInfo
 import com.example.findyourmatch.navigation.NavigationRoute
+import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.Silver
+import com.example.findyourmatch.ui.theme.White
+import com.example.findyourmatch.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
@@ -58,7 +71,7 @@ import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Profile(navController: NavHostController) {
+fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel) {
     val context = LocalContext.current
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
@@ -67,14 +80,8 @@ fun Profile(navController: NavHostController) {
     }
     val showDecisionOnProfileImage = remember { mutableStateOf(false) }
 
-    //fare sta roba nel viewmodel del profilo
-    var emailUtente by remember { mutableStateOf<String?>(null) }
-    var utente by remember { mutableStateOf<AnagraficaUtente?>(null) }
-
-    LaunchedEffect(Unit) {
-        emailUtente = getLoggedUserEmail(context)
-        utente = getUserInfo(context)
-    }
+    val utente by profileViewModel.user.collectAsState()
+    val indirizzo by profileViewModel.userAddress.collectAsState()
 
     Box(
         modifier = Modifier
@@ -129,6 +136,12 @@ fun Profile(navController: NavHostController) {
                             fontSize = 15.sp,
                             color = Silver
                         )
+                    }
+                    Spacer(modifier = Modifier.height(5.dp))
+                    utente?.let {
+                        generateButton(localizedContext.getString(R.string.btn_modifica), Icons.Default.Edit)
+                        Spacer(modifier = Modifier.height(5.dp))
+                        generateButton(localizedContext.getString(R.string.btn_vedi_stats), Icons.Default.Insights)
                     }
                 }
             }
@@ -191,5 +204,31 @@ fun Profile(navController: NavHostController) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun generateButton(text: String, icon: ImageVector) {
+    Button(
+        onClick = {},
+        modifier = Modifier
+            .height(35.dp)
+            .width(200.dp),
+        shape = RoundedCornerShape(50),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimary)
+        ){
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(text = text,
+            fontSize = 15.sp,
+            color = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.padding(0.dp))
     }
 }

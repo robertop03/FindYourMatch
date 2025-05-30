@@ -170,6 +170,8 @@
     <string name="profilo">Profilo</string>
     <string name="scatta_foto">Scatta una foto</string>
     <string name="scegli_galleria">Scegli dalla galleria</string>
+    <string name="btn_modifica">Modifica profilo</string>
+    <string name="btn_vedi_stats">Vedi statistiche</string>
 
     <!-- RECENSIONI -->
     <string name="recensioni">Recensioni</string>
