@@ -136,6 +136,7 @@ fun CreaAccount(navController: NavHostController) {
                         append(label)
                         withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                     },
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
@@ -166,6 +167,7 @@ fun CreaAccount(navController: NavHostController) {
                     },
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
                 )
                 OutlinedTextField(
@@ -228,6 +230,7 @@ fun CreaAccount(navController: NavHostController) {
                     append(localizedContext.getString(R.string.data_di_nascita))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier
@@ -285,6 +288,7 @@ fun CreaAccount(navController: NavHostController) {
                 },
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .width(330.dp)
@@ -307,7 +311,7 @@ fun CreaAccount(navController: NavHostController) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(selected = sesso == label, onClick = { sesso = label })
-                        Text(label)
+                        Text(label, color = MaterialTheme.colorScheme.onSecondaryContainer)
                     }
                 }
             }
@@ -322,6 +326,7 @@ fun CreaAccount(navController: NavHostController) {
                 },
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .width(330.dp)
@@ -384,6 +389,7 @@ fun CreaAccount(navController: NavHostController) {
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -408,7 +414,7 @@ fun CreaAccount(navController: NavHostController) {
                         )
                         .width(330.dp),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(statoExpanded) },
-                    placeholder = { Text(localizedContext.getString(R.string.stato)) }
+                    placeholder = { Text(localizedContext.getString(R.string.stato), color = MaterialTheme.colorScheme.onSecondaryContainer) }
                 )
                 LaunchedEffect(Unit) {
                     stati = fetchEUCountries(httpClient)
@@ -463,7 +469,7 @@ fun CreaAccount(navController: NavHostController) {
                 ) {
                     provinceList.forEach {
                         DropdownMenuItem(
-                            text = { Text(it) },
+                            text = { Text(it, color = MaterialTheme.colorScheme.onSecondaryContainer,) },
                             onClick = {
                                 provincia = it
                                 provinciaExpanded = false
@@ -518,6 +524,7 @@ fun CreaAccount(navController: NavHostController) {
                         append(localizedContext.getString(R.string.termini_privacy))
                         withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                     },
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp
                 )
@@ -688,8 +695,8 @@ fun CreaAccount(navController: NavHostController) {
                     .fillMaxWidth()
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.background
+                    containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.secondaryContainer
                 )
             ) {
                 Text(
@@ -702,11 +709,11 @@ fun CreaAccount(navController: NavHostController) {
 
             // Login link
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Text(localizedContext.getString(R.string.gia_account))
+                Text(localizedContext.getString(R.string.gia_account) + " ", color = MaterialTheme.colorScheme.onSecondaryContainer)
                 Text(
                     text = localizedContext.getString(R.string.login),
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable {
                         navController.navigate(NavigationRoute.Login)

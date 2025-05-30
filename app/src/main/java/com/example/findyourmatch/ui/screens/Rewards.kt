@@ -186,6 +186,7 @@ fun LegendBox() {
             text = localizedContext.getString(R.string.obiettivi),
             fontWeight = FontWeight.Bold,
             fontSize = 22.sp,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -214,12 +215,14 @@ fun LegendItem(icon: ImageVector, label: String) {
         Icon(
             imageVector = icon,
             contentDescription = label,
+            tint = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.size(32.dp)
         )
-        Text(text = " → ", fontSize = 30.sp)
+        Text(text = " → ", fontSize = 30.sp, color = MaterialTheme.colorScheme.onSecondaryContainer)
         Text(
             text = label,
             fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
             fontWeight = FontWeight.Medium
         )
     }

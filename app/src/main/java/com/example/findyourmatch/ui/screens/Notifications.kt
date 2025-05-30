@@ -57,9 +57,11 @@ import com.example.findyourmatch.data.notifications.segnaNotificaComeLetta
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
+import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.Blue
 import com.example.findyourmatch.ui.theme.LightBlue
 import com.example.findyourmatch.ui.theme.LightGreen
+import com.example.findyourmatch.ui.theme.LightGrey
 import com.example.findyourmatch.ui.theme.LightLightGreen
 import com.example.findyourmatch.ui.theme.LightRed
 import com.example.findyourmatch.ui.theme.Purple
@@ -108,7 +110,7 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
         else -> Icons.Default.Notifications
     }
 
-    val coloreSfondo = if (!notifica.stato) MaterialTheme.colorScheme.background else Color(0xFFF0F0F0)
+    val coloreSfondo = LightGrey
     val cornerRadius = RoundedCornerShape(16.dp)
 
     Box(
@@ -141,10 +143,10 @@ fun CardNotifica(notifica: Notifica, navController: NavHostController) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(imageVector = icona, contentDescription = null, tint = coloreBordo)
                 Spacer(Modifier.width(8.dp))
-                Text(notifica.titolo, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(notifica.titolo, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Black)
             }
             Spacer(Modifier.height(4.dp))
-            Text(notifica.testo, fontSize = 14.sp)
+            Text(notifica.testo, fontSize = 14.sp, color = Black)
         }
     }
 }
