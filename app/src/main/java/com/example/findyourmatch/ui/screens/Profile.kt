@@ -1,6 +1,5 @@
 package com.example.findyourmatch.ui.screens
 
-import android.widget.Button
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,9 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Insights
-import androidx.compose.material.icons.filled.ShowChart
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,13 +33,11 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,21 +50,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
-import com.example.findyourmatch.data.user.AnagraficaUtente
-import com.example.findyourmatch.data.user.IndirizzoUtente
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
-import com.example.findyourmatch.data.user.getLoggedUserEmail
-import com.example.findyourmatch.data.user.getUserInfo
 import com.example.findyourmatch.navigation.NavigationRoute
-import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.Silver
-import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.ProfileViewModel
-import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
-import kotlinx.serialization.Serializable
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -170,11 +154,13 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
             ) {
                 Text(
                     text = localizedContext.getString(R.string.tue_medaglie),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
-                    contentDescription = localizedContext.getString(R.string.vedi_tutte_medaglie)
+                    contentDescription = localizedContext.getString(R.string.vedi_tutte_medaglie),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
         }
@@ -198,9 +184,9 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                         .fillMaxWidth()
                         .clickable {
                             showDecisionOnProfileImage.value = false
-//                            launchCamera()
                         }
-                        .padding(16.dp)
+                        .padding(16.dp),
+                    fontSize = 18.sp
                 )
                 Text(
                     text = localizedContext.getString(R.string.scegli_galleria),
@@ -208,9 +194,9 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                         .fillMaxWidth()
                         .clickable {
                             showDecisionOnProfileImage.value = false
-//                            pickFromGallery()
                         }
-                        .padding(16.dp)
+                        .padding(16.dp),
+                    fontSize = 18.sp
                 )
             }
         }
