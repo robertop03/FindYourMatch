@@ -1,6 +1,5 @@
 package com.example.findyourmatch.navigation
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.fragment.app.FragmentActivity
@@ -65,9 +64,6 @@ fun NavGraph(
         modifier = modifier
     ) {
         composable<NavigationRoute.Home> {
-            Log.d("NAVIGATION", "Navigato a Home")
-            Log.d("ROUTE_MATCH", "Route Home: ${NavigationRoute.Home::class.qualifiedName}")
-            Log.d("ROUTE_MATCH", "Start Destination: ${navController.graph.startDestinationRoute}")
             Home(navController, sessionViewModel)
         }
         composable<NavigationRoute.Settings> {
