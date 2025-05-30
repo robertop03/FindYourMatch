@@ -1,6 +1,5 @@
 package com.example.findyourmatch.ui.screens
 
-import android.widget.Button
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,12 +19,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Insights
-import androidx.compose.material.icons.filled.ShowChart
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,13 +30,11 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,21 +46,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
-import com.example.findyourmatch.data.user.AnagraficaUtente
-import com.example.findyourmatch.data.user.IndirizzoUtente
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
-import com.example.findyourmatch.data.user.getLoggedUserEmail
-import com.example.findyourmatch.data.user.getUserInfo
-import com.example.findyourmatch.navigation.NavigationRoute
-import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.Silver
-import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.ProfileViewModel
-import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
-import kotlinx.serialization.Serializable
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,6 +64,7 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
 
     val utente by profileViewModel.user.collectAsState()
     val indirizzo by profileViewModel.userAddress.collectAsState()
+    var infoMap: Map<String, String>? = null
 
     Box(
         modifier = Modifier
@@ -127,27 +110,34 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                             fontSize = 20.sp,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
-                    }
-
-                    utente?.let {
                         Text(
                             text = it.email,
                             fontWeight = FontWeight.W400,
                             fontSize = 15.sp,
                             color = Silver
                         )
-                    }
-                    Spacer(modifier = Modifier.height(5.dp))
-                    utente?.let {
+                        Spacer(modifier = Modifier.height(5.dp))
                         generateButton(localizedContext.getString(R.string.btn_modifica), Icons.Default.Edit)
                         Spacer(modifier = Modifier.height(5.dp))
                         generateButton(localizedContext.getString(R.string.btn_vedi_stats), Icons.Default.Insights)
+
+                        indirizzo?.let { i ->
+                            infoMap = mapOf(
+                                "Data di iscrizione" to it.iscrizione,
+                                "Data di nascita" to it.nascita,
+                                "Sesso" to if (it.sesso == "Maschio") "M" else "F",
+                                "Città di residenza" to i.citta + ", " + i.stato,
+                                "Indirizzo" to (if (i.via.contains("Via", true)) i.via else "Via" + i.via) + ", " + i.civico
+                            )
+                        }
+
                     }
                 }
             }
 
             Spacer(Modifier.height(24.dp))
 
+            Text(infoMap.toString())
 //            Row(
 //                modifier = Modifier
 //                    .fillMaxWidth()
