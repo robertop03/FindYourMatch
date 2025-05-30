@@ -169,6 +169,8 @@
     <string name="profilo">Profile</string>
     <string name="scatta_foto">Take a photo</string>
     <string name="scegli_galleria">Choose from the gallery</string>
+    <string name="btn_modifica">Edit profile</string>
+    <string name="btn_vedi_stats">View stats</string>
 
     <!-- RECENSIONI -->
     <string name="recensioni">Reviews</string>

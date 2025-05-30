@@ -26,6 +26,8 @@ import com.example.findyourmatch.ui.screens.Footer
 import com.example.findyourmatch.ui.theme.FindYourMatchTheme
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
+import com.example.findyourmatch.viewmodel.ProfileViewModel
+import com.example.findyourmatch.viewmodel.ProfileViewModelFactory
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +48,9 @@ class MainActivity : FragmentActivity() {
                     )
                 val notificheViewModel: NotificheViewModel = viewModel(
                     factory = NotificheViewModelFactory(application)
+                )
+                val profileViewModel: ProfileViewModel = viewModel(
+                    factory = ProfileViewModelFactory(application)
                 )
 
                 LaunchedEffect(Unit) {
@@ -71,7 +76,7 @@ class MainActivity : FragmentActivity() {
                         bottomBar = { Footer(navController, sessionViewModel, notificheViewModel) },
                         modifier = Modifier.fillMaxSize()
                     ) { innerPadding ->
-                        NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this, notificheViewModel)
+                        NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this, notificheViewModel, profileViewModel)
                     }
                 }
         }
