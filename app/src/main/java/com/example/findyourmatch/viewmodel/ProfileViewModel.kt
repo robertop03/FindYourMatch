@@ -2,6 +2,7 @@ package com.example.findyourmatch.viewmodel
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -29,6 +30,12 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             _user.value = getUserInfo(application)
             _userAddress.value = getIndirizzoUtente(application)
+
+            _user.value?.pathFotoProfilo?.let { path ->
+                // Se il bucket è pubblico
+                val url = "https://ugtxgylfzblkvudpnagi.supabase.co/storage/v1/object/public/profilephotos/$path"
+                _profileImageUri.value = Uri.parse(url)
+            }
         }
     }
 
