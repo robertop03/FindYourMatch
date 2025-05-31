@@ -469,7 +469,7 @@ fun CreaAccount(navController: NavHostController) {
                 ) {
                     provinceList.forEach {
                         DropdownMenuItem(
-                            text = { Text(it, color = MaterialTheme.colorScheme.onSecondaryContainer,) },
+                            text = { Text(it, color = MaterialTheme.colorScheme.onSecondaryContainer) },
                             onClick = {
                                 provincia = it
                                 provinciaExpanded = false
