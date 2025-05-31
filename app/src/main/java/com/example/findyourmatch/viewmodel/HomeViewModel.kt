@@ -34,6 +34,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private var ultimaMaxDistance: Float? = null
     private var ultimoTrovaTesto: String? = null
+    private var ultimaUserEmail: String? = null
     private var errore: String? = null
     private var partiteCached: List<PartitaConCampo>? = null
 
@@ -51,7 +52,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         dataInizioFiltro: LocalDate? = null,
         dataFineFiltro: LocalDate? = null
     ) {
-        val shouldReload = forzaRicarica || ultimaMaxDistance != maxDistance || trovaTesto != ultimoTrovaTesto
+        val shouldReload = forzaRicarica || ultimaMaxDistance != maxDistance || trovaTesto != ultimoTrovaTesto ||  userEmail != ultimaUserEmail
 
         if (!shouldReload && partiteCached != null) {
             partiteFiltrate = partiteCached!!
@@ -65,13 +66,13 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 ultimaMaxDistance = maxDistance
                 ultimoTrovaTesto = trovaTesto
+                ultimaUserEmail = userEmail
 
                 val tuttePartite = getPartiteConCampo(context).filter { it.visibile }
 
                 val indirizzoUtente = if (isLoggedIn) getIndirizzoUtente(context) else null
 
                 val partiteFiltrateUtente = tuttePartite.filter { partita ->
-                    Log.d("TROVATESTO", trovaTesto)
                     when (trovaTesto) {
                         "Gestisci", "Manage" -> partita.creatore == userEmail
                         "Trova", "Find" -> partita.creatore != userEmail
@@ -190,7 +191,17 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun resetCache() {
+        partiteCached = null
+        partiteFiltrate = emptyList()
+        ultimaMaxDistance = null
+        ultimoTrovaTesto = null
+        ultimaUserEmail = null
+    }
+
 }
+
+
 
 class HomeViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
