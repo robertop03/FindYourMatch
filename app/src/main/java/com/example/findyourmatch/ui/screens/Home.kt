@@ -142,9 +142,6 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val showFilterSheet = remember { mutableStateOf(false) }
     val selectedTipoPartita = remember { mutableStateOf<String?>(null) }
     val selectedPrezzo = remember { mutableStateOf<String?>(null) }
-
-
-
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory(context.applicationContext as Application))
 
     var isPermissionGranted by remember {

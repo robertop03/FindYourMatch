@@ -1,5 +1,10 @@
 package com.example.findyourmatch.ui.screens
 
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,28 +38,38 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
 import com.example.findyourmatch.ui.theme.Silver
 import com.example.findyourmatch.viewmodel.ProfileViewModel
+import kotlinx.coroutines.delay
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +84,18 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
 
     val utente by profileViewModel.user.collectAsState()
     val indirizzo by profileViewModel.userAddress.collectAsState()
+    val profileImageUri by profileViewModel.profileImageUri.collectAsState()
     var infoMap: Map<String, String>? = null
+
+    var capturedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { pictureTaken ->
+        if (pictureTaken && capturedImageUri != Uri.EMPTY) {
+            profileViewModel.saveLocalProfileImageUri(capturedImageUri)  // salva subito
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -97,9 +123,16 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ){
+                val imageRequest = ImageRequest.Builder(context)
+                    .data(profileImageUri)
+                    .diskCachePolicy(CachePolicy.DISABLED)   // disabilita cache disco
+                    .memoryCachePolicy(CachePolicy.DISABLED) // disabilita cache memoria
+                    .build()
+
                 Image(
-                    painter = painterResource(id = R.drawable.no_profile_image),
+                    painter = if (profileImageUri != null && profileImageUri != Uri.EMPTY) rememberAsyncImagePainter(imageRequest) else painterResource(id = R.drawable.no_profile_image),
                     contentDescription = "Foto Profilo",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .padding(start = 10.dp, end = 20.dp)
                         .size(100.dp)
@@ -183,6 +216,15 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
+                            val imageFile = File.createTempFile("profile_image", ".jpg", context.cacheDir)
+                            val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", imageFile)
+                            capturedImageUri = uri
+                            context.grantUriPermission(
+                                context.packageName,
+                                uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            )
+                            cameraLauncher.launch(uri)
                             showDecisionOnProfileImage.value = false
                         }
                         .padding(16.dp),

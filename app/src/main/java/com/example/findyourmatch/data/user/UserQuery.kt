@@ -1,6 +1,8 @@
 package com.example.findyourmatch.data.user
 
 import android.content.Context
+import android.net.Uri
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -9,8 +11,13 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 
 @Serializable
@@ -128,5 +135,42 @@ suspend fun getUserInfo(context: Context): AnagraficaUtente? = withContext(Dispa
             json
         )
         return@withContext users.firstOrNull()
+    }
+}
+
+suspend fun updateProfileImage(context: Context, email: String, imagePath: Uri) = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+    val fileName = "$email.jpg"
+    val inputStream = context.contentResolver.openInputStream(imagePath)
+    val fileBytes = inputStream?.readBytes()
+    Log.d("FILEBYTES", fileBytes.toString())
+    inputStream?.close()
+    val requestBody = fileBytes?.toRequestBody("image/jpeg".toMediaTypeOrNull())
+    Log.d("FILEBYTES", requestBody.toString())
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/storage/v1/object/profilephotos/$fileName")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "image/jpeg")
+        .addHeader("x-upsert", "true") // sovrascrive se esiste
+        .put(requestBody!!)
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore upload Supabase: ${response.code}", " - ${response.body?.string()}")
+//            throw IOException("Errore upload Supabase: ${response.code} - ${response.body?.string()}")
+        }
+
+        // URL pubblico dell'immagine
+//        val publicUrl = "$supabaseUrl/storage/v1/object/public/profile-images/$fileName"
+
+        // Salva nel DB Supabase
+//        updateUserProfileImagePath(userId, publicUrl)
     }
 }
