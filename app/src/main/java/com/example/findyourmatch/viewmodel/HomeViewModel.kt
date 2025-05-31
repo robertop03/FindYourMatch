@@ -3,6 +3,7 @@ package com.example.findyourmatch.viewmodel
 import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,7 +33,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     private var ultimaMaxDistance: Float? = null
+    private var ultimoTrovaTesto: String? = null
     private var errore: String? = null
+    private var partiteCached: List<PartitaConCampo>? = null
+
 
     fun loadPartite(
         isLoggedIn: Boolean,
@@ -47,9 +51,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         dataInizioFiltro: LocalDate? = null,
         dataFineFiltro: LocalDate? = null
     ) {
-        val shouldReload = forzaRicarica || ultimaMaxDistance != maxDistance
+        val shouldReload = forzaRicarica || ultimaMaxDistance != maxDistance || trovaTesto != ultimoTrovaTesto
 
-        if (!shouldReload || isFetching) return
+        if (!shouldReload && partiteCached != null) {
+            partiteFiltrate = partiteCached!!
+            return
+        }
 
         isFetching = true
         val context = getApplication<Application>().applicationContext
@@ -57,12 +64,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 ultimaMaxDistance = maxDistance
+                ultimoTrovaTesto = trovaTesto
 
                 val tuttePartite = getPartiteConCampo(context).filter { it.visibile }
 
                 val indirizzoUtente = if (isLoggedIn) getIndirizzoUtente(context) else null
 
                 val partiteFiltrateUtente = tuttePartite.filter { partita ->
+                    Log.d("TROVATESTO", trovaTesto)
                     when (trovaTesto) {
                         "Gestisci", "Manage" -> partita.creatore == userEmail
                         "Trova", "Find" -> partita.creatore != userEmail
@@ -100,6 +109,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                             false
                         }
                     }
+
                     tipoOk && prezzoOk && dataOk
                 }
 
@@ -139,10 +149,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                                 } else null
                             }
                         }.awaitAll().filterNotNull()
+
                     }
 
                     else -> emptyList()
                 }
+                partiteCached = partiteFiltrate
             } catch (e: Exception) {
                 errore = e.message
                 partiteFiltrate = emptyList()
