@@ -253,7 +253,7 @@ fun CambiaPasswordDeepLink(navController: NavHostController, token: String, sess
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = localizedContext.getString(R.string.annulla),
+                text = localizedContext.getString(R.string.recupera_pw),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
