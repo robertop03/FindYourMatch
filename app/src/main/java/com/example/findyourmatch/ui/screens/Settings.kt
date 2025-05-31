@@ -67,7 +67,6 @@ import kotlinx.coroutines.Dispatchers
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Settings(navController: NavHostController, sessionViewModel: SessionViewModel) {
-    Log.d("SCREEN", "Settings visibile")
     val showBackButton = navController.previousBackStackEntry != null
     val languages = listOf("it", "en")
     var expanded by remember { mutableStateOf(false) }
