@@ -92,7 +92,9 @@ import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import android.app.DatePickerDialog
+import android.util.Log
 import androidx.compose.material3.ModalBottomSheet
+import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.ui.theme.Red
 import java.util.Calendar
 import java.time.LocalDate
@@ -185,7 +187,12 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     var hasRequestedPermission by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        userEmail = getLoggedUserEmail(context)
+        if(SessionManager.isLoggedIn(sessionViewModel)){
+            userEmail = getLoggedUserEmail(context)
+        }else{
+            userEmail = null
+        }
+
         if (!isPermissionGranted && !hasRequestedPermission) {
             hasRequestedPermission = true
             val shouldShow = ActivityCompat.shouldShowRequestPermissionRationale(
@@ -201,14 +208,19 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     }
 
     // Caricamento iniziale
-    LaunchedEffect(language, userEmail, maxDistance) {
-        if (maxDistance != null) {
-            if (trovaTesto != localizedContext.getString(R.string.trova) &&
-                trovaTesto != localizedContext.getString(R.string.gestisci)
-            ) {
-                trovaTesto = localizedContext.getString(R.string.trova)
-            }
+    LaunchedEffect(language, maxDistance, trovaTesto) {
+        userEmail = if(SessionManager.isLoggedIn(sessionViewModel)){
+            getLoggedUserEmail(context)
+        }else{
+            null
+        }
 
+        if (
+            maxDistance != null &&
+            (trovaTesto == localizedContext.getString(R.string.trova) ||
+                    trovaTesto == localizedContext.getString(R.string.gestisci))
+        ) {
+            Log.d("EMAIL", userEmail.toString())
             homeViewModel.loadPartite(
                 isLoggedIn = isLoggedIn,
                 isPermissionGranted = isPermissionGranted,
@@ -219,6 +231,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
             )
         }
     }
+
 
 
     // Chiamata per il cambio di modalità

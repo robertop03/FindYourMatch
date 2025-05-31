@@ -45,6 +45,7 @@ suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatch
         return@withContext null
     }
 
+
     val client = OkHttpClient()
     val request = Request.Builder()
         .url("https://ugtxgylfzblkvudpnagi.supabase.co/auth/v1/user")
@@ -69,7 +70,7 @@ suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatch
                 val json = Json { ignoreUnknownKeys = true }
                 val jsonObject = json.parseToJsonElement(body).jsonObject
                 val email = jsonObject["email"]?.jsonPrimitive?.content
-
+                Log.d("EMAIL LOGGATO", email.toString())
                 if (email != null) {
                     return@withContext email
                 }

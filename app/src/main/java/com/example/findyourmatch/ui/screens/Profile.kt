@@ -68,7 +68,6 @@ import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
 import com.example.findyourmatch.ui.theme.Silver
 import com.example.findyourmatch.viewmodel.ProfileViewModel
-import kotlinx.coroutines.delay
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
