@@ -565,7 +565,7 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(15.dp))
             .clickable {
                 if (!sessionViewModel.isLoggedIn.value) {
                     onLoginRequired()
