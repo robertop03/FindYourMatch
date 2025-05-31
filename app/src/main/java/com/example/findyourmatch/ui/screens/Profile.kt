@@ -2,7 +2,6 @@ package com.example.findyourmatch.ui.screens
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -128,16 +127,18 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                     .memoryCachePolicy(CachePolicy.DISABLED) // disabilita cache memoria
                     .build()
 
-                Image(
-                    painter = if (profileImageUri != null && profileImageUri != Uri.EMPTY) rememberAsyncImagePainter(imageRequest) else painterResource(id = R.drawable.no_profile_image),
-                    contentDescription = "Foto Profilo",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .padding(start = 10.dp, end = 20.dp)
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .clickable { showDecisionOnProfileImage.value = true }
-                )
+                utente?.let {
+                    Image(
+                        painter = if (profileImageUri != null && profileImageUri != Uri.EMPTY) rememberAsyncImagePainter(imageRequest) else painterResource(id = R.drawable.no_profile_image),
+                        contentDescription = "Foto Profilo",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .padding(start = 10.dp, end = 20.dp)
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .clickable { showDecisionOnProfileImage.value = true }
+                    )
+                }
 
                 Column {
                     utente?.let {
