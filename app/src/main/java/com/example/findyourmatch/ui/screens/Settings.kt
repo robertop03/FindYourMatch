@@ -58,6 +58,7 @@ import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.ui.theme.White
+import com.example.findyourmatch.viewmodel.HomeViewModel
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
@@ -66,7 +67,7 @@ import kotlinx.coroutines.Dispatchers
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Settings(navController: NavHostController, sessionViewModel: SessionViewModel) {
+fun Settings(navController: NavHostController, sessionViewModel: SessionViewModel, homeViewModel: HomeViewModel) {
     val showBackButton = navController.previousBackStackEntry != null
     val languages = listOf("it", "en")
     var expanded by remember { mutableStateOf(false) }
@@ -320,6 +321,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                             showLogoutDialog = false
                             coroutineScope.launch {
                                 SessionManager.logout(context, sessionViewModel)
+                                homeViewModel.resetCache()
                                 navController.navigate(NavigationRoute.Login) {
                                     popUpTo(NavigationRoute.Profile) { inclusive = true }
                                 }

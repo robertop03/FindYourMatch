@@ -24,6 +24,8 @@ import com.example.findyourmatch.navigation.NavGraph
 import com.example.findyourmatch.ui.screens.CustomTopAppBar
 import com.example.findyourmatch.ui.screens.Footer
 import com.example.findyourmatch.ui.theme.FindYourMatchTheme
+import com.example.findyourmatch.viewmodel.HomeViewModel
+import com.example.findyourmatch.viewmodel.HomeViewModelFactory
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
 import com.example.findyourmatch.viewmodel.ProfileViewModel
@@ -52,6 +54,9 @@ class MainActivity : FragmentActivity() {
                 val profileViewModel: ProfileViewModel = viewModel(
                     factory = ProfileViewModelFactory(application)
                 )
+                val homeViewModel: HomeViewModel = viewModel(
+                    factory = HomeViewModelFactory(context.applicationContext as Application)
+                )
 
                 LaunchedEffect(Unit) {
                     val isValid = SessionManager.isTokenStillValid(context) && isLoggedInFlow(context).first()
@@ -76,7 +81,7 @@ class MainActivity : FragmentActivity() {
                         bottomBar = { Footer(navController, sessionViewModel, notificheViewModel) },
                         modifier = Modifier.fillMaxSize()
                     ) { innerPadding ->
-                        NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this, notificheViewModel, profileViewModel)
+                        NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this, notificheViewModel, profileViewModel, homeViewModel)
                     }
                 }
         }

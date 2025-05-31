@@ -12,6 +12,7 @@ import androidx.navigation.navDeepLink
 import com.example.findyourmatch.data.notifications.Notifica
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.ui.screens.*
+import com.example.findyourmatch.viewmodel.HomeViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.ProfileViewModel
 import kotlinx.serialization.Serializable
@@ -56,7 +57,8 @@ fun NavGraph(
     modifier: Modifier = Modifier,
     activity: FragmentActivity,
     notificheViewModel: NotificheViewModel,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    homeViewModel: HomeViewModel
 ) {
     NavHost(
         navController = navController,
@@ -64,10 +66,10 @@ fun NavGraph(
         modifier = modifier
     ) {
         composable<NavigationRoute.Home> {
-            Home(navController, sessionViewModel)
+            Home(navController, sessionViewModel, homeViewModel)
         }
         composable<NavigationRoute.Settings> {
-            Settings(navController, sessionViewModel)
+            Settings(navController, sessionViewModel, homeViewModel)
         }
         composable<NavigationRoute.Profile> {
             Profile(navController, profileViewModel)

@@ -101,7 +101,7 @@ import java.time.LocalDate
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
+fun Home(navController: NavHostController, sessionViewModel: SessionViewModel, homeViewModel: HomeViewModel) {
     val context = LocalContext.current
     val dataInizio = remember { mutableStateOf<LocalDate?>(null) }
     val dataFine = remember { mutableStateOf<LocalDate?>(null) }
@@ -144,7 +144,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     val showFilterSheet = remember { mutableStateOf(false) }
     val selectedTipoPartita = remember { mutableStateOf<String?>(null) }
     val selectedPrezzo = remember { mutableStateOf<String?>(null) }
-    val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory(context.applicationContext as Application))
+
 
     var isPermissionGranted by remember {
         mutableStateOf(
@@ -187,10 +187,10 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel) {
     var hasRequestedPermission by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        if(SessionManager.isLoggedIn(sessionViewModel)){
-            userEmail = getLoggedUserEmail(context)
+        userEmail = if(SessionManager.isLoggedIn(sessionViewModel)){
+            getLoggedUserEmail(context)
         }else{
-            userEmail = null
+            null
         }
 
         if (!isPermissionGranted && !hasRequestedPermission) {
