@@ -36,7 +36,8 @@ data class AnagraficaUtente(
     @SerialName("data_nascita") val nascita: String,
     val sesso: String,
     @SerialName("data_iscrizione") val iscrizione: String,
-    val email: String
+    val email: String,
+    @SerialName("nome_foto_profilo") val pathFotoProfilo: String? = null
 )
 
 suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatchers.IO) {
@@ -158,7 +159,7 @@ suspend fun updateProfileImage(context: Context, email: String, imagePath: Uri) 
         .addHeader("Authorization", "Bearer $token")
         .addHeader("Content-Type", "image/jpeg")
         .addHeader("x-upsert", "true") // sovrascrive se esiste
-        .put(requestBody!!)
+        .post(requestBody!!)
         .build()
 
     client.newCall(request).execute().use { response ->
