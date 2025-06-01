@@ -2,6 +2,7 @@ package com.example.findyourmatch.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -51,6 +52,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -83,6 +85,8 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
     val utente by profileViewModel.user.collectAsState()
     val indirizzo by profileViewModel.userAddress.collectAsState()
     val profileImageUri by profileViewModel.profileImageUri.collectAsState()
+    val numRewardsAchieved by profileViewModel.numRewardsAchieved.collectAsState()
+    val rewardsAchieved by profileViewModel.maxRewardsAchieved.collectAsState()
     var infoMap: Map<String, String>? = null
 
     var capturedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
@@ -91,7 +95,7 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
         ActivityResultContracts.TakePicture()
     ) { pictureTaken ->
         if (pictureTaken && capturedImageUri != Uri.EMPTY) {
-            profileViewModel.saveLocalProfileImageUri(capturedImageUri)  // salva subito
+            profileViewModel.saveLocalProfileImageUri(capturedImageUri)
         }
     }
 
@@ -101,6 +105,10 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
         uri?.let {
             profileViewModel.saveLocalProfileImageUri(it)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        profileViewModel.ricaricaUtente()
     }
 
     Box(
@@ -204,6 +212,19 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                     tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
+
+            if (numRewardsAchieved == 0) {
+                Text(localizedContext.getString(R.string.no_obiettivi_raggiunti),
+                    textAlign = TextAlign.Center,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp, 5.dp))
+            } else {
+                //miglior obiettivo per ogni tipologia (se se ne è raggiunto qualcuno)
+                rewardsAchieved?.forEach {
+                    Text(it.tipologia + " -> " + it.colore + " : " + it.obiettivo)
+                }
+            }
         }
     }
 
@@ -288,15 +309,18 @@ fun InfoTable(info: Map<String, String>?) {
         info?.entries?.forEach {
             Row(modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column (modifier = Modifier.weight(1f)){
-                    Text(it.key, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                }
-                Column (modifier = Modifier.weight(1f)){
-                    Text(it.value, color = MaterialTheme.colorScheme.onSecondaryContainer, textAlign = TextAlign.Right,
-                        modifier = Modifier.fillMaxWidth())
-                }
+                Text(it.key,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.weight(1f))
+                Text(it.value,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    textAlign = TextAlign.Right,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth())
             }
             if (it.key != "Indirizzo" && it.key != "Address") Divider(thickness = 2.dp, color = MaterialTheme.colorScheme.onSecondaryContainer)
         }
