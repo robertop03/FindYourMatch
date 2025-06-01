@@ -11,11 +11,15 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import java.io.Serial
+import kotlin.math.log
 
 @Serializable
 data class IndirizzoUtente(
@@ -34,6 +38,13 @@ data class AnagraficaUtente(
     val sesso: String,
     @SerialName("data_iscrizione") val iscrizione: String,
     val email: String
+)
+
+@Serializable
+data class MaxObiettivoRaggiunto(
+    val tipologia: String,
+    val colore: String,
+    val obiettivo: Int
 )
 
 suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatchers.IO) {
@@ -161,5 +172,75 @@ suspend fun updateProfileImage(context: Context, email: String, imagePath: Uri) 
         if (!response.isSuccessful) {
             Log.e("Errore upload Supabase: ${response.code}", " - ${response.body?.string()}")
         }
+    }
+}
+
+suspend fun checkIfImageExists(imageUrl: String): Boolean = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val request = Request.Builder()
+        .url(imageUrl)
+        .head()
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        return@withContext response.isSuccessful
+    }
+}
+
+suspend fun calculateNumOfRewardsAchieved(context: Context, userEMail: String): Int? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/raggiungimenti_medaglie?utente=eq.$userEMail")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Prefer", "count=exact")
+        .get()
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("ERRORE NUMERO M", "${response.code} - ${response.body?.string()}")
+            return@withContext null
+        }
+        val stringCount = response.header("Content-Range")
+        val count = response.header("Content-Range")?.substringAfter("/")?.toIntOrNull()
+        return@withContext count
+    }
+}
+
+suspend fun getMaxRewards(context: Context, userEMail: String): List<MaxObiettivoRaggiunto>? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/rpc/get_max_medaglie_raggiunte")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .post(
+            """{"utente_email":"$userEMail"}"""
+                .toRequestBody("application/json".toMediaTypeOrNull())
+        )
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext null
+        }
+        val json = response.body?.string() ?: return@withContext null
+        val rewards = Json.decodeFromString(
+            kotlinx.serialization.builtins.ListSerializer(MaxObiettivoRaggiunto.serializer()),
+            json
+        )
+        return@withContext rewards
     }
 }
