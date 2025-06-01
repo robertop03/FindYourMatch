@@ -95,6 +95,14 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
         }
     }
 
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            profileViewModel.saveLocalProfileImageUri(it)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -235,6 +243,7 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
+                            galleryLauncher.launch("image/*")
                             showDecisionOnProfileImage.value = false
                         }
                         .padding(16.dp),
