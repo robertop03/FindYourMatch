@@ -2,7 +2,6 @@ package com.example.findyourmatch.ui.screens
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -26,9 +25,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,7 +45,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,7 +60,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -67,7 +67,10 @@ import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
+import com.example.findyourmatch.ui.theme.Bronze
+import com.example.findyourmatch.ui.theme.Gold
 import com.example.findyourmatch.ui.theme.Silver
+import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.ProfileViewModel
 import java.io.File
 
@@ -139,8 +142,8 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
             ){
                 val imageRequest = ImageRequest.Builder(context)
                     .data(profileImageUri)
-                    .diskCachePolicy(CachePolicy.DISABLED)   // disabilita cache disco
-                    .memoryCachePolicy(CachePolicy.DISABLED) // disabilita cache memoria
+                    .diskCachePolicy(CachePolicy.DISABLED)
+                    .memoryCachePolicy(CachePolicy.DISABLED)
                     .build()
 
                 utente?.let {
@@ -220,9 +223,63 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(0.dp, 5.dp))
             } else {
-                //miglior obiettivo per ogni tipologia (se se ne è raggiunto qualcuno)
-                rewardsAchieved?.forEach {
-                    Text(it.tipologia + " -> " + it.colore + " : " + it.obiettivo)
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    rewardsAchieved?.forEach {
+                        val color = when (it.colore) {
+                            "oro" -> Gold
+                            "argento" -> Silver
+                            "bronzo" -> Bronze
+                            else -> White
+                        }
+                        val icon = when (it.tipologia) {
+                            "goal_fatti" -> Icons.Default.SportsSoccer
+                            "partite_giocate" -> Icons.AutoMirrored.Filled.DirectionsRun
+                            "partite_vinte" -> Icons.Default.EmojiEvents
+                            else -> null
+                        }
+                        Column (
+                            modifier = Modifier.width(80.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ){
+                            Column (
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .background(color = color, shape = MaterialTheme.shapes.medium)
+                                    .padding(8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                            ){
+                                Icon(
+                                    imageVector = icon!!,
+                                    contentDescription = it.tipologia,
+                                    tint = White,
+                                    modifier = Modifier.size(50.dp)
+                                )
+                            }
+                            val text = when {
+                                color == Bronze && it.tipologia == "goal_fatti" -> localizedContext.getString(R.string.gol_segnati_bronzo)
+                                color == Silver && it.tipologia == "goal_fatti" -> localizedContext.getString(R.string.gol_segnati_argento)
+                                color == Gold && it.tipologia == "goal_fatti" -> localizedContext.getString(R.string.gol_segnati_oro)
+                                color == Bronze && it.tipologia == "partite_giocate" -> localizedContext.getString(R.string.giocate_bronzo)
+                                color == Silver && it.tipologia == "partite_giocate" -> localizedContext.getString(R.string.giocate_argento)
+                                color == Gold && it.tipologia == "partite_giocate" -> localizedContext.getString(R.string.giocate_oro)
+                                color == Bronze && it.tipologia == "partite_vinte" -> localizedContext.getString(R.string.vittorie_bronzo)
+                                color == Silver && it.tipologia == "partite_vinte" -> localizedContext.getString(R.string.vittorie_argento)
+                                color == Gold && it.tipologia == "partite_vinte" -> localizedContext.getString(R.string.vittorie_oro)
+                                else -> ""
+                            }
+                            Text(
+                                text = text,
+                                fontSize = 13.sp,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -230,7 +287,6 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
 
     if (showDecisionOnProfileImage.value) {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        val coroutineScope = rememberCoroutineScope()
 
         ModalBottomSheet (
             onDismissRequest = { showDecisionOnProfileImage.value = false },
