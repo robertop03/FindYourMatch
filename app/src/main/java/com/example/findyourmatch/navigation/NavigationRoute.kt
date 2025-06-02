@@ -17,7 +17,6 @@ import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.ProfileViewModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.io.Serial
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -115,7 +114,7 @@ fun NavGraph(
             Rewards(navController)
         }
         composable<NavigationRoute.PlayedGames> {
-            PartiteGiocate(navController)
+            PartiteGiocate(navController, profileViewModel)
         }
         composable(
             route = "partita/{idPartita}",
