@@ -2,7 +2,6 @@ package com.example.findyourmatch.viewmodel
 
 import android.app.Application
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -19,11 +18,13 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val _profileImageUri = MutableStateFlow<Uri?>(null)
     private val _numRewardsAchieved = MutableStateFlow<Int?>(null)
     private val _maxRewardsAchieved = MutableStateFlow<List<MaxObiettivoRaggiunto>?>(null)
+    private val _playedGames = MutableStateFlow<List<PartiteGiocateUtente>?>(null)
     val user = _user
     val userAddress = _userAddress
     val profileImageUri: StateFlow<Uri?> = _profileImageUri
     val numRewardsAchieved = _numRewardsAchieved
     val maxRewardsAchieved = _maxRewardsAchieved
+    val playedGames = _playedGames
 
     init {
         ricaricaUtente()
@@ -37,11 +38,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 val url = Uri.parse("https://ugtxgylfzblkvudpnagi.supabase.co/storage/v1/object/public/profilephotos/${u.email}.jpg")
                 _profileImageUri.value = if (checkIfImageExists(url.toString())) url else null
                 _numRewardsAchieved.value = calculateNumOfRewardsAchieved(application, _user.value?.email!!)
-                Log.d("NUMERO", _numRewardsAchieved.value.toString())
                 if (_numRewardsAchieved.value != null) {
                     _maxRewardsAchieved.value = getMaxRewards(application, _user.value?.email!!)
-                    Log.d("REWARDS", _maxRewardsAchieved.value.toString())
                 }
+                _playedGames.value = getPlayedGames(application, _user.value?.email!!)
             }
         }
     }
