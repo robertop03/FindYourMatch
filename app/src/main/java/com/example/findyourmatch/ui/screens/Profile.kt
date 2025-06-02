@@ -242,7 +242,7 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                             else -> null
                         }
                         Column (
-                            modifier = Modifier.width(80.dp),
+                            modifier = Modifier.width(110.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ){
                             Column (
