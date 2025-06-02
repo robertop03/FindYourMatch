@@ -126,6 +126,7 @@
     <string name="dal">From</string>
     <string name="al">To</string>
     <string name="seleziona">Select</string>
+    <string name="da_casa_tua">from your home</string>
 
     <!-- NOTIFICHE -->
     <string name="notifiche">Notifications</string>
