@@ -48,7 +48,7 @@ suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatch
     if (accessToken.isNullOrBlank()) {
         return@withContext null
     }
-    
+
     val client = OkHttpClient()
     val request = Request.Builder()
         .url("https://ugtxgylfzblkvudpnagi.supabase.co/auth/v1/user")
