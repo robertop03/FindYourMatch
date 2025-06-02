@@ -1,8 +1,8 @@
 package com.example.findyourmatch.ui.screens
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -57,7 +57,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.match.PartitaConCampo
@@ -66,7 +65,6 @@ import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.HomeViewModel
-import com.example.findyourmatch.viewmodel.HomeViewModelFactory
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.google.android.gms.location.LocationServices
 import kotlinx.datetime.Instant
@@ -548,6 +546,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel, h
     }
 }
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, onLoginRequired: () -> Unit, navController: NavHostController) {
     val instant = Instant.parse(partita.dataOraInizio)
@@ -670,9 +669,14 @@ fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, on
                 text = partita.campo.citta,
                 color = White
             )
+            val textDistanza: String = if(sessionViewModel.isLoggedIn.value){
+                "${localizedContext.getString(R.string.distanza)}: ${"%.1f".format(partita.distanzaKm)} km ${localizedContext.getString(R.string.da_casa_tua)}"
+            }else{
+                "${localizedContext.getString(R.string.distanza)}: ${"%.1f".format(partita.distanzaKm)} km"
+            }
 
             Text(
-                text = "${localizedContext.getString(R.string.distanza)}: ${"%.1f".format(partita.distanzaKm)} km",
+                text = textDistanza,
                 color = White,
                 fontSize = 14.sp
             )
