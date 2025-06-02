@@ -17,6 +17,7 @@ import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.ProfileViewModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.io.Serial
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -48,6 +49,8 @@ sealed interface NavigationRoute {
     data object Match : NavigationRoute
     @Serializable
     data object Reviews : NavigationRoute
+    @Serializable
+    data object PlayedGames : NavigationRoute
 }
 
 @Composable
@@ -110,6 +113,9 @@ fun NavGraph(
         }
         composable<NavigationRoute.Rewards> {
             Rewards(navController)
+        }
+        composable<NavigationRoute.PlayedGames> {
+            PartiteGiocate(navController)
         }
         composable(
             route = "partita/{idPartita}",

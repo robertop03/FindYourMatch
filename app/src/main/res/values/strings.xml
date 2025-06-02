@@ -184,6 +184,11 @@
     <string name="giocate_bronzo">Hai giocato 10 partite</string>
     <string name="giocate_argento">Hai giocato 15 partite</string>
     <string name="giocate_oro">Hai giocato 20 partite</string>
+    <string name="ultime_partite">Ultime partite</string>
+    <string name="vedi_partite_giocate">Vai a partite giocate</string>
+    <string name="no_partite">Al momento non hai giocato nessuna partita.</string>
+    <string name="organizzatore">Organizzatore</string>
+    <string name="tu">Tu</string>
 
     <!-- RECENSIONI -->
     <string name="recensioni">Recensioni</string>

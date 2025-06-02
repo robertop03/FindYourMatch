@@ -1,7 +1,9 @@
 package com.example.findyourmatch.ui.screens
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -30,7 +32,9 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -65,14 +69,21 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
+import com.example.findyourmatch.data.user.PartiteGiocateUtente
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
+import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.Bronze
 import com.example.findyourmatch.ui.theme.Gold
+import com.example.findyourmatch.ui.theme.Green
+import com.example.findyourmatch.ui.theme.Grey
+import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.Silver
 import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.ProfileViewModel
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,6 +101,7 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
     val profileImageUri by profileViewModel.profileImageUri.collectAsState()
     val numRewardsAchieved by profileViewModel.numRewardsAchieved.collectAsState()
     val rewardsAchieved by profileViewModel.maxRewardsAchieved.collectAsState()
+    val playedGames by profileViewModel.playedGames.collectAsState()
     var infoMap: Map<String, String>? = null
 
     var capturedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
@@ -221,7 +233,7 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                     textAlign = TextAlign.Center,
                     fontStyle = FontStyle.Italic,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.padding(0.dp, 5.dp))
+                    modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp))
             } else {
                 Row (
                     modifier = Modifier.fillMaxWidth(),
@@ -280,6 +292,41 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                             )
                         }
                     }
+                }
+            }
+
+            Spacer(Modifier.height(20.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(NavigationRoute.PlayedGames)
+                    }
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = localizedContext.getString(R.string.ultime_partite),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = localizedContext.getString(R.string.vedi_partite_giocate),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+
+            if (playedGames == null || playedGames!!.isEmpty()) {
+                Text(localizedContext.getString(R.string.no_partite),
+                    textAlign = TextAlign.Center,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp))
+            } else {
+                playedGames!!.take(3).forEach {
+                    GameCard(it, navController, localizedContext, utente!!.email)
                 }
             }
         }
@@ -381,4 +428,130 @@ fun InfoTable(info: Map<String, String>?) {
             if (it.key != "Indirizzo" && it.key != "Address") Divider(thickness = 2.dp, color = MaterialTheme.colorScheme.onSecondaryContainer)
         }
     }
+}
+
+@Composable
+fun GameCard(game: PartiteGiocateUtente?, navController: NavHostController, localizedContext: Context, currentUser: String) {
+    val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+    val dateTime = LocalDateTime.parse(game!!.dataOra, formatter)
+    Log.d("DATAORA", dateTime.toString())
+    val backgroundColor = when (game.esito) {
+        "vittoria" -> Green
+        "pareggio" -> Grey
+        else -> Red
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .background(backgroundColor, shape = RoundedCornerShape(15.dp))
+            .clickable {
+                val id = game.id
+                navController.navigate("partita/$id")
+            }
+            .padding(16.dp)
+    ) {
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Black, shape = RoundedCornerShape(8.dp))
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Outlined.CalendarToday,
+                            contentDescription = null,
+                            tint = White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = "${dateTime.dayOfMonth} ${dateTime.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${dateTime.year}",
+                            color = White,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    Text(
+                        text = "${localizedContext.getString(R.string.ore)}: %02d:%02d".format(dateTime.hour, dateTime.minute),
+                        color = White,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${localizedContext.getString(R.string.calcio_a)} ${game.tipo}",
+                    color = White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+
+                Text(text = game.citta,
+                    color = White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp)
+            }
+            Text(text = game.nomeCampo,
+                color = White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                modifier = Modifier.padding(0.dp, 3.dp))
+
+            Row (modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                if (game.squadra1 == game.squadraUtente) {
+                    ShieldIcon()
+                }
+                Text(text = game.squadra1,
+                    color = White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp,
+                    modifier = Modifier.padding(if (game.squadra1 == game.squadraUtente) 5.dp else 0.dp, 0.dp, 10.dp, 0.dp))
+                Box(modifier = Modifier.background(Black)) {
+                    Text(text = "${game.gol1} - ${game.gol2}",
+                        color = White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp,
+                        modifier = Modifier.padding(8.dp))
+                }
+                Text(text = game.squadra2,
+                    color = White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp,
+                    modifier = Modifier.padding(10.dp, 0.dp))
+                if (game.squadra2 == game.squadraUtente) {
+                    ShieldIcon()
+                }
+            }
+            Text(
+                text = "${localizedContext.getString(R.string.organizzatore)}: " +
+                        if (game.creatore == currentUser) localizedContext.getString(R.string.tu) else game.creatore,
+                color = White,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(0.dp, 4.dp, 0.dp, 0.dp))
+        }
+    }
+}
+
+@Composable
+fun ShieldIcon() {
+    Icon(
+        imageVector = Icons.Default.Shield,
+        contentDescription = null,
+        tint = White,
+        modifier = Modifier.size(35.dp)
+    )
 }

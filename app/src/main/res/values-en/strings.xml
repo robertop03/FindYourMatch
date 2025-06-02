@@ -183,6 +183,11 @@
     <string name="giocate_bronzo">You have played 10 games</string>
     <string name="giocate_argento">You have played 15 games</string>
     <string name="giocate_oro">You have played 20 games</string>
+    <string name="ultime_partite">Last games</string>
+    <string name="vedi_partite_giocate">Go to played games</string>
+    <string name="no_partite">You have not played any games yet.</string>
+    <string name="organizzatore">Organizer</string>
+    <string name="tu">You</string>
 
     <!-- RECENSIONI -->
     <string name="recensioni">Reviews</string>
