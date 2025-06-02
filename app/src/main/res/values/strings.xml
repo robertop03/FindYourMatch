@@ -175,6 +175,15 @@
     <string name="iscrizione">Data di iscrizione</string>
     <string name="citta_residenza">Città di residenza</string>
     <string name="no_obiettivi_raggiunti">Al momento non hai raggiunto nessun obiettivo.</string>
+    <string name="gol_segnati_bronzo">Hai segnato 10 gol</string>
+    <string name="gol_segnati_argento">Hai segnato 15 gol</string>
+    <string name="gol_segnati_oro">Hai segnato 20 gol</string>
+    <string name="vittorie_bronzo">Hai vinto 10 partite</string>
+    <string name="vittorie_argento">Hai vinto 15 partite</string>
+    <string name="vittorie_oro">Hai vinto 20 partite</string>
+    <string name="giocate_bronzo">Hai giocato 10 partite</string>
+    <string name="giocate_argento">Hai giocato 15 partite</string>
+    <string name="giocate_oro">Hai giocato 20 partite</string>
 
     <!-- RECENSIONI -->
     <string name="recensioni">Recensioni</string>

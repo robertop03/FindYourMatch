@@ -11,15 +11,11 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
-import java.io.Serial
-import kotlin.math.log
 
 @Serializable
 data class IndirizzoUtente(
@@ -52,8 +48,7 @@ suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatch
     if (accessToken.isNullOrBlank()) {
         return@withContext null
     }
-
-
+    
     val client = OkHttpClient()
     val request = Request.Builder()
         .url("https://ugtxgylfzblkvudpnagi.supabase.co/auth/v1/user")
