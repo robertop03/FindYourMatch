@@ -5,29 +5,31 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
-import com.example.findyourmatch.data.user.getLoggedUserEmail
+import com.example.findyourmatch.viewmodel.ProfileViewModel
 
 @Composable
-fun PartiteGiocate(navController: NavHostController) {
+fun PartiteGiocate(navController: NavHostController, profileViewModel: ProfileViewModel) {
     val context = LocalContext.current
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
@@ -35,10 +37,11 @@ fun PartiteGiocate(navController: NavHostController) {
         LocaleHelper.updateLocale(context, language)
     }
 
-    var emailUtente by remember { mutableStateOf<String?>(null) }
+    val user by profileViewModel.user.collectAsState()
+    val games by profileViewModel.playedGames.collectAsState()
 
     LaunchedEffect(Unit) {
-        emailUtente = getLoggedUserEmail(context)
+        profileViewModel.ricaricaUtente()
     }
 
     Box(
@@ -64,7 +67,18 @@ fun PartiteGiocate(navController: NavHostController) {
                 showBackButton = showBackButton
             )
 
-
+            user?.let {
+                if (games == null || games!!.isEmpty()) {
+                    Text(localizedContext.getString(R.string.no_partite),
+                        textAlign = TextAlign.Center,
+                        fontStyle = FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp))
+                }
+                games?.forEach {
+                    GameCard(it, navController, localizedContext, user!!.email)
+                }
+            }
         }
     }
 }

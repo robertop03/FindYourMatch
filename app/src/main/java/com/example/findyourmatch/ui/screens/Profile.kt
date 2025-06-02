@@ -434,7 +434,6 @@ fun InfoTable(info: Map<String, String>?) {
 fun GameCard(game: PartiteGiocateUtente?, navController: NavHostController, localizedContext: Context, currentUser: String) {
     val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
     val dateTime = LocalDateTime.parse(game!!.dataOra, formatter)
-    Log.d("DATAORA", dateTime.toString())
     val backgroundColor = when (game.esito) {
         "vittoria" -> Green
         "pareggio" -> Grey
@@ -520,7 +519,10 @@ fun GameCard(game: PartiteGiocateUtente?, navController: NavHostController, loca
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp,
                     modifier = Modifier.padding(if (game.squadra1 == game.squadraUtente) 5.dp else 0.dp, 0.dp, 10.dp, 0.dp))
-                Box(modifier = Modifier.background(Black)) {
+                Box(modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Black)
+                ) {
                     Text(text = "${game.gol1} - ${game.gol2}",
                         color = White,
                         fontWeight = FontWeight.Bold,
