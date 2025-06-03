@@ -70,6 +70,7 @@ import com.example.findyourmatch.data.user.registraUtenteSupabase
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.data.user.inserisciStatisticheIniziali
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
@@ -683,6 +684,7 @@ fun CreaAccount(navController: NavHostController) {
                             )
 
                             if (result.isSuccess) {
+                                inserisciStatisticheIniziali(context, email.trim())
                                 snackbarHostState.showSnackbar(localizedContext.getString(R.string.registrazione_completata))
                                 navController.navigate(NavigationRoute.Home)
                             } else {

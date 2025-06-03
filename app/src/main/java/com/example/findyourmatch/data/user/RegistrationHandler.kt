@@ -1,6 +1,7 @@
 package com.example.findyourmatch.data.user
 
 import android.content.Context
+import android.util.Log
 import com.example.findyourmatch.utils.NetworkJson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,6 +39,15 @@ data class Utente(
     val provincia: String,
     val via: String,
     val civico: String
+)
+
+@Serializable
+data class StatsUtente(
+    val utente: String,
+    val partiteGiocate: Int,
+    val golFatti: Int,
+    val autogol: Int,
+    val vittorie: Int,
 )
 
 suspend fun registraUtenteSupabase(
@@ -179,6 +189,34 @@ suspend fun registraUtenteSupabase(
 
     } catch (e: Exception) {
         Result.failure(e)
+    }
+}
+
+suspend fun inserisciStatisticheIniziali(context: Context, userEmail: String) = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val initialStats = StatsUtente(
+        utente = userEmail,
+        partiteGiocate = 0,
+        golFatti = 0,
+        autogol = 0,
+        vittorie = 0
+    )
+    Log.d("STATS", initialStats.toString())
+    val statsBody = Json.encodeToString(initialStats).toRequestBody("application/json".toMediaType())
+    val statsRowInsertRequest = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/statistiche_utente")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .post(statsBody)
+        .build()
+
+    client.newCall(statsRowInsertRequest).execute().use { statsResponse ->
+        if (!statsResponse.isSuccessful) {
+            Log.e("Errore Supabase: ${statsResponse.code}", " - ${statsResponse.body?.string()}")
+        }
     }
 }
 
