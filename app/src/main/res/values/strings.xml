@@ -190,9 +190,16 @@
     <string name="organizzatore">Organizzatore</string>
     <string name="tu">Tu</string>
 
+    <!-- STATISTICHE PERSONALI -->
+    <string name="stats_personali">Statistiche</string>
+    <string name="autogol">Autogol</string>
+    <string name="gol_per_partita">Gol per Partita</string>
+    <string name="autogol_per_partita">Autogol per Partita</string>
+    <string name="val_media">Valutazione media</string>
+    <string name="vittorie">Vittorie</string>
+
     <!-- RECENSIONI -->
     <string name="recensioni">Recensioni</string>
-
 
     <!-- CREA PARTITA -->
     <string name="crea_partita">Crea partita</string>

@@ -102,290 +102,290 @@ fun ModificaProfilo(navController: NavHostController, profileViewModel: ProfileV
         ) {
             val showBackButton = navController.previousBackStackEntry != null
 
-                TopBarWithBackButton(
-                    navController = navController,
-                    title = localizedContext.getString(R.string.btn_modifica),
-                    showBackButton = showBackButton
-                )
+            TopBarWithBackButton(
+                navController = navController,
+                title = localizedContext.getString(R.string.btn_modifica),
+                showBackButton = showBackButton
+            )
 
-                MandatoryField(
-                    localizedContext.getString(R.string.nome),
-                    name,
-                    { name = it },
-                    localizedContext.getString(R.string.nome_placeholder)
-                )
-                MandatoryField(
-                    localizedContext.getString(R.string.cognome),
-                    lastName,
-                    { lastName = it },
-                    localizedContext.getString(R.string.cognome_placeholder)
-                )
+            MandatoryField(
+                localizedContext.getString(R.string.nome),
+                name,
+                { name = it },
+                localizedContext.getString(R.string.nome_placeholder)
+            )
+            MandatoryField(
+                localizedContext.getString(R.string.cognome),
+                lastName,
+                { lastName = it },
+                localizedContext.getString(R.string.cognome_placeholder)
+            )
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.width(330.dp),
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    Column(
-                        modifier = Modifier.width(330.dp),
-                        horizontalAlignment = Alignment.Start
+                    Text(
+                        text = buildAnnotatedString {
+                            append(localizedContext.getString(R.string.indirizzo))
+                            withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                        },
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = nationExpanded,
+                        onExpandedChange = { nationExpanded = !nationExpanded },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
-                        Text(
-                            text = buildAnnotatedString {
-                                append(localizedContext.getString(R.string.indirizzo))
-                                withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                        OutlinedTextField(
+                            value = nation,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier
+                                .menuAnchor(
+                                    type = MenuAnchorType.PrimaryEditable,
+                                    enabled = true
+                                )
+                                .width(330.dp),
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    nationExpanded
+                                )
                             },
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Medium,
+                            placeholder = {
+                                Text(
+                                    localizedContext.getString(R.string.stato),
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            }
                         )
-                        ExposedDropdownMenuBox(
+                        LaunchedEffect(Unit) {
+                            euNations = fetchEUCountries(httpClient)
+                        }
+                        ExposedDropdownMenu(
                             expanded = nationExpanded,
-                            onExpandedChange = { nationExpanded = !nationExpanded },
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                            onDismissRequest = { nationExpanded = false }
                         ) {
-                            OutlinedTextField(
-                                value = nation,
-                                onValueChange = {},
-                                readOnly = true,
-                                modifier = Modifier
-                                    .menuAnchor(
-                                        type = MenuAnchorType.PrimaryEditable,
-                                        enabled = true
-                                    )
-                                    .width(330.dp),
-                                trailingIcon = {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(
-                                        nationExpanded
-                                    )
-                                },
-                                placeholder = {
-                                    Text(
-                                        localizedContext.getString(R.string.stato),
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                }
-                            )
-                            LaunchedEffect(Unit) {
-                                euNations = fetchEUCountries(httpClient)
-                            }
-                            ExposedDropdownMenu(
-                                expanded = nationExpanded,
-                                onDismissRequest = { nationExpanded = false }
-                            ) {
-                                euNations.forEach {
-                                    DropdownMenuItem(
-                                        text = { Text(it) },
-                                        onClick = {
-                                            nation = it
-                                            nationExpanded = false
-                                        }
-                                    )
-                                }
+                            euNations.forEach {
+                                DropdownMenuItem(
+                                    text = { Text(it) },
+                                    onClick = {
+                                        nation = it
+                                        nationExpanded = false
+                                    }
+                                )
                             }
                         }
-                        Spacer(Modifier.height(16.dp))
-                        LaunchedEffect(nation) {
-                            if (nation.isNotBlank()) {
-                                provinces = fetchProvincesByCountry(httpClient, nation)
-                            }
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    LaunchedEffect(nation) {
+                        if (nation.isNotBlank()) {
+                            provinces = fetchProvincesByCountry(httpClient, nation)
                         }
-                        ExposedDropdownMenuBox(
+                    }
+                    ExposedDropdownMenuBox(
+                        expanded = provinceExpanded,
+                        onExpandedChange = { provinceExpanded = !provinceExpanded },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        OutlinedTextField(
+                            value = province,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier
+                                .menuAnchor(
+                                    type = MenuAnchorType.PrimaryEditable,
+                                    enabled = true
+                                )
+                                .width(330.dp),
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    provinceExpanded
+                                )
+                            },
+                            placeholder = { Text(localizedContext.getString(R.string.provincia)) }
+                        )
+                        ExposedDropdownMenu(
                             expanded = provinceExpanded,
-                            onExpandedChange = { provinceExpanded = !provinceExpanded },
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                            onDismissRequest = { provinceExpanded = false }
                         ) {
-                            OutlinedTextField(
-                                value = province,
-                                onValueChange = {},
-                                readOnly = true,
-                                modifier = Modifier
-                                    .menuAnchor(
-                                        type = MenuAnchorType.PrimaryEditable,
-                                        enabled = true
-                                    )
-                                    .width(330.dp),
-                                trailingIcon = {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(
-                                        provinceExpanded
-                                    )
-                                },
-                                placeholder = { Text(localizedContext.getString(R.string.provincia)) }
-                            )
-                            ExposedDropdownMenu(
-                                expanded = provinceExpanded,
-                                onDismissRequest = { provinceExpanded = false }
-                            ) {
-                                provinces.forEach {
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                it,
-                                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                                            )
-                                        },
-                                        onClick = {
-                                            province = it
-                                            provinceExpanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                        val campiIndirizzo: List<Triple<String, String, (String) -> Unit>> = listOf(
-                            Triple(
-                                localizedContext.getString(R.string.citta),
-                                city
-                            ) { nuovo: String -> city = nuovo },
-                            Triple(
-                                localizedContext.getString(R.string.via),
-                                street
-                            ) { nuovo: String -> street = nuovo },
-                            Triple(
-                                localizedContext.getString(R.string.civico),
-                                houseNumber
-                            ) { nuovo: String -> houseNumber = nuovo }
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        campiIndirizzo.forEach { (placeholder, value, onChange) ->
-                            OutlinedTextField(
-                                value = value,
-                                onValueChange = onChange,
-                                placeholder = { Text(placeholder) },
-                                singleLine = true,
-                                modifier = Modifier
-                                    .width(330.dp)
-                                    .align(Alignment.CenterHorizontally)
-                                    .padding(vertical = 8.dp)
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-
-                fun validaCampi(
-                    onSuccess: () -> Unit
-                ) {
-                    coroutineScope.launch {
-                        try {
-                            // Campi vuoti
-                            val campi = listOf(
-                                localizedContext.getString(R.string.nome) to name,
-                                localizedContext.getString(R.string.cognome) to lastName,
-                                localizedContext.getString(R.string.stato) to street,
-                                localizedContext.getString(R.string.provincia) to province,
-                                localizedContext.getString(R.string.citta) to city,
-                                localizedContext.getString(R.string.via) to street,
-                                localizedContext.getString(R.string.civico) to houseNumber
-                            )
-                            campi.forEach { (nomeCampo, valore) ->
-                                if (valore.isBlank()) {
-                                    val message =
-                                        localizedContext.getString(
-                                            R.string.campo_non_vuoto,
-                                            nomeCampo
+                            provinces.forEach {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            it,
+                                            color = MaterialTheme.colorScheme.onSecondaryContainer
                                         )
-                                    throw Exception(message)
-                                }
+                                    },
+                                    onClick = {
+                                        province = it
+                                        provinceExpanded = false
+                                    }
+                                )
                             }
-
-                            // Nome, Cognome, Via, Città → nessun numero
-                            val noNumeriRegex = Regex(".*\\d.*")
-                            if (noNumeriRegex.containsMatchIn(name)) throw Exception(
-                                localizedContext.getString(
-                                    R.string.nome_con_numeri
-                                )
-                            )
-                            if (noNumeriRegex.containsMatchIn(lastName)) throw Exception(
-                                localizedContext.getString(
-                                    R.string.cognome_con_numeri
-                                )
-                            )
-                            if (noNumeriRegex.containsMatchIn(street)) throw Exception(
-                                localizedContext.getString(
-                                    R.string.via_con_numeri
-                                )
-                            )
-                            if (noNumeriRegex.containsMatchIn(city)) throw Exception(
-                                localizedContext.getString(
-                                    R.string.citta_con_numeri
-                                )
-                            )
-                            // Civico → numero tra 1 e 100000
-                            val civicoInt = houseNumber.toIntOrNull()
-                                ?: throw Exception(localizedContext.getString(R.string.civico_non_numero))
-                            if (civicoInt !in 1..100000) throw Exception(
-                                localizedContext.getString(
-                                    R.string.civico_fuori_range
-                                )
-                            )
-                            onSuccess()
-                        } catch (e: Exception) {
-                            Log.e(
-                                "ERRORE DIOCAN",
-                                e.message ?: localizedContext.getString(R.string.errore_validazione)
-                            )
-                            snackbarHostState.showSnackbar(
-                                e.message ?: localizedContext.getString(R.string.errore_validazione)
-                            )
                         }
                     }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        onClick = {
-                            validaCampi() {
-                                profileViewModel.editProfile(
-                                    name,
-                                    lastName,
-                                    nation,
-                                    province,
-                                    city,
-                                    street,
-                                    houseNumber
-                                )
-                                navController.navigateUp()
-                            }
-                        },
-                        modifier = Modifier.width(150.dp).height(42.dp),
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                    ) {
-                        Text(
-                            localizedContext.getString(R.string.salva),
-                            textAlign = TextAlign.Center,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(30.dp))
-                    Button(
-                        onClick = {
-                            navController.navigateUp()
-                        },
-                        modifier = Modifier.width(150.dp).height(42.dp),
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Red,
-                            contentColor = White
-                        )
-                    ) {
-                        Text(
-                            localizedContext.getString(R.string.annulla),
-                            textAlign = TextAlign.Center,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
+                    val campiIndirizzo: List<Triple<String, String, (String) -> Unit>> = listOf(
+                        Triple(
+                            localizedContext.getString(R.string.citta),
+                            city
+                        ) { nuovo: String -> city = nuovo },
+                        Triple(
+                            localizedContext.getString(R.string.via),
+                            street
+                        ) { nuovo: String -> street = nuovo },
+                        Triple(
+                            localizedContext.getString(R.string.civico),
+                            houseNumber
+                        ) { nuovo: String -> houseNumber = nuovo }
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    campiIndirizzo.forEach { (placeholder, value, onChange) ->
+                        OutlinedTextField(
+                            value = value,
+                            onValueChange = onChange,
+                            placeholder = { Text(placeholder) },
+                            singleLine = true,
+                            modifier = Modifier
+                                .width(330.dp)
+                                .align(Alignment.CenterHorizontally)
+                                .padding(vertical = 8.dp)
                         )
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            fun validaCampi(
+                onSuccess: () -> Unit
+            ) {
+                coroutineScope.launch {
+                    try {
+                        // Campi vuoti
+                        val campi = listOf(
+                            localizedContext.getString(R.string.nome) to name,
+                            localizedContext.getString(R.string.cognome) to lastName,
+                            localizedContext.getString(R.string.stato) to street,
+                            localizedContext.getString(R.string.provincia) to province,
+                            localizedContext.getString(R.string.citta) to city,
+                            localizedContext.getString(R.string.via) to street,
+                            localizedContext.getString(R.string.civico) to houseNumber
+                        )
+                        campi.forEach { (nomeCampo, valore) ->
+                            if (valore.isBlank()) {
+                                val message =
+                                    localizedContext.getString(
+                                        R.string.campo_non_vuoto,
+                                        nomeCampo
+                                    )
+                                throw Exception(message)
+                            }
+                        }
+
+                        // Nome, Cognome, Via, Città → nessun numero
+                        val noNumeriRegex = Regex(".*\\d.*")
+                        if (noNumeriRegex.containsMatchIn(name)) throw Exception(
+                            localizedContext.getString(
+                                R.string.nome_con_numeri
+                            )
+                        )
+                        if (noNumeriRegex.containsMatchIn(lastName)) throw Exception(
+                            localizedContext.getString(
+                                R.string.cognome_con_numeri
+                            )
+                        )
+                        if (noNumeriRegex.containsMatchIn(street)) throw Exception(
+                            localizedContext.getString(
+                                R.string.via_con_numeri
+                            )
+                        )
+                        if (noNumeriRegex.containsMatchIn(city)) throw Exception(
+                            localizedContext.getString(
+                                R.string.citta_con_numeri
+                            )
+                        )
+                        // Civico → numero tra 1 e 100000
+                        val civicoInt = houseNumber.toIntOrNull()
+                            ?: throw Exception(localizedContext.getString(R.string.civico_non_numero))
+                        if (civicoInt !in 1..100000) throw Exception(
+                            localizedContext.getString(
+                                R.string.civico_fuori_range
+                            )
+                        )
+                        onSuccess()
+                    } catch (e: Exception) {
+                        Log.e(
+                            "ERRORE DIOCAN",
+                            e.message ?: localizedContext.getString(R.string.errore_validazione)
+                        )
+                        snackbarHostState.showSnackbar(
+                            e.message ?: localizedContext.getString(R.string.errore_validazione)
+                        )
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = {
+                        validaCampi() {
+                            profileViewModel.editProfile(
+                                name,
+                                lastName,
+                                nation,
+                                province,
+                                city,
+                                street,
+                                houseNumber
+                            )
+                            navController.navigateUp()
+                        }
+                    },
+                    modifier = Modifier.width(150.dp).height(42.dp),
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Text(
+                        localizedContext.getString(R.string.salva),
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.width(30.dp))
+                Button(
+                    onClick = {
+                        navController.navigateUp()
+                    },
+                    modifier = Modifier.width(150.dp).height(42.dp),
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Red,
+                        contentColor = White
+                    )
+                ) {
+                    Text(
+                        localizedContext.getString(R.string.annulla),
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
+}
 
 @Composable
 fun MandatoryField(

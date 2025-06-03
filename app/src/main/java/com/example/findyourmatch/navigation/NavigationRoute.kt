@@ -52,6 +52,8 @@ sealed interface NavigationRoute {
     data object PlayedGames : NavigationRoute
     @Serializable
     data object EditProfile : NavigationRoute
+    @Serializable
+    data object PersonalStats : NavigationRoute
 }
 
 @Composable
@@ -156,6 +158,9 @@ fun NavGraph(
         }
         composable<NavigationRoute.EditProfile> {
             ModificaProfilo(navController, profileViewModel)
+        }
+        composable<NavigationRoute.PersonalStats> {
+            StatistichePersonali(navController, profileViewModel)
         }
     }
 }

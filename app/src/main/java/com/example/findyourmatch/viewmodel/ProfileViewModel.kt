@@ -19,12 +19,14 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val _numRewardsAchieved = MutableStateFlow<Int?>(null)
     private val _maxRewardsAchieved = MutableStateFlow<List<MaxObiettivoRaggiunto>?>(null)
     private val _playedGames = MutableStateFlow<List<PartiteGiocateUtente>?>(null)
+    private val _stats = MutableStateFlow<StatsUtente?>(null)
     val user = _user
     val userAddress = _userAddress
     val profileImageUri: StateFlow<Uri?> = _profileImageUri
     val numRewardsAchieved = _numRewardsAchieved
     val maxRewardsAchieved = _maxRewardsAchieved
     val playedGames = _playedGames
+    val stats = _stats
 
     init {
         ricaricaUtente()
@@ -42,6 +44,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     _maxRewardsAchieved.value = getMaxRewards(application, _user.value?.email!!)
                 }
                 _playedGames.value = getPlayedGames(application, _user.value?.email!!)
+                _stats.value = getStats(application, _user.value?.email!!)
             }
         }
     }
