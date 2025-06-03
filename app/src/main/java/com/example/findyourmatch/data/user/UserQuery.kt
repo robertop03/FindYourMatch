@@ -11,10 +11,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.io.IOException
 
 @Serializable
@@ -281,5 +283,34 @@ suspend fun getPlayedGames(context: Context, userEMail: String) : List<PartiteGi
             json
         )
         return@withContext playedGames
+    }
+}
+
+suspend fun updateProfile(context: Context, dataToUpdate: Map<String, String>, userEmail: String) = withContext(Dispatchers.IO){
+    if (dataToUpdate.isNotEmpty()) {
+        val client = OkHttpClient()
+        val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+        val json = JSONObject(dataToUpdate).toString()
+        Log.d("JSON", json)
+        val requestBody = json.toRequestBody("application/json".toMediaType())
+
+        val request = Request.Builder()
+            .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti?email=eq.$userEmail")
+            .addHeader(
+                "apikey",
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+            )
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("Content-Type", "application/json")
+            .patch(requestBody)
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful)
+                Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+        }
+    } else {
+        Log.d("LISTA VUOTA", "Nessun valore da cambiare")
     }
 }

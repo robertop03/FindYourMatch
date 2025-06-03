@@ -52,6 +52,22 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             updateProfileImage(application, _user.value!!.email, _profileImageUri.value!!)
         }
     }
+
+    fun editProfile(newName: String, newLastName: String, newNation: String, newProvince: String,
+        newCity: String, newStreet: String, newHouseNumber: String) {
+        val toUpdateMap = mutableMapOf<String, String>()
+        if (newName != _user.value!!.nome) toUpdateMap["nome"] = newName
+        if (newLastName != _user.value!!.cognome) toUpdateMap["cognome"] = newLastName
+        if (newNation != _userAddress.value!!.stato) toUpdateMap["stato"] = newNation
+        if (newProvince != _userAddress.value!!.provincia) toUpdateMap["provincia"] = newProvince
+        if (newCity != _userAddress.value!!.citta) toUpdateMap["citta"] = newCity
+        if (newStreet != _userAddress.value!!.via) toUpdateMap["via"] = newStreet
+        if (newHouseNumber != _userAddress.value!!.civico) toUpdateMap["civico"] = newHouseNumber
+        viewModelScope.launch {
+            updateProfile(application, toUpdateMap, _user.value!!.email)
+            ricaricaUtente()
+        }
+    }
 }
 
 class ProfileViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
