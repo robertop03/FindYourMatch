@@ -186,9 +186,9 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                             color = Silver
                         )
                         Spacer(modifier = Modifier.height(5.dp))
-                        GenerateButton(localizedContext.getString(R.string.btn_modifica), Icons.Default.Edit)
+                        GenerateButton(localizedContext.getString(R.string.btn_modifica), Icons.Default.Edit, navController, NavigationRoute.EditProfile)
                         Spacer(modifier = Modifier.height(5.dp))
-                        GenerateButton(localizedContext.getString(R.string.btn_vedi_stats), Icons.Default.Insights)
+                        GenerateButton(localizedContext.getString(R.string.btn_vedi_stats), Icons.Default.Insights, navController, NavigationRoute.EditProfile)
 
                         indirizzo?.let { i ->
                             infoMap = mapOf(
@@ -379,9 +379,11 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
 }
 
 @Composable
-fun GenerateButton(text: String, icon: ImageVector) {
+fun GenerateButton(text: String, icon: ImageVector, navController: NavHostController, goTo: NavigationRoute) {
     Button(
-        onClick = {},
+        onClick = {
+            navController.navigate(goTo)
+        },
         modifier = Modifier
             .height(35.dp)
             .width(200.dp),
