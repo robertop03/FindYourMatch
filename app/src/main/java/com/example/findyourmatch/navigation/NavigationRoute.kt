@@ -50,6 +50,8 @@ sealed interface NavigationRoute {
     data object Reviews : NavigationRoute
     @Serializable
     data object PlayedGames : NavigationRoute
+    @Serializable
+    data object EditProfile : NavigationRoute
 }
 
 @Composable
@@ -151,6 +153,9 @@ fun NavGraph(
         ) { backStackEntry ->
             val token = backStackEntry.arguments?.getString("access_token") ?: ""
             CambiaPasswordDeepLink(navController, token, sessionViewModel)
+        }
+        composable<NavigationRoute.EditProfile> {
+            ModificaProfilo(navController, profileViewModel)
         }
     }
 }
