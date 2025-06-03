@@ -188,7 +188,7 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                         Spacer(modifier = Modifier.height(5.dp))
                         GenerateButton(localizedContext.getString(R.string.btn_modifica), Icons.Default.Edit, navController, NavigationRoute.EditProfile)
                         Spacer(modifier = Modifier.height(5.dp))
-                        GenerateButton(localizedContext.getString(R.string.btn_vedi_stats), Icons.Default.Insights, navController, NavigationRoute.EditProfile)
+                        GenerateButton(localizedContext.getString(R.string.btn_vedi_stats), Icons.Default.Insights, navController, NavigationRoute.PersonalStats)
 
                         indirizzo?.let { i ->
                             infoMap = mapOf(

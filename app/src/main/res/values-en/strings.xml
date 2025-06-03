@@ -190,6 +190,14 @@
     <string name="organizzatore">Organizer</string>
     <string name="tu">You</string>
 
+    <!-- STATISTICHE PERSONALI -->
+    <string name="stats_personali">Stats</string>
+    <string name="autogol">Own Goals</string>
+    <string name="gol_per_partita">Goals per Game</string>
+    <string name="autogol_per_partita">Own goals per Game</string>
+    <string name="val_media">Average rating</string>
+    <string name="vittorie">Victories</string>
+
     <!-- RECENSIONI -->
     <string name="recensioni">Reviews</string>
 

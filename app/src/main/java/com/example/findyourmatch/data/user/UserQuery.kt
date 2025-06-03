@@ -314,3 +314,28 @@ suspend fun updateProfile(context: Context, dataToUpdate: Map<String, String>, u
         Log.d("LISTA VUOTA", "Nessun valore da cambiare")
     }
 }
+
+suspend fun getStats(context: Context, userEmail: String): StatsUtente? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/statistiche_utente?utente=eq.${userEmail}&select=utente,partiteGiocate,golFatti,autogol,vittorie")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) return@withContext null
+        val json = response.body?.string() ?: return@withContext null
+        val stats = Json.decodeFromString(
+            kotlinx.serialization.builtins.ListSerializer(StatsUtente.serializer()),
+            json
+        )
+        return@withContext stats.firstOrNull()
+    }
+}
