@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.messaging)
     implementation(libs.coil.compose)
+    implementation (libs.mpandroidchart)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

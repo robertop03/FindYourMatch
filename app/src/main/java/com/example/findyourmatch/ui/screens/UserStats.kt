@@ -1,14 +1,18 @@
 package com.example.findyourmatch.ui.screens
 
 import android.annotation.SuppressLint
+import android.graphics.Color
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,14 +27,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.ui.theme.Grey
 import com.example.findyourmatch.viewmodel.ProfileViewModel
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 
 @SuppressLint("DefaultLocale")
 @Composable
@@ -73,9 +84,9 @@ fun StatistichePersonali(navController: NavHostController, profileViewModel: Pro
             )
 
             stats?.let {
-                val gP = it.golFatti.toDouble() / it.partiteGiocate.toDouble()
-                val auP = it.autogol.toDouble() / it.partiteGiocate.toDouble()
-                val percW = it.vittorie.toDouble()*100 / it.partiteGiocate.toDouble()
+                val gP = if (it.partiteGiocate > 0) it.golFatti.toDouble() / it.partiteGiocate.toDouble() else 0.0
+                val auP = if (it.partiteGiocate > 0) it.autogol.toDouble() / it.partiteGiocate.toDouble() else 0.0
+                val percW = if (it.partiteGiocate > 0) it.vittorie.toDouble()*100 / it.partiteGiocate.toDouble() else 0.0
                 statsMap = mapOf(
                     localizedContext.getString(R.string.partite_giocate) to it.partiteGiocate,
                     localizedContext.getString(R.string.goal_fatti) to it.golFatti,
@@ -88,8 +99,60 @@ fun StatistichePersonali(navController: NavHostController, profileViewModel: Pro
             }
 
             StatsTable(statsMap)
-            
+            Spacer(modifier = Modifier.height(30.dp))
+            Text(
+                text = localizedContext.getString(R.string.andamento),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             //GRAFICO
+            val axisTextColor = MaterialTheme.colorScheme.onSecondaryContainer.toArgb()
+            AndroidView(
+                factory = { context ->
+                    LineChart(context)
+                },
+                update = { chart ->
+                    val golFatti = listOf(3f, 1f, 2f, 4f, 2f)
+                    val autogol = listOf(2f, 1f, 0f, 2f, 1f)
+
+                    val entriesGol = golFatti.mapIndexed { index, value ->
+                        Entry(index.toFloat(), value)
+                    }
+                    val entriesAutogol = autogol.mapIndexed { index, value ->
+                        Entry(index.toFloat(), value)
+                    }
+
+                    val dataSetGol = LineDataSet(entriesGol, localizedContext.getString(R.string.goal_fatti)).apply {
+                        color = Color.GREEN
+                        lineWidth = 2f
+                        setDrawValues(false)
+                    }
+
+                    val dataSetAutogol = LineDataSet(entriesAutogol, localizedContext.getString(R.string.autogol)).apply {
+                        color = Color.RED
+                        lineWidth = 2f
+                        setDrawValues(false)
+                    }
+
+                    chart.xAxis.granularity = 1f
+                    chart.xAxis.isGranularityEnabled = true
+                    chart.xAxis.textColor = axisTextColor
+
+                    chart.axisLeft.granularity = 1f
+                    chart.axisLeft.isGranularityEnabled = true
+                    chart.axisLeft.textColor = axisTextColor
+
+                    chart.data = LineData(dataSetGol, dataSetAutogol)
+                    chart.axisRight.isEnabled = false
+                    chart.description.isEnabled = false
+                    chart.legend.textColor = axisTextColor
+                    chart.invalidate()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+            )
         }
     }
 }
