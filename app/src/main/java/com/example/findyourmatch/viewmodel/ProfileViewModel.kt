@@ -11,6 +11,7 @@ import com.example.findyourmatch.data.user.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
 
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
     private val _user = MutableStateFlow<AnagraficaUtente?>(null)
@@ -20,6 +21,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val _maxRewardsAchieved = MutableStateFlow<List<MaxObiettivoRaggiunto>?>(null)
     private val _playedGames = MutableStateFlow<List<PartiteGiocateUtente>?>(null)
     private val _stats = MutableStateFlow<StatsUtente?>(null)
+    private val _gamesStats = MutableStateFlow<LinkedHashMap<String, StatsUtentePartita?>>(LinkedHashMap())
     val user = _user
     val userAddress = _userAddress
     val profileImageUri: StateFlow<Uri?> = _profileImageUri
@@ -27,6 +29,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val maxRewardsAchieved = _maxRewardsAchieved
     val playedGames = _playedGames
     val stats = _stats
+    val gamesStatsMap = _gamesStats
 
     init {
         ricaricaUtente()
@@ -45,6 +48,12 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 }
                 _playedGames.value = getPlayedGames(application, _user.value?.email!!)
                 _stats.value = getStats(application, _user.value?.email!!)
+                _playedGames.value?.take(5)?.forEach {
+                    val dateString = LocalDateTime.parse(it.dataOra).date.toString()
+                    _gamesStats.value[dateString] =
+                        getUserStatsInMatch(application, _user.value?.email!!, it.id.toLong())
+                            ?: StatsUtentePartita(0, 0)
+                }
             }
         }
     }
