@@ -61,6 +61,12 @@ data class PartiteGiocateUtente(
     val esito: String
 )
 
+@Serializable
+data class StatsUtentePartita(
+    @SerialName("numerogol") val numeroGol: Int,
+    @SerialName("numeroautogol") val numeroAutogol: Int
+)
+
 suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatchers.IO) {
     val accessToken = SessionManager.getAccessToken(context)
     if (accessToken.isNullOrBlank()) {
@@ -336,6 +342,42 @@ suspend fun getStats(context: Context, userEmail: String): StatsUtente? = withCo
             kotlinx.serialization.builtins.ListSerializer(StatsUtente.serializer()),
             json
         )
+        return@withContext stats.firstOrNull()
+    }
+}
+
+suspend fun getUserStatsInMatch(context: Context, userEmail: String, game: Long) : StatsUtentePartita? = withContext(Dispatchers.IO){
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val jsonBody = """
+        {
+            "utente_text": "$userEmail",
+            "partita_int": $game
+        }
+    """
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/rpc/get_gol_autogol")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .post(jsonBody.trimIndent().toRequestBody("application/json".toMediaTypeOrNull()))
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext null
+        }
+        val json = response.body?.string() ?: return@withContext null
+        val stats = Json.decodeFromString(
+            kotlinx.serialization.builtins.ListSerializer(StatsUtentePartita.serializer()),
+            json
+        )
+
         return@withContext stats.firstOrNull()
     }
 }

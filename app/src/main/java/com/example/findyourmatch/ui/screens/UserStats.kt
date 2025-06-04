@@ -2,7 +2,6 @@ package com.example.findyourmatch.ui.screens
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -36,12 +35,12 @@ import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
-import com.example.findyourmatch.ui.theme.Grey
 import com.example.findyourmatch.viewmodel.ProfileViewModel
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
 
 @SuppressLint("DefaultLocale")
 @Composable
@@ -55,6 +54,7 @@ fun StatistichePersonali(navController: NavHostController, profileViewModel: Pro
 
     val stats by profileViewModel.stats.collectAsState()
     var statsMap: Map<String, Any>? = null
+    val lastGamesStats by profileViewModel.gamesStatsMap.collectAsState()
 
     LaunchedEffect(Unit) {
         profileViewModel.ricaricaUtente()
@@ -113,14 +113,19 @@ fun StatistichePersonali(navController: NavHostController, profileViewModel: Pro
                     LineChart(context)
                 },
                 update = { chart ->
-                    val golFatti = listOf(3f, 1f, 2f, 4f, 2f)
-                    val autogol = listOf(2f, 1f, 0f, 2f, 1f)
+                    val reversed = lastGamesStats.entries
+                    .toList()
+                    .asReversed()
+                    .associateTo(LinkedHashMap()) { it.toPair() }
 
-                    val entriesGol = golFatti.mapIndexed { index, value ->
-                        Entry(index.toFloat(), value)
+                    val labels = reversed.keys.toList()
+
+                    val entriesGol = reversed.values.mapIndexed { index, stats ->
+                        stats?.numeroGol?.let { Entry(index.toFloat(), it.toFloat()) }
                     }
-                    val entriesAutogol = autogol.mapIndexed { index, value ->
-                        Entry(index.toFloat(), value)
+
+                    val entriesAutogol = reversed.values.mapIndexed { index, stats ->
+                        stats?.numeroAutogol?.let { Entry(index.toFloat(), it.toFloat()) }
                     }
 
                     val dataSetGol = LineDataSet(entriesGol, localizedContext.getString(R.string.goal_fatti)).apply {
@@ -135,12 +140,19 @@ fun StatistichePersonali(navController: NavHostController, profileViewModel: Pro
                         setDrawValues(false)
                     }
 
+                    chart.xAxis.valueFormatter = object : ValueFormatter() {
+                        override fun getFormattedValue(value: Float): String {
+                            val index = value.toInt()
+                            return if (index >= 0 && index < labels.size) labels[index] else ""
+                        }
+                    }
+
                     chart.xAxis.granularity = 1f
                     chart.xAxis.isGranularityEnabled = true
                     chart.xAxis.textColor = axisTextColor
 
-                    chart.axisLeft.granularity = 1f
-                    chart.axisLeft.isGranularityEnabled = true
+//                    chart.axisLeft.granularity = 1f
+//                    chart.axisLeft.isGranularityEnabled = true
                     chart.axisLeft.textColor = axisTextColor
 
                     chart.data = LineData(dataSetGol, dataSetAutogol)
