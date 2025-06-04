@@ -298,7 +298,6 @@ suspend fun updateProfile(context: Context, dataToUpdate: Map<String, String>, u
         val token = SessionManager.getAccessToken(context) ?: return@withContext null
 
         val json = JSONObject(dataToUpdate).toString()
-        Log.d("JSON", json)
         val requestBody = json.toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
@@ -379,5 +378,30 @@ suspend fun getUserStatsInMatch(context: Context, userEmail: String, game: Long)
         )
 
         return@withContext stats.firstOrNull()
+    }
+}
+
+suspend fun getAverageRating(context: Context, userEmail: String) : Double? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/rpc/get_average_rating")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Content-Type", "application/json")
+        .post("""{"email_utente":"$userEmail"}""".toRequestBody("application/json".toMediaTypeOrNull()))
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext null
+        }
+        val average = response.body?.string()
+        return@withContext average?.toDoubleOrNull()
     }
 }
