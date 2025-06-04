@@ -240,7 +240,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                 val (n, c) = prendiNomeCognomeDaEmail(context, notifica.autoreRecensione!!) ?: ("" to "")
                                 nome = n
                                 cognome = c
-                                val v = prendiPunteggioRecensione(context, notifica.destinatarioRecensione!!, notifica.autoreRecensione, notifica.partitaRiferimentoRecensione!!)
+                                val v = prendiPunteggioRecensione(context, notifica.destinatarioRecensione!!, notifica.autoreRecensione, notifica.partita!!)
                                 voto = v!!
                             }
                         }
@@ -626,7 +626,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                     modifier = Modifier
                                 .padding(top = 4.dp)
                                 .clickable {
-                                    val id = notifica.partitaRiferimentoRecensione?.toIntOrNull()
+                                    val id = notifica.partita
                                     if (id != null) {
                                         navController.navigate("partita/$id")
                                     }
