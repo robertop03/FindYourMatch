@@ -197,6 +197,7 @@
     <string name="autogol_per_partita">Own goals per Game</string>
     <string name="val_media">Average rating</string>
     <string name="vittorie">Victories</string>
+    <string name="andamento">Trend of last 5 games</string>
 
     <!-- RECENSIONI -->
     <string name="recensioni">Reviews</string>

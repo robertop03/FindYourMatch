@@ -197,6 +197,7 @@
     <string name="autogol_per_partita">Autogol per Partita</string>
     <string name="val_media">Valutazione media</string>
     <string name="vittorie">Vittorie</string>
+    <string name="andamento">Andamento ultime 5 partite</string>
 
     <!-- RECENSIONI -->
     <string name="recensioni">Recensioni</string>
