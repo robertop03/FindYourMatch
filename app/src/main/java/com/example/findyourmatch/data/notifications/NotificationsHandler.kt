@@ -37,7 +37,6 @@ data class Notifica(
     @SerialName("tipo_medaglia_raggiunta") val titoloMedagliaRaggiunta: String? = null,
     @SerialName("destinatario_recensione") val destinatarioRecensione: String? = null,
     @SerialName("autore_recensione") val autoreRecensione: String? = null,
-    @SerialName("partita_riferimento_recensione") val partitaRiferimentoRecensione: String? = null,
     @SerialName("gestita") val gestita: Boolean? = false
     )
 
@@ -112,7 +111,7 @@ suspend fun prendiPunteggioRecensione(
     context: Context,
     destinatario: String,
     autore: String,
-    partita: String
+    partita: Int
 ): Int? = withContext(Dispatchers.IO) {
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext null
