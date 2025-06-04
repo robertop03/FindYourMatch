@@ -22,6 +22,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val _playedGames = MutableStateFlow<List<PartiteGiocateUtente>?>(null)
     private val _stats = MutableStateFlow<StatsUtente?>(null)
     private val _gamesStats = MutableStateFlow<LinkedHashMap<String, StatsUtentePartita?>>(LinkedHashMap())
+    private val _averageRating = MutableStateFlow<Double?>(null)
     val user = _user
     val userAddress = _userAddress
     val profileImageUri: StateFlow<Uri?> = _profileImageUri
@@ -30,6 +31,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val playedGames = _playedGames
     val stats = _stats
     val gamesStatsMap = _gamesStats
+    val averageRating = _averageRating
 
     init {
         ricaricaUtente()
@@ -40,21 +42,23 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             _user.value = getUserInfo(application)
             _userAddress.value = getIndirizzoUtente(application)
             _user.value?.let { u ->
+                val email = _user.value?.email!!
                 val url = Uri.parse("https://ugtxgylfzblkvudpnagi.supabase.co/storage/v1/object/public/profilephotos/${u.email}.jpg")
                 _profileImageUri.value = if (checkIfImageExists(url.toString())) url else null
-                _numRewardsAchieved.value = calculateNumOfRewardsAchieved(application, _user.value?.email!!)
+                _numRewardsAchieved.value = calculateNumOfRewardsAchieved(application, email)
                 if (_numRewardsAchieved.value != null) {
-                    _maxRewardsAchieved.value = getMaxRewards(application, _user.value?.email!!)
+                    _maxRewardsAchieved.value = getMaxRewards(application, email)
                 }
-                _playedGames.value = getPlayedGames(application, _user.value?.email!!)
-                _stats.value = getStats(application, _user.value?.email!!)
+                _playedGames.value = getPlayedGames(application, email)
+                _stats.value = getStats(application, email)
                 _gamesStats.value.clear()
                 _playedGames.value?.take(5)?.forEach {
                     val dateString = LocalDateTime.parse(it.dataOra).date.toString()
                     _gamesStats.value[dateString] =
-                        getUserStatsInMatch(application, _user.value?.email!!, it.id.toLong())
+                        getUserStatsInMatch(application, email, it.id.toLong())
                             ?: StatsUtentePartita(0, 0)
                 }
+                _averageRating.value = getAverageRating(application, email)
             }
         }
     }
