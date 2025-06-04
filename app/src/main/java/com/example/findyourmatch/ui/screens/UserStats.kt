@@ -99,72 +99,74 @@ fun StatistichePersonali(navController: NavHostController, profileViewModel: Pro
             }
 
             StatsTable(statsMap)
-            Spacer(modifier = Modifier.height(30.dp))
-            Text(
-                text = localizedContext.getString(R.string.andamento),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            //GRAFICO
-            val axisTextColor = MaterialTheme.colorScheme.onSecondaryContainer.toArgb()
-            AndroidView(
-                factory = { context ->
-                    LineChart(context)
-                },
-                update = { chart ->
-                    val reversed = lastGamesStats.entries
-                    .toList()
-                    .asReversed()
-                    .associateTo(LinkedHashMap()) { it.toPair() }
+            if (lastGamesStats.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(30.dp))
+                Text(
+                    text = localizedContext.getString(R.string.andamento),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                //GRAFICO
+                val axisTextColor = MaterialTheme.colorScheme.onSecondaryContainer.toArgb()
+                AndroidView(
+                    factory = { context ->
+                        LineChart(context)
+                    },
+                    update = { chart ->
+                        val reversed = lastGamesStats.entries
+                            .toList()
+                            .asReversed()
+                            .associateTo(LinkedHashMap()) { it.toPair() }
 
-                    val labels = reversed.keys.toList()
+                        val labels = reversed.keys.toList()
 
-                    val entriesGol = reversed.values.mapIndexed { index, stats ->
-                        stats?.numeroGol?.let { Entry(index.toFloat(), it.toFloat()) }
-                    }
-
-                    val entriesAutogol = reversed.values.mapIndexed { index, stats ->
-                        stats?.numeroAutogol?.let { Entry(index.toFloat(), it.toFloat()) }
-                    }
-
-                    val dataSetGol = LineDataSet(entriesGol, localizedContext.getString(R.string.goal_fatti)).apply {
-                        color = Color.GREEN
-                        lineWidth = 2f
-                        setDrawValues(false)
-                    }
-
-                    val dataSetAutogol = LineDataSet(entriesAutogol, localizedContext.getString(R.string.autogol)).apply {
-                        color = Color.RED
-                        lineWidth = 2f
-                        setDrawValues(false)
-                    }
-
-                    chart.xAxis.valueFormatter = object : ValueFormatter() {
-                        override fun getFormattedValue(value: Float): String {
-                            val index = value.toInt()
-                            return if (index >= 0 && index < labels.size) labels[index] else ""
+                        val entriesGol = reversed.values.mapIndexed { index, stats ->
+                            stats?.numeroGol?.let { Entry(index.toFloat(), it.toFloat()) }
                         }
-                    }
 
-                    chart.xAxis.granularity = 1f
-                    chart.xAxis.isGranularityEnabled = true
-                    chart.xAxis.textColor = axisTextColor
+                        val entriesAutogol = reversed.values.mapIndexed { index, stats ->
+                            stats?.numeroAutogol?.let { Entry(index.toFloat(), it.toFloat()) }
+                        }
+
+                        val dataSetGol = LineDataSet(entriesGol, localizedContext.getString(R.string.goal_fatti)).apply {
+                            color = Color.GREEN
+                            lineWidth = 2f
+                            setDrawValues(false)
+                        }
+
+                        val dataSetAutogol = LineDataSet(entriesAutogol, localizedContext.getString(R.string.autogol)).apply {
+                            color = Color.RED
+                            lineWidth = 2f
+                            setDrawValues(false)
+                        }
+
+                        chart.xAxis.valueFormatter = object : ValueFormatter() {
+                            override fun getFormattedValue(value: Float): String {
+                                val index = value.toInt()
+                                return if (index >= 0 && index < labels.size) labels[index] else ""
+                            }
+                        }
+
+                        chart.xAxis.granularity = 1f
+                        chart.xAxis.isGranularityEnabled = true
+                        chart.xAxis.textColor = axisTextColor
 
 //                    chart.axisLeft.granularity = 1f
 //                    chart.axisLeft.isGranularityEnabled = true
-                    chart.axisLeft.textColor = axisTextColor
+                        chart.axisLeft.textColor = axisTextColor
 
-                    chart.data = LineData(dataSetGol, dataSetAutogol)
-                    chart.axisRight.isEnabled = false
-                    chart.description.isEnabled = false
-                    chart.legend.textColor = axisTextColor
-                    chart.invalidate()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-            )
+                        chart.data = LineData(dataSetGol, dataSetAutogol)
+                        chart.axisRight.isEnabled = false
+                        chart.description.isEnabled = false
+                        chart.legend.textColor = axisTextColor
+                        chart.invalidate()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                )
+            }
         }
     }
 }

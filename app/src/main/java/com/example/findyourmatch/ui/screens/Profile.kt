@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -60,9 +61,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import androidx.navigation.NavArgument
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
@@ -189,7 +192,31 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                         GenerateButton(localizedContext.getString(R.string.btn_modifica), Icons.Default.Edit, navController, NavigationRoute.EditProfile)
                         Spacer(modifier = Modifier.height(5.dp))
                         GenerateButton(localizedContext.getString(R.string.btn_vedi_stats), Icons.Default.Insights, navController, NavigationRoute.PersonalStats)
-
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Button(
+                            onClick = {
+                                navController.navigate("reviews")
+                            },
+                            modifier = Modifier
+                                .height(35.dp)
+                                .width(200.dp),
+                            shape = RoundedCornerShape(50),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimary)
+                        ){
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(text = localizedContext.getString(R.string.btn_vedi_recensioni),
+                                fontSize = 15.sp,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.padding(0.dp))
+                        }
                         indirizzo?.let { i ->
                             infoMap = mapOf(
                                 localizedContext.getString(R.string.iscrizione) to it.iscrizione,
@@ -485,30 +512,25 @@ fun GameCard(game: PartiteGiocateUtente?, navController: NavHostController, loca
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "${localizedContext.getString(R.string.calcio_a)} ${game.tipo}",
-                    color = White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
+            Spacer(modifier = Modifier.height(17.dp))
 
-                Text(text = game.citta,
-                    color = White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp)
-            }
-            Text(text = game.nomeCampo,
+            Text(
+                text = "${localizedContext.getString(R.string.calcio_a)} ${game.tipo}",
                 color = White,
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                modifier = Modifier.padding(0.dp, 3.dp))
+                fontSize = 18.sp
+            )
 
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(text = game.nomeCampo,
+                color = White,
+                fontWeight = FontWeight.SemiBold,
+                textDecoration = TextDecoration.Underline)
+
+            Text(text = game.citta,
+                color = White)
+            Spacer(modifier = Modifier.height(7.dp))
             Row (modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically

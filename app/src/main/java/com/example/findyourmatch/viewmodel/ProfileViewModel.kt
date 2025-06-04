@@ -48,6 +48,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 }
                 _playedGames.value = getPlayedGames(application, _user.value?.email!!)
                 _stats.value = getStats(application, _user.value?.email!!)
+                _gamesStats.value.clear()
                 _playedGames.value?.take(5)?.forEach {
                     val dateString = LocalDateTime.parse(it.dataOra).date.toString()
                     _gamesStats.value[dateString] =

@@ -172,6 +172,7 @@
     <string name="scegli_galleria">Choose from the gallery</string>
     <string name="btn_modifica">Edit profile</string>
     <string name="btn_vedi_stats">View stats</string>
+    <string name="btn_vedi_recensioni">View reviews</string>
     <string name="iscrizione">Registration date</string>
     <string name="citta_residenza">City of residence</string>
     <string name="no_obiettivi_raggiunti">You have not achieved any rewards at the moment.</string>
