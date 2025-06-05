@@ -16,13 +16,9 @@ class ReviewsViewModel(application: Application) : AndroidViewModel(application)
     private val _reviews = MutableStateFlow<List<Recensione>?>(mutableListOf())
     val reviews = _reviews
 
-    init {
-        loadReviews()
-    }
-
-    fun loadReviews(userEmail: String? = null) {
+    fun loadReviews(userEmail: String) {
         viewModelScope.launch {
-            _reviews.value = getReviews(application, userEmail ?: getLoggedUserEmail(application)!!)
+            _reviews.value = getReviews(application, userEmail)
         }
     }
 }
