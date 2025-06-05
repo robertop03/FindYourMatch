@@ -36,11 +36,12 @@ import com.example.findyourmatch.R
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.Recensione
 import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.viewmodel.ProfileViewModel
 import com.example.findyourmatch.viewmodel.ReviewsViewModel
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
-fun Recensioni(navController: NavHostController, email: String?, reviewsViewModel: ReviewsViewModel) {
+fun Recensioni(navController: NavHostController, email: String?, reviewsViewModel: ReviewsViewModel, profileViewModel: ProfileViewModel) {
     val context = LocalContext.current
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
@@ -48,10 +49,13 @@ fun Recensioni(navController: NavHostController, email: String?, reviewsViewMode
         LocaleHelper.updateLocale(context, language)
     }
 
-    val reviews by reviewsViewModel.reviews.collectAsState()
+    val reviews by if (email != null) reviewsViewModel.reviews.collectAsState() else profileViewModel.reviews.collectAsState()
 
     LaunchedEffect(Unit) {
-        reviewsViewModel.loadReviews(email)
+        if (email != null)
+            reviewsViewModel.loadReviews(email)
+        else
+            profileViewModel.ricaricaUtente()
     }
 
     Box(

@@ -23,6 +23,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val _stats = MutableStateFlow<StatsUtente?>(null)
     private val _gamesStats = MutableStateFlow<LinkedHashMap<String, StatsUtentePartita?>>(LinkedHashMap())
     private val _averageRating = MutableStateFlow<Double?>(null)
+    private val _reviews = MutableStateFlow<List<Recensione>?>(mutableListOf())
     val user = _user
     val userAddress = _userAddress
     val profileImageUri: StateFlow<Uri?> = _profileImageUri
@@ -32,6 +33,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val stats = _stats
     val gamesStatsMap = _gamesStats
     val averageRating = _averageRating
+    val reviews = _reviews
 
     init {
         ricaricaUtente()
@@ -59,6 +61,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                             ?: StatsUtentePartita(0, 0)
                 }
                 _averageRating.value = getAverageRating(application, email)
+                _reviews.value = getReviews(application, email)
             }
         }
     }

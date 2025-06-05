@@ -141,7 +141,7 @@ fun NavGraph(
             )
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email")
-            Recensioni(navController, email, reviewsViewModel)
+            Recensioni(navController, email, reviewsViewModel, profileViewModel)
         }
 
         composable(
