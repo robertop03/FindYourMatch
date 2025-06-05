@@ -202,6 +202,9 @@
 
     <!-- RECENSIONI -->
     <string name="recensioni">Recensioni</string>
+    <string name="punteggio">Voto</string>
+    <string name="partita_del">Partita del</string>
+    <string name="no_recensioni">Al momento non hai ricevuto nessuna recensione.</string>
 
     <!-- CREA PARTITA -->
     <string name="crea_partita">Crea partita</string>

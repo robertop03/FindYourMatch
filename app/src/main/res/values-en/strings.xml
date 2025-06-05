@@ -202,6 +202,9 @@
 
     <!-- RECENSIONI -->
     <string name="recensioni">Reviews</string>
+    <string name="punteggio">Rating</string>
+    <string name="partita_del">Match of</string>
+    <string name="no_recensioni">You have not received any reviews at the moment.</string>
 
     <!-- CREA PARTITA -->
     <string name="crea_partita">Create match</string>

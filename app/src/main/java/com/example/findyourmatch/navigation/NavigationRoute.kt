@@ -15,6 +15,7 @@ import com.example.findyourmatch.ui.screens.*
 import com.example.findyourmatch.viewmodel.HomeViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.ProfileViewModel
+import com.example.findyourmatch.viewmodel.ReviewsViewModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URLDecoder
@@ -64,7 +65,8 @@ fun NavGraph(
     activity: FragmentActivity,
     notificheViewModel: NotificheViewModel,
     profileViewModel: ProfileViewModel,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
+    reviewsViewModel: ReviewsViewModel
 ) {
     NavHost(
         navController = navController,
@@ -139,7 +141,7 @@ fun NavGraph(
             )
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email")
-            Recensioni(navController, email)
+            Recensioni(navController, email, reviewsViewModel)
         }
 
         composable(

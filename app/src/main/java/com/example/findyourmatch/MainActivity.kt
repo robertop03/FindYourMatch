@@ -30,6 +30,8 @@ import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
 import com.example.findyourmatch.viewmodel.ProfileViewModel
 import com.example.findyourmatch.viewmodel.ProfileViewModelFactory
+import com.example.findyourmatch.viewmodel.ReviewsViewModel
+import com.example.findyourmatch.viewmodel.ReviewsViewModelFactory
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +59,9 @@ class MainActivity : FragmentActivity() {
                 val homeViewModel: HomeViewModel = viewModel(
                     factory = HomeViewModelFactory(context.applicationContext as Application)
                 )
+                val reviewsViewModel: ReviewsViewModel = viewModel(
+                    factory = ReviewsViewModelFactory(application)
+                )
 
                 LaunchedEffect(Unit) {
                     val isValid = SessionManager.isTokenStillValid(context) && isLoggedInFlow(context).first()
@@ -81,7 +86,7 @@ class MainActivity : FragmentActivity() {
                         bottomBar = { Footer(navController, sessionViewModel, notificheViewModel) },
                         modifier = Modifier.fillMaxSize()
                     ) { innerPadding ->
-                        NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this, notificheViewModel, profileViewModel, homeViewModel)
+                        NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this, notificheViewModel, profileViewModel, homeViewModel, reviewsViewModel)
                     }
                 }
         }
