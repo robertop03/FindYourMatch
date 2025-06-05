@@ -13,6 +13,7 @@ import com.example.findyourmatch.data.notifications.Notifica
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.example.findyourmatch.ui.screens.*
 import com.example.findyourmatch.viewmodel.HomeViewModel
+import com.example.findyourmatch.viewmodel.MatchViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.ProfileViewModel
 import com.example.findyourmatch.viewmodel.ReviewsViewModel
@@ -66,7 +67,8 @@ fun NavGraph(
     notificheViewModel: NotificheViewModel,
     profileViewModel: ProfileViewModel,
     homeViewModel: HomeViewModel,
-    reviewsViewModel: ReviewsViewModel
+    reviewsViewModel: ReviewsViewModel,
+    matchViewModel: MatchViewModel
 ) {
     NavHost(
         navController = navController,
@@ -127,7 +129,7 @@ fun NavGraph(
             arguments = listOf(navArgument("idPartita") { type = NavType.IntType })
         ) { backStackEntry ->
             val idPartita = backStackEntry.arguments?.getInt("idPartita") ?: -1
-            Partita(navController = navController, idPartita = idPartita)
+            Partita(navController = navController, idPartita = idPartita, matchViewModel)
         }
 
         composable(

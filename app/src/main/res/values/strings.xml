@@ -211,5 +211,10 @@
 
     <!-- SINGOLA PARTITA -->
     <string name="partita">Partita</string>
+    <string name="disiscrivimi">Disiscrivimi</string>
+    <string name="elimina">Elimina</string>
+    <string name="info">Informazioni:</string>
+    <string name="data">Data</string>
+    <string name="luogo">Luogo</string>
 
 </resources>
