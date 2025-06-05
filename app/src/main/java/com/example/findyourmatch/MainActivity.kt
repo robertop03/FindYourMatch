@@ -1,6 +1,7 @@
 package com.example.findyourmatch
 
 import android.app.Application
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
@@ -26,6 +27,8 @@ import com.example.findyourmatch.ui.screens.Footer
 import com.example.findyourmatch.ui.theme.FindYourMatchTheme
 import com.example.findyourmatch.viewmodel.HomeViewModel
 import com.example.findyourmatch.viewmodel.HomeViewModelFactory
+import com.example.findyourmatch.viewmodel.MatchViewModel
+import com.example.findyourmatch.viewmodel.MatchViewModelFactory
 import com.example.findyourmatch.viewmodel.NotificheViewModel
 import com.example.findyourmatch.viewmodel.NotificheViewModelFactory
 import com.example.findyourmatch.viewmodel.ProfileViewModel
@@ -62,6 +65,9 @@ class MainActivity : FragmentActivity() {
                 val reviewsViewModel: ReviewsViewModel = viewModel(
                     factory = ReviewsViewModelFactory(application)
                 )
+                val matchViewModel: MatchViewModel = viewModel(
+                    factory = MatchViewModelFactory(application)
+                )
 
                 LaunchedEffect(Unit) {
                     val isValid = SessionManager.isTokenStillValid(context) && isLoggedInFlow(context).first()
@@ -86,7 +92,7 @@ class MainActivity : FragmentActivity() {
                         bottomBar = { Footer(navController, sessionViewModel, notificheViewModel) },
                         modifier = Modifier.fillMaxSize()
                     ) { innerPadding ->
-                        NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this, notificheViewModel, profileViewModel, homeViewModel, reviewsViewModel)
+                        NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this, notificheViewModel, profileViewModel, homeViewModel, reviewsViewModel, matchViewModel)
                     }
                 }
         }

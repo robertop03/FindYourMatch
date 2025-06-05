@@ -211,5 +211,10 @@
 
     <!-- SINGOLA PARTITA -->
     <string name="partita">Match</string>
+    <string name="disiscrivimi">Unsubscribe me</string>
+    <string name="elimina">Delete</string>
+    <string name="info">Information:</string>
+    <string name="data">Date</string>
+    <string name="luogo">Place</string>
 
 </resources>
