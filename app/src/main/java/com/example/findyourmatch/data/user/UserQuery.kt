@@ -6,6 +6,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -67,6 +68,15 @@ data class StatsUtentePartita(
     @SerialName("numeroautogol") val numeroAutogol: Int
 )
 
+@Serializable
+data class Recensione(
+    @SerialName("nome") val nomeAutore: String,
+    @SerialName("cognome") val cognomeAutore: String,
+    val punteggio: Int,
+    @SerialName("dataorainizio") val dataOraPartita: String,
+    val partita: Int
+)
+
 suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatchers.IO) {
     val accessToken = SessionManager.getAccessToken(context)
     if (accessToken.isNullOrBlank()) {
@@ -109,7 +119,6 @@ suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatch
 
     return@withContext null
 }
-
 
 suspend fun getIndirizzoUtente(context: Context): IndirizzoUtente? = withContext(Dispatchers.IO) {
     val email = getLoggedUserEmail(context) ?: return@withContext null
@@ -403,5 +412,36 @@ suspend fun getAverageRating(context: Context, userEmail: String) : Double? = wi
         }
         val average = response.body?.string()
         return@withContext average?.toDoubleOrNull()
+    }
+}
+
+suspend fun getReviews(context: Context, userEmail: String) : List<Recensione>? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/rpc/get_recensioni")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .post("""{"email_recensito":"$userEmail"}""".toRequestBody("application/json".toMediaTypeOrNull()))
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext null
+        }
+        val json = response.body?.string() ?: return@withContext null
+        val reviews = Json.decodeFromString(
+            kotlinx.serialization.builtins.ListSerializer(Recensione.serializer()),
+            json
+        )
+        return@withContext reviews.sortedByDescending {
+            LocalDateTime.parse(it.dataOraPartita)
+        }
     }
 }
