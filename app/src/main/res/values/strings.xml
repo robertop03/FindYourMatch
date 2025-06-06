@@ -93,6 +93,12 @@
     <string name="conferma">Conferma</string>
     <string name="impostazioni_salvate">Impostazioni salvate con successo!</string>
     <string name="logout_successo">Logout eseguito con successo!</string>
+    <string name="tema">Tema</string>
+    <string name="tema_di_sistema">Tema di sistema</string>
+    <string name="tema_chiaro">Tema chiaro</string>
+    <string name="tema_scuro">Tema scuro</string>
+    <string name="lingua">Lingua</string>
+
 
     <!-- HOME -->
     <string name="miei_calcetti">I miei calcetti…</string>
