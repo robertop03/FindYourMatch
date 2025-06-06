@@ -1,7 +1,6 @@
 package com.example.findyourmatch
 
 import android.app.Application
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
@@ -40,6 +39,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.data.user.ThemePreference
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.remember
+
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,12 +53,20 @@ class MainActivity : FragmentActivity() {
         creaCanaleNotifiche(this)
         enableEdgeToEdge()
         setContent {
-            FindYourMatchTheme(dynamicColor = false) {
-                    val navController = rememberNavController()
-                    val context = LocalContext.current
-                    val sessionViewModel: SessionViewModel = viewModel(
-                        factory = SessionViewModelFactory(context.applicationContext as Application)
-                    )
+            val context = LocalContext.current
+            val userSettings = remember { UserSettings(context) }
+            val themePref by userSettings.themePreference.collectAsState(initial = ThemePreference.SYSTEM)
+
+            val isDarkTheme = when (themePref) {
+                ThemePreference.LIGHT -> false
+                ThemePreference.DARK -> true
+                ThemePreference.SYSTEM -> isSystemInDarkTheme()
+            }
+            FindYourMatchTheme(dynamicColor = false, darkTheme = isDarkTheme) {
+                val navController = rememberNavController()
+                val sessionViewModel: SessionViewModel = viewModel(
+                    factory = SessionViewModelFactory(context.applicationContext as Application)
+                )
                 val notificheViewModel: NotificheViewModel = viewModel(
                     factory = NotificheViewModelFactory(application)
                 )
@@ -94,7 +108,7 @@ class MainActivity : FragmentActivity() {
                     ) { innerPadding ->
                         NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this, notificheViewModel, profileViewModel, homeViewModel, reviewsViewModel, matchViewModel)
                     }
-                }
+            }
         }
     }
 }
