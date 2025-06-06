@@ -56,6 +56,7 @@ import com.example.findyourmatch.data.notifications.aggiornaTokenFCMUtenteSeDive
 import com.example.findyourmatch.data.notifications.impostaFcmTokenNull
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.SessionManager
+import com.example.findyourmatch.data.user.ThemePreference
 import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.HomeViewModel
@@ -93,6 +94,17 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
     var maxDistance by remember(savedMaxDistance) { mutableFloatStateOf(savedMaxDistance) }
 
     var isLoggedIn by remember { mutableStateOf(false) }
+
+    val savedThemePref by userSettings.themePreference.collectAsState(initial = ThemePreference.SYSTEM)
+    var selectedTheme by remember(savedThemePref) { mutableStateOf(savedThemePref) }
+    var themeExpanded by remember { mutableStateOf(false) }
+
+    val themeOptions = mapOf(
+        ThemePreference.SYSTEM to localizedContext.getString(R.string.tema_di_sistema),
+        ThemePreference.LIGHT to localizedContext.getString(R.string.tema_chiaro),
+        ThemePreference.DARK to localizedContext.getString(R.string.tema_scuro)
+    )
+
     LaunchedEffect(Unit) {
         isLoggedIn = SessionManager.isLoggedIn(sessionViewModel)
     }
@@ -124,6 +136,38 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
             Spacer(Modifier.height(8.dp))
 
             ExposedDropdownMenuBox(
+                expanded = themeExpanded,
+                onExpandedChange = { themeExpanded = !themeExpanded }
+            ) {
+                OutlinedTextField(
+                    value = themeOptions[selectedTheme] ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(localizedContext.getString(R.string.tema)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = themeExpanded) },
+                    modifier = Modifier
+                        .menuAnchor(type = MenuAnchorType.PrimaryEditable, enabled = true)
+                        .fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = themeExpanded,
+                    onDismissRequest = { themeExpanded = false }
+                ) {
+                    themeOptions.forEach { (themePref, label) ->
+                        DropdownMenuItem(
+                            text = { Text(label) },
+                            onClick = {
+                                selectedTheme = themePref
+                                themeExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }
             ) {
@@ -131,6 +175,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                     value = selectedLanguage,
                     onValueChange = {},
                     readOnly = true,
+                    label = { Text(localizedContext.getString(R.string.lingua)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                     modifier = Modifier
                         .menuAnchor(
@@ -138,7 +183,6 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                             enabled = true
                         )
                         .fillMaxWidth()
-                        .height(55.dp)
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
@@ -251,7 +295,8 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                                 language = selectedLanguage,
                                 notifications = notificationsEnabled,
                                 fingerprint = fingerprintEnabled,
-                                distance = maxDistance
+                                distance = maxDistance,
+                                theme = selectedTheme
                             )
                             snackbarHostState.showSnackbar(localizedContext.getString(R.string.impostazioni_salvate))
                         }

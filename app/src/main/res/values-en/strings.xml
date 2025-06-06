@@ -95,6 +95,11 @@
     <string name="conferma">Confirm</string>
     <string name="impostazioni_salvate">Settings saved successfully!</string>
     <string name="logout_successo">Successfully logged out!</string>
+    <string name="tema">Theme</string>
+    <string name="tema_di_sistema">System theme</string>
+    <string name="tema_chiaro">Light theme</string>
+    <string name="tema_scuro">Dark theme</string>
+    <string name="lingua">Language</string>
 
     <!-- HOME -->
     <string name="miei_calcetti">My futsal games…</string>
