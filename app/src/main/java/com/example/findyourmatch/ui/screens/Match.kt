@@ -84,6 +84,7 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
     val match by matchViewModel.match.collectAsState()
     val playersTeam1 by matchViewModel.giocatoriSquadra1.collectAsState()
     val playersTeam2 by matchViewModel.giocatoriSquadra2.collectAsState()
+    val isUserInRequestState by matchViewModel.inRequestState.collectAsState()
 
     LaunchedEffect(Unit) {
         matchViewModel.loadMatch(idPartita)
@@ -138,9 +139,12 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
                                             matchViewModel.loadMatch(idPartita)
                                         }
                                     }
-                                } else {
+                                } else if (isUserInRequestState != null && isUserInRequestState == false) {
                                     //iscriviti
                                     matchViewModel.sendParticipationRequest(idPartita)
+                                    scope.launch {
+                                        matchViewModel.loadMatch(idPartita)
+                                    }
                                 }
                             },
                             modifier = Modifier.height(50.dp).width(250.dp),
@@ -154,6 +158,7 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
                                 text = when {
                                     isCreator -> localizedContext.getString(R.string.elimina)
                                     isSubscribed -> localizedContext.getString(R.string.disiscrivimi)
+                                    isUserInRequestState == true -> "in attesa"
                                     else -> localizedContext.getString(R.string.iscrivimi)
                                 },
                                 fontWeight = FontWeight.Bold,
