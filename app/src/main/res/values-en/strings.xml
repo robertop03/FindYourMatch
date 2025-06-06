@@ -195,6 +195,7 @@
     <string name="no_partite">You have not played any games yet.</string>
     <string name="organizzatore">Organizer</string>
     <string name="tu">You</string>
+    <string name="da_inserire">To be inserted</string>
 
     <!-- STATISTICHE PERSONALI -->
     <string name="stats_personali">Stats</string>
