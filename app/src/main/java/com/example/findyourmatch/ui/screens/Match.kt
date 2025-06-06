@@ -3,7 +3,7 @@ package com.example.findyourmatch.ui.screens
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.telephony.PhoneNumberUtils
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +24,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.Phone
@@ -42,9 +43,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -53,10 +56,13 @@ import com.example.findyourmatch.data.match.GiocatoreWrapper
 import com.example.findyourmatch.data.match.PartitaMostrata
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.Green
 import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.MatchViewModel
+import kotlinx.datetime.toJavaLocalDateTime
+import java.time.LocalDateTime
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
@@ -102,30 +108,47 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
                         TeamsTable(match!!, playersTeam1!!, playersTeam2!!)
                     }
                 }
-                Row (
-                    modifier = Modifier.fillMaxWidth().padding(0.dp, 15.dp),
-                    horizontalArrangement = Arrangement.Center
-                ){
-                    val isCreator = currentUser == match!!.creatore
-                    Button(
-                        onClick = {
-//                            if (isCreator)
-//                                elimina partita
-//                            else disiscrivi
-                        },
-                        modifier = Modifier
-                            .height(50.dp)
-                            .width(250.dp),
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Red,
-                            contentColor = White)
+                val isCreator = currentUser == match!!.creatore
+                val isSubscribed = playersTeam1?.any { it.utente.email == currentUser } == true
+                        || playersTeam2?.any { it.utente.email == currentUser } == true
+                val subscribingNotExpired = LocalDateTime.now().isBefore(match!!.dataOraScadenzaIscrizione.toLocalDateTime().toJavaLocalDateTime())
+
+                if ((subscribingNotExpired || isCreator) && match!!.visibile) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(0.dp, 15.dp),
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Text(text = if (isCreator) localizedContext.getString(R.string.elimina)
-                                    else localizedContext.getString(R.string.disiscrivimi),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 23.sp)
+                        Button(
+                            onClick = {
+                                //disiscrizione
+                                val currentUserTeam =
+                                    if (playersTeam1?.any { it.utente.email == currentUser } == true) match!!.squadra1 else match!!.squadra2
+
+                            },
+                            modifier = Modifier.height(50.dp).width(250.dp),
+                            shape = RoundedCornerShape(50),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isCreator || isSubscribed) Red else MaterialTheme.colorScheme.onSecondaryContainer,
+                                contentColor = if (isCreator || isSubscribed) White else MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Text(
+                                text = when {
+                                    isCreator -> localizedContext.getString(R.string.elimina)
+                                    isSubscribed -> localizedContext.getString(R.string.disiscrivimi)
+                                    else -> localizedContext.getString(R.string.iscrivimi)
+                                },
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 23.sp
+                            )
+                        }
                     }
+                } else if (!subscribingNotExpired && match!!.visibile) {
+                    Text(localizedContext.getString(R.string.no_iscrizione),
+                        textAlign = TextAlign.Center,
+                        fontStyle = FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp))
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
@@ -144,13 +167,18 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
                 InfoLine(Icons.Default.Phone, localizedContext.getString(R.string.cellulare),
                     match!!.telefono.dropLast(10) + " " + match!!.telefono.takeLast(10), context)
                 Text(
-                    text = "Clicca qui per condividere la partita con i tuoi amici!",
+                    text = localizedContext.getString(R.string.condividi),
                     textAlign = TextAlign.Center,
                     textDecoration = TextDecoration.Underline,
                     color = Green,
                     modifier = Modifier.padding(12.dp, 8.dp),
                     fontWeight = FontWeight.SemiBold
                 )
+                Spacer(modifier = Modifier.height(12.dp))
+                MatchButton(localizedContext.getString(R.string.btn_vedi_stats), 8.dp)
+                if (isCreator && !match!!.visibile) {
+                    MatchButton(localizedContext.getString(R.string.btn_ins_dettagli), 0.dp)
+                }
             }
         }
     }
@@ -246,4 +274,27 @@ fun InfoLine(icon: ImageVector, description: String, value: String, context: Con
             textDecoration = if (isPhoneNumber) TextDecoration.Underline else null)
     }
     Spacer(modifier = Modifier.height(8.dp))
+}
+
+@Composable
+fun MatchButton(text: String, padding: Dp) {
+    Row (
+        modifier = Modifier.fillMaxWidth().padding(0.dp, padding),
+        horizontalArrangement = Arrangement.Center
+    ){
+        Button(
+            onClick = {},
+            modifier = Modifier
+                .height(50.dp)
+                .width(250.dp),
+            shape = RoundedCornerShape(50),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimary)
+        ) {
+            Text(text = text,
+                fontWeight = FontWeight.Bold,
+                fontSize = 23.sp)
+        }
+    }
 }

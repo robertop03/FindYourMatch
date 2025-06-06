@@ -58,7 +58,9 @@ data class PartitaMostrata(
     @SerialName("cognomecreatore") val cognomeCreatore: String,
     val telefono: String,
     val squadra1: String,
-    val squadra2: String
+    val squadra2: String,
+    val visibile: Boolean,
+    @SerialName("dataorascadenza") val dataOraScadenzaIscrizione: String
 )
 
 @Serializable
