@@ -78,6 +78,7 @@ import com.example.findyourmatch.ui.theme.Bronze
 import com.example.findyourmatch.ui.theme.Gold
 import com.example.findyourmatch.ui.theme.Green
 import com.example.findyourmatch.ui.theme.Grey
+import com.example.findyourmatch.ui.theme.GreyBlue
 import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.Silver
 import com.example.findyourmatch.ui.theme.White
@@ -464,7 +465,8 @@ fun GameCard(game: PartiteGiocateUtente?, navController: NavHostController, loca
     val backgroundColor = when (game.esito) {
         "vittoria" -> Green
         "pareggio" -> Grey
-        else -> Red
+        "sconfitta" -> Red
+        else -> GreyBlue
     }
     Box(
         modifier = Modifier
@@ -545,11 +547,13 @@ fun GameCard(game: PartiteGiocateUtente?, navController: NavHostController, loca
                     .clip(RoundedCornerShape(8.dp))
                     .background(Black)
                 ) {
-                    Text(text = "${game.gol1} - ${game.gol2}",
+                    val result = if (game.gol1 != null) "${game.gol1} - ${game.gol2}" else localizedContext.getString(R.string.da_inserire)
+                    Text(text = result,
                         color = White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 22.sp,
-                        modifier = Modifier.padding(8.dp))
+                        fontSize = if (!result.contains("i")) 22.sp else 11.sp,
+                        modifier = Modifier.padding(8.dp),
+                        textAlign = TextAlign.Center)
                 }
                 Text(text = game.squadra2,
                     color = White,

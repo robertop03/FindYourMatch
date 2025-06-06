@@ -190,6 +190,7 @@
     <string name="no_partite">Al momento non hai giocato nessuna partita.</string>
     <string name="organizzatore">Organizzatore</string>
     <string name="tu">Tu</string>
+    <string name="da_inserire">Da inserire</string>
 
     <!-- STATISTICHE PERSONALI -->
     <string name="stats_personali">Statistiche</string>
