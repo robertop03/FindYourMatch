@@ -108,7 +108,7 @@ class MainActivity : FragmentActivity() {
                     ) { innerPadding ->
                         NavGraph(navController, sessionViewModel, Modifier.padding(innerPadding), activity = this, notificheViewModel, profileViewModel, homeViewModel, reviewsViewModel, matchViewModel)
                     }
-                }
+            }
         }
     }
 }
