@@ -211,10 +211,13 @@
 
     <!-- SINGOLA PARTITA -->
     <string name="partita">Partita</string>
+    <string name="iscrivimi">Iscrivimi</string>
     <string name="disiscrivimi">Disiscrivimi</string>
     <string name="elimina">Elimina</string>
     <string name="info">Informazioni:</string>
     <string name="data">Data</string>
     <string name="luogo">Luogo</string>
-
+    <string name="condividi">Clicca qui per condividere la partita con i tuoi amici!</string>
+    <string name="btn_ins_dettagli">Inserisci dettagli</string>
+    <string name="no_iscrizione">Non è più possibile iscriversi a questa partita.</string>
 </resources>
