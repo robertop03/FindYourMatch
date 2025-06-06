@@ -235,6 +235,48 @@ suspend fun aggiungiGiocatoreAllaSquadra(
     }
 }
 
+suspend fun aggiungiNotificaRichiesta(
+    context: Context,
+    titolo: String,
+    testo: String,
+    destinatario: String,
+    tipologia: String = "richiesta",
+    titoloEn: String,
+    testoEn: String,
+    idPartita: Int,
+    richiedente: String
+): Boolean = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext false
+
+    val jsonBody = """
+        {
+            "titolo": "$titolo",
+            "testo": "$testo",
+            "destinatario": "$destinatario",
+            "tipologia": "$tipologia",
+            "titolo_en": "$titoloEn",
+            "testo_en": "$testoEn",
+            "partita":"$idPartita",
+            "richiedente":"$richiedente"
+        }
+    """.trimIndent()
+
+    val requestBody = jsonBody.toRequestBody("application/json".toMediaTypeOrNull())
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/notifiche")
+        .post(requestBody)
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        return@withContext response.isSuccessful
+    }
+}
+
 suspend fun aggiungiNotificaRifiuto(
     context: Context,
     titolo: String,

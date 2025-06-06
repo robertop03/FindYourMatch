@@ -57,6 +57,7 @@ data class PartitaMostrata(
     @SerialName("nomecreatore") val nomeCreatore: String,
     @SerialName("cognomecreatore") val cognomeCreatore: String,
     val telefono: String,
+    val importo: Double,
     val squadra1: String,
     val squadra2: String,
     val visibile: Boolean,
@@ -146,5 +147,27 @@ suspend fun getTeamPlayers(context: Context, team: String, idMatch: Int) : List<
         Log.d("JSON", json)
         val players = Json.decodeFromString(ListSerializer(GiocatoreWrapper.serializer()), json)
         return@withContext players
+    }
+}
+
+suspend fun unsubscribePlayerFromMatch(context: Context, userEmail: String, team: String, idMatch: Int) = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/giocatori_squadra?utente=eq.$userEmail&squadra=eq.$team&partita=eq.$idMatch")
+        .delete()
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext null
+        } else {
+            Log.d("SUCCESSO", "Cancellazione avvenuta con successo")
+        }
     }
 }

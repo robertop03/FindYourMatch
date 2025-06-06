@@ -220,5 +220,6 @@
     <string name="condividi">Click here to share the game with your friend!</string>
     <string name="btn_ins_dettagli">Enter details</string>
     <string name="no_iscrizione">It is no longer possible to subscribe for this match.</string>
+    <string name="importo">Expected amount</string>
 
 </resources>
