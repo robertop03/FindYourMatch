@@ -220,4 +220,6 @@
     <string name="condividi">Clicca qui per condividere la partita con i tuoi amici!</string>
     <string name="btn_ins_dettagli">Inserisci dettagli</string>
     <string name="no_iscrizione">Non è più possibile iscriversi a questa partita.</string>
+    <string name="importo">Importo previsto</string>
+
 </resources>

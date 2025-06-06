@@ -1,5 +1,6 @@
 package com.example.findyourmatch.ui.screens
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.Phone
@@ -39,6 +41,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -61,10 +64,12 @@ import com.example.findyourmatch.ui.theme.Green
 import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.MatchViewModel
+import kotlinx.coroutines.launch
 import kotlinx.datetime.toJavaLocalDateTime
 import java.time.LocalDateTime
 import kotlinx.datetime.toLocalDateTime
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: MatchViewModel) {
     val context = LocalContext.current
@@ -73,6 +78,7 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
     val localizedContext = remember(language) { LocaleHelper.updateLocale(context, language) }
+    val scope = rememberCoroutineScope()
 
     val currentUser by matchViewModel.currentUser.collectAsState()
     val match by matchViewModel.match.collectAsState()
@@ -121,9 +127,21 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
                         Button(
                             onClick = {
                                 //disiscrizione
-                                val currentUserTeam =
-                                    if (playersTeam1?.any { it.utente.email == currentUser } == true) match!!.squadra1 else match!!.squadra2
-
+                                if (isCreator) {
+                                    //elimina partita
+                                } else if (isSubscribed) {
+                                    //disiscriviti
+                                    val currentUserTeam =
+                                        if (playersTeam1?.any { it.utente.email == currentUser } == true) match!!.squadra1 else match!!.squadra2
+                                    scope.launch {
+                                        if (matchViewModel.unsubscribePlayer(currentUserTeam, idPartita)) {
+                                            matchViewModel.loadMatch(idPartita)
+                                        }
+                                    }
+                                } else {
+                                    //iscriviti
+                                    matchViewModel.sendParticipationRequest(idPartita)
+                                }
                             },
                             modifier = Modifier.height(50.dp).width(250.dp),
                             shape = RoundedCornerShape(50),
@@ -162,6 +180,7 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
                 InfoLine(Icons.Default.AccessTime, localizedContext.getString(R.string.ore), match!!.dataOra.toLocalDateTime().time.toString(), context)
                 InfoLine(Icons.Default.LocationOn, localizedContext.getString(R.string.luogo),
                     match!!.nomeCampo + ", " + match!!.citta + ", " + match!!.nazione, context)
+                InfoLine(Icons.Default.EuroSymbol, localizedContext.getString(R.string.importo), String.format("%.2f", match!!.importo) + " €", context)
                 InfoLine(Icons.Default.ManageAccounts, localizedContext.getString(R.string.organizzatore),
                     match!!.nomeCreatore + " " + match!!.cognomeCreatore, context)
                 InfoLine(Icons.Default.Phone, localizedContext.getString(R.string.cellulare),

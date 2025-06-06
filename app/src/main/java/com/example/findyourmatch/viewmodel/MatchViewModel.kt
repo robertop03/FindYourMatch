@@ -10,6 +10,8 @@ import com.example.findyourmatch.data.match.GiocatoreWrapper
 import com.example.findyourmatch.data.match.PartitaMostrata
 import com.example.findyourmatch.data.match.getMatch
 import com.example.findyourmatch.data.match.getTeamPlayers
+import com.example.findyourmatch.data.match.unsubscribePlayerFromMatch
+import com.example.findyourmatch.data.notifications.aggiungiNotificaRichiesta
 import com.example.findyourmatch.data.user.getLoggedUserEmail
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -30,6 +32,26 @@ class MatchViewModel(application: Application) : AndroidViewModel(application) {
             _match.value = getMatch(application, idMatch)
             _giocatoriSquadra1.value = _match.value?.let { getTeamPlayers(application, it.squadra1, idMatch) }
             _giocatoriSquadra2.value = _match.value?.let { getTeamPlayers(application, it.squadra2, idMatch) }
+        }
+    }
+
+    suspend fun unsubscribePlayer(team: String, idMatch: Int) : Boolean{
+        val result = unsubscribePlayerFromMatch(application, _currentUser.value!!, team, idMatch)
+        return result != null
+    }
+
+    fun sendParticipationRequest(idMatch: Int) {
+        viewModelScope.launch {
+            aggiungiNotificaRichiesta(
+                context = application,
+                titolo = "Richiesta ricevuta",
+                testo = "Hai ricevuto una nuova richiesta di partecipazione",
+                destinatario = _match.value!!.creatore,
+                titoloEn = "Request received",
+                testoEn = "You have received a request to participate",
+                idPartita = idMatch,
+                richiedente = _currentUser.value!!
+            )
         }
     }
 }
