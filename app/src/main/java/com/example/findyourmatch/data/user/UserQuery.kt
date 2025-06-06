@@ -55,9 +55,9 @@ data class PartiteGiocateUtente(
     @SerialName("data_ora") val dataOra: String,
     val creatore: String,
     val squadra1: String,
-    val gol1: Int,
+    val gol1: Int?,
     val squadra2: String,
-    val gol2: Int,
+    val gol2: Int?,
     @SerialName("nome_squadra_utente") val squadraUtente: String,
     val esito: String
 )

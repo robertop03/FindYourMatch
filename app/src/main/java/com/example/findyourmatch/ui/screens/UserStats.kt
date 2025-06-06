@@ -13,9 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -73,108 +72,108 @@ fun StatistichePersonali(navController: NavHostController, profileViewModel: Pro
     ) {
         val showBackButton = navController.previousBackStackEntry != null
 
-        Column(
+        LazyColumn (
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .background(MaterialTheme.colorScheme.secondaryContainer)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-
-            TopBarWithBackButton(
-                navController = navController,
-                title = localizedContext.getString(R.string.stats_personali),
-                showBackButton = showBackButton
-            )
-
-            stats?.let {
-                val gP = if (it.partiteGiocate > 0) it.golFatti.toDouble() / it.partiteGiocate.toDouble() else 0.0
-                val auP = if (it.partiteGiocate > 0) it.autogol.toDouble() / it.partiteGiocate.toDouble() else 0.0
-                val percW = if (it.partiteGiocate > 0) it.vittorie.toDouble()*100 / it.partiteGiocate.toDouble() else 0.0
-                val a = if (average != null) average else 0.0
-                statsMap = mapOf(
-                    localizedContext.getString(R.string.partite_giocate) to it.partiteGiocate,
-                    localizedContext.getString(R.string.goal_fatti) to it.golFatti,
-                    localizedContext.getString(R.string.autogol) to it.autogol,
-                    localizedContext.getString(R.string.gol_per_partita) to String.format("%.2f", gP),
-                    localizedContext.getString(R.string.autogol_per_partita) to String.format("%.2f", auP),
-                    localizedContext.getString(R.string.val_media) to a!!,
-                    localizedContext.getString(R.string.vittorie) to it.vittorie.toString() + " (" + String.format("%.2f", percW) + " %)"
+            item {
+                TopBarWithBackButton(
+                    navController = navController,
+                    title = localizedContext.getString(R.string.stats_personali),
+                    showBackButton = showBackButton
                 )
-            }
 
-            StatsTable(statsMap)
-            if (lastGamesStats.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(30.dp))
-                Text(
-                    text = localizedContext.getString(R.string.andamento),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                //GRAFICO
-                val axisTextColor = MaterialTheme.colorScheme.onSecondaryContainer.toArgb()
-                AndroidView(
-                    factory = { context ->
-                        LineChart(context)
-                    },
-                    update = { chart ->
-                        val reversed = lastGamesStats.entries
-                            .toList()
-                            .asReversed()
-                            .associateTo(LinkedHashMap()) { it.toPair() }
+                stats?.let {
+                    val gP = if (it.partiteGiocate > 0) it.golFatti.toDouble() / it.partiteGiocate.toDouble() else 0.0
+                    val auP = if (it.partiteGiocate > 0) it.autogol.toDouble() / it.partiteGiocate.toDouble() else 0.0
+                    val percW = if (it.partiteGiocate > 0) it.vittorie.toDouble()*100 / it.partiteGiocate.toDouble() else 0.0
+                    val a = if (average != null) average else 0.0
+                    statsMap = mapOf(
+                        localizedContext.getString(R.string.partite_giocate) to it.partiteGiocate,
+                        localizedContext.getString(R.string.goal_fatti) to it.golFatti,
+                        localizedContext.getString(R.string.autogol) to it.autogol,
+                        localizedContext.getString(R.string.gol_per_partita) to String.format("%.2f", gP),
+                        localizedContext.getString(R.string.autogol_per_partita) to String.format("%.2f", auP),
+                        localizedContext.getString(R.string.val_media) to a!!,
+                        localizedContext.getString(R.string.vittorie) to it.vittorie.toString() + " (" + String.format("%.2f", percW) + " %)"
+                    )
+                }
 
-                        val labels = reversed.keys.toList()
+                StatsTable(statsMap)
+                if (lastGamesStats.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(30.dp))
+                    Text(
+                        text = localizedContext.getString(R.string.andamento),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    //GRAFICO
+                    val axisTextColor = MaterialTheme.colorScheme.onSecondaryContainer.toArgb()
+                    AndroidView(
+                        factory = { context ->
+                            LineChart(context)
+                        },
+                        update = { chart ->
+                            val reversed = lastGamesStats.entries
+                                .toList()
+                                .asReversed()
+                                .associateTo(LinkedHashMap()) { it.toPair() }
 
-                        val entriesGol = reversed.values.mapIndexed { index, stats ->
-                            stats?.numeroGol?.let { Entry(index.toFloat(), it.toFloat()) }
-                        }
+                            val labels = reversed.keys.toList()
 
-                        val entriesAutogol = reversed.values.mapIndexed { index, stats ->
-                            stats?.numeroAutogol?.let { Entry(index.toFloat(), it.toFloat()) }
-                        }
-
-                        val dataSetGol = LineDataSet(entriesGol, localizedContext.getString(R.string.goal_fatti)).apply {
-                            color = Color.GREEN
-                            lineWidth = 2f
-                            setCircleColors(Color.GREEN)
-                            setDrawValues(false)
-                        }
-
-                        val dataSetAutogol = LineDataSet(entriesAutogol, localizedContext.getString(R.string.autogol)).apply {
-                            color = Color.RED
-                            lineWidth = 2f
-                            setCircleColors(Color.RED)
-                            setDrawValues(false)
-                        }
-
-                        chart.xAxis.valueFormatter = object : ValueFormatter() {
-                            override fun getFormattedValue(value: Float): String {
-                                val index = value.toInt()
-                                return if (index >= 0 && index < labels.size) labels[index] else ""
+                            val entriesGol = reversed.values.mapIndexed { index, stats ->
+                                stats?.numeroGol?.let { Entry(index.toFloat(), it.toFloat()) }
                             }
-                        }
 
-                        chart.xAxis.granularity = 1f
-                        chart.xAxis.isGranularityEnabled = true
-                        chart.xAxis.textColor = axisTextColor
+                            val entriesAutogol = reversed.values.mapIndexed { index, stats ->
+                                stats?.numeroAutogol?.let { Entry(index.toFloat(), it.toFloat()) }
+                            }
 
-                        chart.axisLeft.granularity = 1f
-                        chart.axisLeft.isGranularityEnabled = true
-                        chart.axisLeft.textColor = axisTextColor
+                            val dataSetGol = LineDataSet(entriesGol, localizedContext.getString(R.string.goal_fatti)).apply {
+                                color = Color.GREEN
+                                lineWidth = 2f
+                                setCircleColors(Color.GREEN)
+                                setDrawValues(false)
+                            }
 
-                        chart.data = LineData(dataSetGol, dataSetAutogol)
-                        chart.axisRight.isEnabled = false
-                        chart.description.isEnabled = false
-                        chart.legend.textColor = axisTextColor
-                        chart.invalidate()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                )
+                            val dataSetAutogol = LineDataSet(entriesAutogol, localizedContext.getString(R.string.autogol)).apply {
+                                color = Color.RED
+                                lineWidth = 2f
+                                setCircleColors(Color.RED)
+                                setDrawValues(false)
+                            }
+
+                            chart.xAxis.valueFormatter = object : ValueFormatter() {
+                                override fun getFormattedValue(value: Float): String {
+                                    val index = value.toInt()
+                                    return if (index >= 0 && index < labels.size) labels[index] else ""
+                                }
+                            }
+
+                            chart.xAxis.granularity = 1f
+                            chart.xAxis.isGranularityEnabled = true
+                            chart.xAxis.textColor = axisTextColor
+
+                            chart.axisLeft.granularity = 1f
+                            chart.axisLeft.isGranularityEnabled = true
+                            chart.axisLeft.textColor = axisTextColor
+
+                            chart.data = LineData(dataSetGol, dataSetAutogol)
+                            chart.axisRight.isEnabled = false
+                            chart.description.isEnabled = false
+                            chart.legend.textColor = axisTextColor
+                            chart.invalidate()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                    )
+                }
             }
         }
     }
