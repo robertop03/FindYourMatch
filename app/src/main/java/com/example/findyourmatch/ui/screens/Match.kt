@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.ManageAccounts
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.Button
@@ -116,7 +117,7 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
             match?.let {
                 playersTeam1?.let {
                     playersTeam2?.let {
-                        TeamsTable(match!!, playersTeam1!!, playersTeam2!!)
+                        TeamsTable(match!!, playersTeam1!!, playersTeam2!!, currentUser!!)
                     }
                 }
                 val isCreator = currentUser == match!!.creatore
@@ -253,7 +254,7 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
 }
 
 @Composable
-fun TeamsTable(match: PartitaMostrata, squadra1: List<GiocatoreWrapper>, squadra2: List<GiocatoreWrapper>) {
+fun TeamsTable(match: PartitaMostrata, squadra1: List<GiocatoreWrapper>, squadra2: List<GiocatoreWrapper>, currentUser: String) {
     val numRows = when (match.tipo) {
         "5vs5" -> 5
         "7vs7" -> 7
@@ -291,24 +292,48 @@ fun TeamsTable(match: PartitaMostrata, squadra1: List<GiocatoreWrapper>, squadra
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     val player1 = squadra1.getOrNull(i)
-                    Text(
-                        text = if (player1 != null) player1.utente.nome + " " + player1.utente.cognome else "",
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(0.dp, 5.dp)
-                    )
+                    Row (
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (player1 != null) player1.utente.nome + " " + player1.utente.cognome else "",
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(0.dp, 5.dp)
+                        )
+                        if (player1 != null && player1.utente.email == currentUser) {
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
                 }
                 Column (
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     val player2 = squadra2.getOrNull(i)
-                    Text(
-                        text = if (player2 != null) player2.utente.nome + " " + player2.utente.cognome else "",
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(0.dp, 8.dp)
-                    )
+                    Row (
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (player2 != null) player2.utente.nome + " " + player2.utente.cognome else "",
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(0.dp, 5.dp)
+                        )
+                        if (player2 != null && player2.utente.email == currentUser) {
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
                 }
             }
             if (i != (numRows-1)) Divider(thickness = 2.dp, color = MaterialTheme.colorScheme.onSecondaryContainer)
