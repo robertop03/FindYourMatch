@@ -214,9 +214,9 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
 //                    fontWeight = FontWeight.SemiBold
 //                )
                 Spacer(modifier = Modifier.height(12.dp))
-                MatchButton(localizedContext.getString(R.string.btn_vedi_stats), 8.dp)
+                MatchButton(localizedContext.getString(R.string.btn_vedi_stats), 8.dp, navController, true)
                 if (isCreator && !match!!.visibile) {
-                    MatchButton(localizedContext.getString(R.string.btn_ins_dettagli), 0.dp)
+                    MatchButton(localizedContext.getString(R.string.btn_ins_dettagli), 0.dp, navController, false)
                 }
             }
 
@@ -370,13 +370,15 @@ fun InfoLine(icon: ImageVector, description: String, value: String, context: Con
 }
 
 @Composable
-fun MatchButton(text: String, padding: Dp) {
+fun MatchButton(text: String, padding: Dp, navController: NavHostController, isBtnViewStats: Boolean) {
     Row (
         modifier = Modifier.fillMaxWidth().padding(0.dp, padding),
         horizontalArrangement = Arrangement.Center
     ){
         Button(
-            onClick = {},
+            onClick = {
+                navController.navigate(if (isBtnViewStats) NavigationRoute.MatchStats else NavigationRoute.InsertMatchDetails)
+            },
             modifier = Modifier
                 .height(50.dp)
                 .width(250.dp),

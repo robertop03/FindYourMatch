@@ -47,9 +47,9 @@ sealed interface NavigationRoute {
     @Serializable
     data object Rewards : NavigationRoute
     @Serializable
-    data object Match : NavigationRoute
+    data object MatchStats : NavigationRoute
     @Serializable
-    data object Reviews : NavigationRoute
+    data object InsertMatchDetails : NavigationRoute
     @Serializable
     data object PlayedGames : NavigationRoute
     @Serializable
@@ -165,6 +165,12 @@ fun NavGraph(
         }
         composable<NavigationRoute.PersonalStats> {
             StatistichePersonali(navController, profileViewModel)
+        }
+        composable<NavigationRoute.MatchStats> {
+            StatistichePartita(navController, matchViewModel)
+        }
+        composable<NavigationRoute.InsertMatchDetails> {
+            InserisciDettagli(navController, matchViewModel)
         }
     }
 }
