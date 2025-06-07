@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,11 +20,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.EuroSymbol
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.ManageAccounts
@@ -40,8 +39,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -59,6 +60,7 @@ import com.example.findyourmatch.data.match.GiocatoreWrapper
 import com.example.findyourmatch.data.match.PartitaMostrata
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.navigation.NavigationRoute
 import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.Green
 import com.example.findyourmatch.ui.theme.Red
@@ -85,6 +87,8 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
     val playersTeam1 by matchViewModel.giocatoriSquadra1.collectAsState()
     val playersTeam2 by matchViewModel.giocatoriSquadra2.collectAsState()
     val isUserInRequestState by matchViewModel.inRequestState.collectAsState()
+
+    var showDialogDeleteMatch by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         matchViewModel.loadMatch(idPartita)
@@ -127,9 +131,9 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
                     ) {
                         Button(
                             onClick = {
-                                //disiscrizione
                                 if (isCreator) {
-                                    //elimina partita
+                                    //apri dialog per confermare eliminazione partita
+                                    showDialogDeleteMatch = true
                                 } else if (isSubscribed) {
                                     //disiscriviti
                                     val currentUserTeam =
@@ -158,7 +162,7 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
                                 text = when {
                                     isCreator -> localizedContext.getString(R.string.elimina)
                                     isSubscribed -> localizedContext.getString(R.string.disiscrivimi)
-                                    isUserInRequestState == true -> "in attesa"
+                                    isUserInRequestState == true -> localizedContext.getString(R.string.attesa)
                                     else -> localizedContext.getString(R.string.iscrivimi)
                                 },
                                 fontWeight = FontWeight.Bold,
@@ -203,6 +207,36 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
                 if (isCreator && !match!!.visibile) {
                     MatchButton(localizedContext.getString(R.string.btn_ins_dettagli), 0.dp)
                 }
+            }
+
+            if (showDialogDeleteMatch) {
+                AlertDialog(
+                    onDismissRequest = { showDialogDeleteMatch = false },
+                    title = { Text(localizedContext.getString(R.string.conferma_eliminazione_titolo),
+                        color = White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 25.sp)
+                    },
+                    text = { Text(localizedContext.getString(R.string.conferma_eliminazione_testo),
+                        color = White)
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                matchViewModel.deleteGame(idPartita)
+                                navController.navigate(NavigationRoute.Home)
+                                showDialogDeleteMatch = false
+                            },
+                            shape = RoundedCornerShape(50),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Black,
+                                contentColor = White)
+                        ) {
+                            Text(localizedContext.getString(R.string.elimina))
+                        }
+                    },
+                    backgroundColor = Red
+                )
             }
         }
     }

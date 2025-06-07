@@ -3,23 +3,18 @@ package com.example.findyourmatch.data.match
 import kotlinx.serialization.Serializable
 import android.content.Context
 import android.util.Log
-import com.example.findyourmatch.data.user.Recensione
 import com.example.findyourmatch.data.user.SessionManager
-import com.example.findyourmatch.data.user.StatsUtente
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Transient
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
-import java.io.Serial
 
 @Serializable
 data class CampoSportivo(
@@ -178,12 +173,12 @@ suspend fun isUserInRequestState(context: Context, userEmail: String, organizer:
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext null
 
+    val url = "https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/notifiche?select=gestita&richiedente=eq.$userEmail&destinatario=eq.$organizer&partita=eq.$idMatch&order=dataOraInvio"
     val request = Request.Builder()
-        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/notifiche?select=gestita&richiedente=eq.$userEmail&destinatario=eq.$organizer&partita=eq.$idMatch")
+        .url(url)
         .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
         .addHeader("Authorization", "Bearer $token")
         .addHeader("Accept", "application/json")
-        .get()
         .build()
     
     client.newCall(request).execute().use { response ->
@@ -192,9 +187,34 @@ suspend fun isUserInRequestState(context: Context, userEmail: String, organizer:
             return@withContext null
         }
         val body = response.body?.string() ?: return@withContext null
-        Log.d("JSON", body)
+
         val b = JSONArray(body)
-        val isInRequest = b.getJSONObject(0).getBoolean("gestita")
-        return@withContext isInRequest
+        if (b.length() > 0) {
+            val managed = b.getJSONObject(b.length()-1).getBoolean("gestita")
+            return@withContext !managed
+        }
+        return@withContext false
+    }
+}
+
+suspend fun deleteMatch(context: Context, idMatch: Int) = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/partite?idPartita=eq.$idMatch")
+        .delete()
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext null
+        } else {
+            Log.d("SUCCESSO", "Cancellazione avvenuta con successo")
+        }
     }
 }

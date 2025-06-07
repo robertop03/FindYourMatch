@@ -228,5 +228,8 @@
     <string name="btn_ins_dettagli">Inserisci dettagli</string>
     <string name="no_iscrizione">Non è più possibile iscriversi a questa partita.</string>
     <string name="importo">Importo previsto</string>
+    <string name="attesa">Richiesta inviata</string>
+    <string name="conferma_eliminazione_titolo">Eliminare la partita?</string>
+    <string name="conferma_eliminazione_testo">Confermi di voler eliminare questa partita? L\'operazione non sarà reversibile.</string>
 
 </resources>

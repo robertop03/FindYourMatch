@@ -104,7 +104,7 @@ fun StatistichePersonali(navController: NavHostController, profileViewModel: Pro
                 }
 
                 StatsTable(statsMap)
-                if (lastGamesStats.isNotEmpty()) {
+                if (lastGamesStats.isNotEmpty() && stats!!.partiteGiocate > 0) {
                     Spacer(modifier = Modifier.height(30.dp))
                     Text(
                         text = localizedContext.getString(R.string.andamento),
