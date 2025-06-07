@@ -194,14 +194,24 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
                     match!!.nomeCreatore + " " + match!!.cognomeCreatore, context)
                 InfoLine(Icons.Default.Phone, localizedContext.getString(R.string.cellulare),
                     match!!.telefono.dropLast(10) + " " + match!!.telefono.takeLast(10), context)
-                Text(
-                    text = localizedContext.getString(R.string.condividi),
-                    textAlign = TextAlign.Center,
-                    textDecoration = TextDecoration.Underline,
-                    color = Green,
-                    modifier = Modifier.padding(12.dp, 8.dp),
-                    fontWeight = FontWeight.SemiBold
-                )
+                // POSSIBILE LINK PER CONDIVIDERE LA PARTITA
+//                Text(
+//                    text = localizedContext.getString(R.string.condividi),
+//                    textAlign = TextAlign.Center,
+//                    textDecoration = TextDecoration.Underline,
+//                    color = Green,
+//                    modifier = Modifier
+//                        .padding(12.dp, 8.dp)
+//                        .clickable {
+//                            val urlToShare = "https://Giulius03.github.io/FindYourMatchDeepLinks/index.html?id=$idPartita"
+//                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+//                                type = "text/plain"
+//                                putExtra(Intent.EXTRA_TEXT, "Guarda questa partita: $urlToShare")
+//                            }
+//                            context.startActivity(Intent.createChooser(shareIntent, "Condividi tramite"))
+//                        },
+//                    fontWeight = FontWeight.SemiBold
+//                )
                 Spacer(modifier = Modifier.height(12.dp))
                 MatchButton(localizedContext.getString(R.string.btn_vedi_stats), 8.dp)
                 if (isCreator && !match!!.visibile) {
