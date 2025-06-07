@@ -9,14 +9,17 @@ import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import com.example.findyourmatch.data.match.GiocatoreWrapper
 import com.example.findyourmatch.data.match.PartitaMostrata
+import com.example.findyourmatch.data.match.deleteMatch
 import com.example.findyourmatch.data.match.getMatch
 import com.example.findyourmatch.data.match.getTeamPlayers
 import com.example.findyourmatch.data.match.isUserInRequestState
 import com.example.findyourmatch.data.match.unsubscribePlayerFromMatch
+import com.example.findyourmatch.data.notifications.aggiungiNotificaEliminazioneDaAdmin
 import com.example.findyourmatch.data.notifications.aggiungiNotificaRichiesta
 import com.example.findyourmatch.data.user.getLoggedUserEmail
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.toLocalDateTime
 
 class MatchViewModel(application: Application) : AndroidViewModel(application) {
     private val _match = MutableStateFlow<PartitaMostrata?>(null)
@@ -37,7 +40,6 @@ class MatchViewModel(application: Application) : AndroidViewModel(application) {
             _giocatoriSquadra1.value = _match.value?.let { getTeamPlayers(application, it.squadra1, idMatch) }
             _giocatoriSquadra2.value = _match.value?.let { getTeamPlayers(application, it.squadra2, idMatch) }
             _inRequestState.value = isUserInRequestState(application, _currentUser.value!!, _match.value!!.creatore, idMatch)
-            Log.d("REQ STATE", _inRequestState.value.toString())
         }
     }
 
@@ -58,6 +60,33 @@ class MatchViewModel(application: Application) : AndroidViewModel(application) {
                 idPartita = idMatch,
                 richiedente = _currentUser.value!!
             )
+        }
+    }
+
+    fun deleteGame(idMatch: Int) {
+        viewModelScope.launch {
+            deleteMatch(application, idMatch)
+            sendEliminationNotification(_giocatoriSquadra1.value!!)
+            sendEliminationNotification(_giocatoriSquadra2.value!!)
+        }
+    }
+
+    private suspend fun sendEliminationNotification(players: List<GiocatoreWrapper>) {
+        val data = _match.value!!.dataOra.toLocalDateTime()
+        players.forEach {
+            if (it.utente.email != _currentUser.value) {
+                Log.d("INVIO", "Notifica inviata a ${it.utente.email}")
+                aggiungiNotificaEliminazioneDaAdmin(
+                    context = application,
+                    titolo = "Partita annullata",
+                    testo = "La partita del ${data.date} alle ${data.hour} presso ${_match.value!!.nomeCampo} " +
+                            "(${_match.value!!.citta}) è stata cancellata dall'amministratore.",
+                    destinatario = it.utente.email,
+                    titoloEn = "Match cancelled",
+                    testoEn = "The match on ${data.date} at ${data.hour} at ${_match.value!!.nomeCampo} " +
+                            "(${_match.value!!.citta}) has been cancelled by the administrator."
+                )
+            }
         }
     }
 }
