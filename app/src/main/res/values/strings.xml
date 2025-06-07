@@ -232,4 +232,10 @@
     <string name="conferma_eliminazione_titolo">Eliminare la partita?</string>
     <string name="conferma_eliminazione_testo">Confermi di voler eliminare questa partita? L\'operazione non sarà reversibile.</string>
 
+    <!-- STATISTICHE PARTITA -->
+    <string name="statistiche_partita">Statistiche partita</string>
+
+    <!-- INSERIMENTO DETTAGLI PARTITA -->
+
+
 </resources>

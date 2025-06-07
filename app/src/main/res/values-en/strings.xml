@@ -231,4 +231,10 @@
     <string name="conferma_eliminazione_titolo">Delete the match?</string>
     <string name="conferma_eliminazione_testo">Are you sure you want to delete this game? This operation cannot be reversed.</string>
 
+    <!-- STATISTICHE PARTITA -->
+    <string name="statistiche_partita">Match stats</string>
+
+    <!-- INSERIMENTO DETTAGLI PARTITA -->
+
+
 </resources>
