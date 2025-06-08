@@ -56,7 +56,9 @@ data class PartitaMostrata(
     val telefono: String,
     val importo: Double,
     val squadra1: String,
+    @SerialName("golsquadra1") val golSquadra1: Int?,
     val squadra2: String,
+    @SerialName("golsquadra2") val golSquadra2: Int?,
     val visibile: Boolean,
     @SerialName("dataorascadenza") val dataOraScadenzaIscrizione: String
 )
@@ -71,6 +73,18 @@ data class Giocatore(
 @Serializable
 data class GiocatoreWrapper(
     val utente: Giocatore
+)
+
+@Serializable
+data class Marcatore(
+    val utente: String,
+    val numeroGol: Int
+)
+
+@Serializable
+data class AutoreAutogol(
+    val utente: String,
+    val numeroAutogol: Int
 )
 
 suspend fun getPartiteConCampo(context: Context): List<PartitaConCampo> = withContext(Dispatchers.IO) {
@@ -216,5 +230,55 @@ suspend fun deleteMatch(context: Context, idMatch: Int) = withContext(Dispatcher
         } else {
             Log.d("SUCCESSO", "Cancellazione avvenuta con successo")
         }
+    }
+}
+
+suspend fun getScorers(context: Context, idMatch: Int): List<Marcatore>? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/marcatori?select=utente,numeroGol&partita=eq.$idMatch")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext null
+        }
+        val json = response.body?.string() ?: return@withContext null
+        val scorers = Json.decodeFromString(ListSerializer(Marcatore.serializer()), json)
+        return@withContext scorers
+    }
+}
+
+suspend fun getOwnGoalsScorers(context: Context, idMatch: Int): List<AutoreAutogol>? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/autori_autogol?select=utente,numeroAutogol&partita=eq.$idMatch")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext null
+        }
+        val json = response.body?.string() ?: return@withContext null
+        val ownGoalsScorers = Json.decodeFromString(ListSerializer(AutoreAutogol.serializer()), json)
+        return@withContext ownGoalsScorers
     }
 }
