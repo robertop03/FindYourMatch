@@ -235,6 +235,9 @@
     <!-- STATISTICHE PARTITA -->
     <string name="statistiche_partita">Statistiche partita</string>
     <string name="no_stats">Le statistiche di questa partita non sono ancora state inserite.</string>
+    <string name="legenda">Legenda:</string>
+    <string name="gol">Gol</string>
+    <string name="autogol_s">Autogol</string>
 
     <!-- INSERIMENTO DETTAGLI PARTITA -->
 
