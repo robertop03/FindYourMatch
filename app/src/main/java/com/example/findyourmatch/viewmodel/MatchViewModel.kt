@@ -7,10 +7,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import com.example.findyourmatch.data.match.AutoreAutogol
 import com.example.findyourmatch.data.match.GiocatoreWrapper
+import com.example.findyourmatch.data.match.Marcatore
 import com.example.findyourmatch.data.match.PartitaMostrata
 import com.example.findyourmatch.data.match.deleteMatch
 import com.example.findyourmatch.data.match.getMatch
+import com.example.findyourmatch.data.match.getOwnGoalsScorers
+import com.example.findyourmatch.data.match.getScorers
 import com.example.findyourmatch.data.match.getTeamPlayers
 import com.example.findyourmatch.data.match.isUserInRequestState
 import com.example.findyourmatch.data.match.unsubscribePlayerFromMatch
@@ -27,11 +31,15 @@ class MatchViewModel(application: Application) : AndroidViewModel(application) {
     private val _giocatoriSquadra2 = MutableStateFlow<List<GiocatoreWrapper>?>(null)
     private val _currentUser = MutableStateFlow<String?>(null)
     private val _inRequestState = MutableStateFlow<Boolean?>(null)
+    private val _scorers = MutableStateFlow<List<Marcatore>?>(null)
+    private val _ownGoalsScorers = MutableStateFlow<List<AutoreAutogol>?>(null)
     val match = _match
     val giocatoriSquadra1 = _giocatoriSquadra1
     val giocatoriSquadra2 = _giocatoriSquadra2
     val currentUser = _currentUser
     val inRequestState = _inRequestState
+    val scorers = _scorers
+    val ownGoalsScorers = _ownGoalsScorers
 
     fun loadMatch(idMatch: Int) {
         viewModelScope.launch {
@@ -40,6 +48,8 @@ class MatchViewModel(application: Application) : AndroidViewModel(application) {
             _giocatoriSquadra1.value = _match.value?.let { getTeamPlayers(application, it.squadra1, idMatch) }
             _giocatoriSquadra2.value = _match.value?.let { getTeamPlayers(application, it.squadra2, idMatch) }
             _inRequestState.value = isUserInRequestState(application, _currentUser.value!!, _match.value!!.creatore, idMatch)
+            _scorers.value = getScorers(application, idMatch)
+            _ownGoalsScorers.value = getOwnGoalsScorers(application, idMatch)
         }
     }
 

@@ -234,6 +234,7 @@
 
     <!-- STATISTICHE PARTITA -->
     <string name="statistiche_partita">Statistiche partita</string>
+    <string name="no_stats">Le statistiche di questa partita non sono ancora state inserite.</string>
 
     <!-- INSERIMENTO DETTAGLI PARTITA -->
 

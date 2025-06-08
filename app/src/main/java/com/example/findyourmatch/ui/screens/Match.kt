@@ -63,7 +63,6 @@ import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.navigation.NavigationRoute
 import com.example.findyourmatch.ui.theme.Black
-import com.example.findyourmatch.ui.theme.Green
 import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.MatchViewModel
