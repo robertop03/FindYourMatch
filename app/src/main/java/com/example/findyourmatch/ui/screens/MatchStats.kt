@@ -137,7 +137,63 @@ fun StatistichePartita(navController: NavHostController, matchViewModel: MatchVi
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     TeamRows(playersTeam1, scorers, ownGoalsScorers)
-                    //TeamRows(playersTeam2, scorers, ownGoalsScorers)
+                    Spacer(modifier = Modifier.height(30.dp))
+                    Row (
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = match!!.squadra2,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                            fontStyle = FontStyle.Italic
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    TeamRows(playersTeam2, scorers, ownGoalsScorers)
+                }
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+            Column (
+                modifier = Modifier.padding(7.dp, 0.dp)
+            ) {
+                Text(
+                    text = localizedContext.getString(R.string.legenda),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SportsSoccer,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(25.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = "1 " + localizedContext.getString(R.string.gol),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SportsSoccer,
+                        contentDescription = null,
+                        tint = LightRed,
+                        modifier = Modifier.size(25.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = "1 " + localizedContext.getString(R.string.autogol_s),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
                 }
             }
         }
