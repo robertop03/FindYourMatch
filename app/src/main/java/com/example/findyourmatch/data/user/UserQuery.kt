@@ -19,6 +19,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
+import java.net.SocketTimeoutException
+import java.util.concurrent.TimeUnit
 
 @Serializable
 data class IndirizzoUtente(
@@ -192,7 +194,7 @@ suspend fun updateProfileImage(context: Context, email: String, imagePath: Uri) 
         )
         .addHeader("Authorization", "Bearer $token")
         .addHeader("Content-Type", "image/jpeg")
-        .addHeader("x-upsert", "true") // sovrascrive se esiste
+        .addHeader("x-upsert", "true")
         .post(requestBody!!)
         .build()
 
@@ -204,14 +206,29 @@ suspend fun updateProfileImage(context: Context, email: String, imagePath: Uri) 
 }
 
 suspend fun checkIfImageExists(imageUrl: String): Boolean = withContext(Dispatchers.IO) {
-    val client = OkHttpClient()
+    val client = OkHttpClient.Builder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(10, TimeUnit.SECONDS)
+        .writeTimeout(10, TimeUnit.SECONDS)
+        .build()
+
     val request = Request.Builder()
         .url(imageUrl)
         .head()
         .build()
 
-    client.newCall(request).execute().use { response ->
-        return@withContext response.isSuccessful
+    try {
+        client.newCall(request).execute().use { response ->
+            return@withContext response.isSuccessful
+        }
+    } catch (e: SocketTimeoutException) {
+        // Timeout specifico
+        e.printStackTrace()
+        return@withContext false
+    } catch (e: Exception) {
+        // Altri errori di rete
+        e.printStackTrace()
+        return@withContext false
     }
 }
 
