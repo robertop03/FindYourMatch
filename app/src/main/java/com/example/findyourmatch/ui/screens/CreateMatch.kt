@@ -60,11 +60,14 @@ import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.match.CampoSportivo
 import com.example.findyourmatch.data.match.getSportsFields
+import com.example.findyourmatch.data.match.insertNewMatch
 import com.example.findyourmatch.data.remote.api.createHttpClient
 import com.example.findyourmatch.data.remote.api.fetchEUCountries
 import com.example.findyourmatch.data.remote.api.fetchProvincesByCountry
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.data.user.getLoggedUserEmail
+import com.example.findyourmatch.navigation.NavigationRoute
 import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
@@ -85,6 +88,7 @@ fun CreaPartita(navController: NavHostController) {
         LocaleHelper.updateLocale(context, language)
     }
 
+    var currentUser by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val httpClient = remember { createHttpClient() }
@@ -115,6 +119,10 @@ fun CreaPartita(navController: NavHostController) {
     var euNations by remember { mutableStateOf(listOf<String>()) }
     var provinces by remember { mutableStateOf(listOf<String>()) }
     var sportsFields by remember { mutableStateOf(listOf<CampoSportivo>()) }
+
+    LaunchedEffect (Unit) {
+        currentUser = getLoggedUserEmail(context)
+    }
 
     Scaffold(
         snackbarHost = { androidx.compose.material3.SnackbarHost(snackbarHostState) },
@@ -710,7 +718,36 @@ fun CreaPartita(navController: NavHostController) {
                             team1Name,
                             team2Name
                         ) {
-
+                            coroutineScope.launch {
+                                currentUser?.let {
+                                    kotlinx.coroutines.delay(100)
+                                    val result = insertNewMatch(
+                                        context = context,
+                                        type = type,
+                                        existingPitch = pitch,
+                                        newPitchNation = newPitchNation,
+                                        newPitchProvince = newPitchProvince,
+                                        newPitchCity = newPitchCity.trim(),
+                                        newPitchStreet = newPitchStreet.trim(),
+                                        newPitchHouseNumber = newPitchHouseNumber.trim(),
+                                        newPitchName = newPitchName.trim(),
+                                        gameDate = gameDate,
+                                        gameTime = gameTime,
+                                        expiringDate = expiringDate,
+                                        expiringTime = expiringTime,
+                                        expectedAmount = expectedAmount.trim(),
+                                        team1Name = team1Name.trim(),
+                                        team2Name = team2Name.trim(),
+                                        organizer = currentUser!!
+                                    )
+                                    if (result.isSuccess) {
+                                        snackbarHostState.showSnackbar(localizedContext.getString(R.string.creazione_completata))
+                                        navController.navigate(NavigationRoute.Home)
+                                    } else {
+                                        snackbarHostState.showSnackbar("${localizedContext.getString(R.string.errore_registrazione)}: ${result.exceptionOrNull()?.message}")
+                                    }
+                                }
+                            }
                         }
                     },
                     modifier = Modifier.width(150.dp).height(42.dp),

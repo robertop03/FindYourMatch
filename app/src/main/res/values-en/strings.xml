@@ -230,6 +230,7 @@
     <string name="crea">Create</string>
     <string name="oppure">or</string>
     <string name="spiegazione_campo">(Enter a new sports field or select one from those already saved in the system)</string>
+    <string name="creazione_completata">Match creation completed.</string>
 
     <!-- SINGOLA PARTITA -->
     <string name="partita">Match</string>

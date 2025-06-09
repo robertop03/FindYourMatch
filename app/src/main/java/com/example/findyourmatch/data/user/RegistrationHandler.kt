@@ -203,7 +203,6 @@ suspend fun inserisciStatisticheIniziali(context: Context, userEmail: String) = 
         autogol = 0,
         vittorie = 0
     )
-    Log.d("STATS", initialStats.toString())
     val statsBody = Json.encodeToString(initialStats).toRequestBody("application/json".toMediaType())
     val statsRowInsertRequest = Request.Builder()
         .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/statistiche_utente")

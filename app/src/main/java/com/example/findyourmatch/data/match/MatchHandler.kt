@@ -9,12 +9,19 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Transient
 import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 @Serializable
 data class CampoSportivo(
@@ -64,6 +71,24 @@ data class PartitaMostrata(
 )
 
 @Serializable
+data class PartitaDaInserire(
+    val tipo: String,
+    val dataOraInizio: String,
+    val dataOraScadenzaIscrizione: String,
+    val importoPrevisto: Double,
+    val maxGiocatori: Int,
+    val visibile: Boolean,
+    val luogo: Int,
+    val creatore: String
+)
+
+@Serializable
+data class Squadra(
+    val nome: String,
+    val partita: Int
+)
+
+@Serializable
 data class Giocatore(
     val email: String,
     val nome: String,
@@ -85,6 +110,13 @@ data class Marcatore(
 data class AutoreAutogol(
     val utente: String,
     val numeroAutogol: Int
+)
+
+@Serializable
+data class OrganizzatoreInSquadra(
+    val utente: String,
+    val squadra: String,
+    val partita: Int
 )
 
 suspend fun getPartiteConCampo(context: Context): List<PartitaConCampo> = withContext(Dispatchers.IO) {
@@ -132,6 +164,194 @@ suspend fun getSportsFields(context: Context): List<CampoSportivo> = withContext
         Log.d("JSON", json)
         val pitches = Json.decodeFromString(ListSerializer(CampoSportivo.serializer()), json)
         return@withContext pitches
+    }
+}
+
+suspend fun addNewSportsField(
+    context: Context,
+    nation: String,
+    province: String,
+    city: String,
+    street: String,
+    houseNumber: String,
+    name: String
+): Int? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val newPlace = mapOf(
+        "nazione" to nation,
+        "provincia" to province,
+        "citta" to city,
+        "nome" to name,
+        "via" to street,
+        "civico" to houseNumber,
+    )
+    val placeBody = Json.encodeToString(newPlace).toRequestBody("application/json".toMediaType())
+    Log.d("NEW PLACE", Json.encodeToString(newPlace))
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/campi_sportivi")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .addHeader("Prefer", "return=representation")
+        .post(placeBody)
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext null
+        } else {
+            val responseBody = response.body?.string()
+            Log.d("Supabase", "Response: $responseBody")
+
+            val jsonArray = Json.decodeFromString<List<Map<String, JsonElement>>>(responseBody!!)
+            val id = jsonArray.firstOrNull()?.get("idCampo")?.jsonPrimitive?.intOrNull
+            Log.d("ID NUOVO", id.toString())
+
+            return@withContext id
+        }
+    }
+}
+
+suspend fun insertNewTeam(context: Context, name: String, idMatch: Int): Boolean? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val team = Squadra(
+        name,
+        idMatch
+    )
+    val teamBody = Json.encodeToString(team).toRequestBody("application/json".toMediaType())
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/squadre")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .post(teamBody)
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext false
+        }
+        true
+    }
+}
+
+suspend fun insertOrganizerInATeam(context: Context, organizer: String, team1: String, team2: String, idMatch: Int) = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val randomNumber = (1..2).random()
+    val organizerInTeam = OrganizzatoreInSquadra(
+        organizer,
+        if (randomNumber == 1) team1 else team2,
+        idMatch
+    )
+    val body = Json.encodeToString(organizerInTeam).toRequestBody("application/json".toMediaType())
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/giocatori_squadra")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .post(body)
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+        }
+    }
+}
+
+suspend fun insertNewMatch(
+    context: Context,
+    type: String,
+    existingPitch: CampoSportivo?,
+    newPitchNation: String,
+    newPitchProvince: String,
+    newPitchCity: String,
+    newPitchStreet: String,
+    newPitchHouseNumber: String,
+    newPitchName: String,
+    gameDate: String,
+    gameTime: String,
+    expiringDate: String,
+    expiringTime: String,
+    expectedAmount: String,
+    team1Name: String,
+    team2Name: String,
+    organizer: String
+): Result<Unit> = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext Result.failure(Exception("Token non valido"))
+
+    var newPlaceID: Int? = null
+    if (existingPitch == null)
+        newPlaceID = addNewSportsField(
+            context,
+            newPitchNation,
+            newPitchProvince,
+            newPitchCity,
+            newPitchStreet,
+            newPitchHouseNumber,
+            newPitchName
+        )
+
+    val date = java.time.LocalDate.parse(gameDate)
+    val time = java.time.LocalTime.parse(gameTime)
+    val gameDateTime = DateTimeFormatter.ISO_INSTANT.format(java.time.LocalDateTime.of(date,time).toInstant(
+        ZoneOffset.UTC))
+    val expDate = java.time.LocalDate.parse(expiringDate)
+    val expTime = java.time.LocalTime.parse(expiringTime)
+    val expDateTime = DateTimeFormatter.ISO_INSTANT.format(java.time.LocalDateTime.of(expDate,expTime).toInstant(
+        ZoneOffset.UTC))
+    val maxPlayers = when (type) {
+        "5vs5" -> 10
+        "7vs7" -> 14
+        "8vs8" -> 16
+        else -> 22
+    }
+    val newMatch = (existingPitch?.idCampo ?: newPlaceID)?.let {
+        PartitaDaInserire(
+            type,
+            gameDateTime,
+            expDateTime,
+            expectedAmount.replace(",", ".").toDouble(),
+            maxPlayers,
+            true,
+            it,
+            organizer
+        )
+    }
+    val matchBody = Json.encodeToString(newMatch).toRequestBody("application/json".toMediaType())
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/partite")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .addHeader("Prefer", "return=representation")
+        .post(matchBody)
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            return@withContext Result.failure(Exception("Inserimento fallito: (${response.code}): ${response.body?.string()}"))
+        } else {
+            val responseBody = response.body?.string()
+            Log.d("Supabase", "Response: $responseBody")
+
+            val jsonArray = Json.decodeFromString<List<Map<String, JsonElement>>>(responseBody!!)
+            val id = jsonArray.firstOrNull()?.get("idPartita")?.jsonPrimitive?.intOrNull
+            if (id?.let { insertNewTeam(context, team1Name, it) } == true && insertNewTeam(context, team2Name, id) == true) {
+                insertOrganizerInATeam(context, organizer, team1Name, team2Name, id)
+                return@withContext Result.success(Unit)
+            }
+            return@withContext Result.failure(Exception("Problemi nell'inserimento delle squadre"))
+        }
     }
 }
 
