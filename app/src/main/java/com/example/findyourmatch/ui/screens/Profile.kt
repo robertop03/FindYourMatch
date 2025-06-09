@@ -541,8 +541,10 @@ fun GameCard(game: PartiteGiocateUtente?, navController: NavHostController, loca
                 Text(text = game.squadra1,
                     color = White,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 22.sp,
-                    modifier = Modifier.padding(if (game.squadra1 == game.squadraUtente) 5.dp else 0.dp, 0.dp, 10.dp, 0.dp))
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(if (game.squadra1 == game.squadraUtente) 5.dp else 0.dp, 0.dp, 10.dp, 0.dp),
+                    maxLines = 1
+                )
                 Box(modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .background(Black)
@@ -558,8 +560,9 @@ fun GameCard(game: PartiteGiocateUtente?, navController: NavHostController, loca
                 Text(text = game.squadra2,
                     color = White,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 22.sp,
-                    modifier = Modifier.padding(10.dp, 0.dp))
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(10.dp, 0.dp),
+                    maxLines = 1)
                 if (game.squadra2 == game.squadraUtente) {
                     ShieldIcon()
                 }
@@ -580,6 +583,6 @@ fun ShieldIcon() {
         imageVector = Icons.Default.Shield,
         contentDescription = null,
         tint = White,
-        modifier = Modifier.size(35.dp)
+        modifier = Modifier.size(25.dp)
     )
 }

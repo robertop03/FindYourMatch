@@ -718,6 +718,14 @@ fun CreaPartita(navController: NavHostController) {
                             team1Name,
                             team2Name
                         ) {
+                            if (pitch != null) {
+                                newPitchNation = ""
+                                newPitchProvince = ""
+                                newPitchCity = ""
+                                newPitchStreet = ""
+                                newPitchHouseNumber = ""
+                                newPitchName = ""
+                            }
                             coroutineScope.launch {
                                 currentUser?.let {
                                     kotlinx.coroutines.delay(100)
