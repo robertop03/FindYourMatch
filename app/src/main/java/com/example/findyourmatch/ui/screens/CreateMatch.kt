@@ -3,6 +3,7 @@ package com.example.findyourmatch.ui.screens
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.widget.TimePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Euro
 import androidx.compose.material3.Button
@@ -39,7 +41,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,6 +58,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
+import com.example.findyourmatch.data.match.CampoSportivo
+import com.example.findyourmatch.data.match.getSportsFields
 import com.example.findyourmatch.data.remote.api.createHttpClient
 import com.example.findyourmatch.data.remote.api.fetchEUCountries
 import com.example.findyourmatch.data.remote.api.fetchProvincesByCountry
@@ -64,6 +67,11 @@ import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.White
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,12 +91,15 @@ fun CreaPartita(navController: NavHostController) {
     var typeExpanded by remember { mutableStateOf(false) }
     var type by remember { mutableStateOf("") }
     var nationExpanded by remember { mutableStateOf(false) }
-    var nation by remember { mutableStateOf("") }
+    var newPitchNation by remember { mutableStateOf("") }
     var provinceExpanded by remember { mutableStateOf(false) }
-    var province by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf("") }
+    var newPitchProvince by remember { mutableStateOf("") }
+    var newPitchCity by remember { mutableStateOf("") }
+    var newPitchStreet by remember { mutableStateOf("") }
+    var newPitchHouseNumber by remember { mutableStateOf("") }
+    var newPitchName by remember { mutableStateOf("") }
     var pitchExpanded by remember { mutableStateOf(false) }
-    var pitch by remember { mutableStateOf("") }
+    var pitch: CampoSportivo? = null
     var showDatePickerDialog by remember { mutableStateOf(false) }
     var gameDate by remember { mutableStateOf("") }
     var showTimePickerDialog by remember { mutableStateOf(false) }
@@ -103,6 +114,7 @@ fun CreaPartita(navController: NavHostController) {
 
     var euNations by remember { mutableStateOf(listOf<String>()) }
     var provinces by remember { mutableStateOf(listOf<String>()) }
+    var sportsFields by remember { mutableStateOf(listOf<CampoSportivo>()) }
 
     Scaffold(
         snackbarHost = { androidx.compose.material3.SnackbarHost(snackbarHostState) },
@@ -179,7 +191,7 @@ fun CreaPartita(navController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = buildAnnotatedString {
-                    append(localizedContext.getString(R.string.luogo))
+                    append(localizedContext.getString(R.string.luogo) + " " + localizedContext.getString(R.string.spiegazione_campo))
                     withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                 },
                 fontSize = 15.sp,
@@ -187,13 +199,89 @@ fun CreaPartita(navController: NavHostController) {
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
             )
+            LaunchedEffect (Unit) {
+                sportsFields = getSportsFields(context)
+            }
+            ExposedDropdownMenuBox(
+                expanded = pitchExpanded,
+                onExpandedChange = { pitchExpanded = !pitchExpanded },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                OutlinedTextField(
+                    value = if (pitch != null) pitch?.nome + " (${pitch?.citta}, ${pitch?.nazione})" else "",
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .menuAnchor(
+                            type = MenuAnchorType.PrimaryEditable,
+                            enabled = true
+                        )
+                        .width(330.dp),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(pitchExpanded)
+                    },
+                    placeholder = {
+                        Text(
+                            localizedContext.getString(R.string.seleziona_campo),
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    },
+                    singleLine = true
+                )
+                ExposedDropdownMenu(
+                    expanded = pitchExpanded,
+                    onDismissRequest = { pitchExpanded = false }
+                ) {
+                    sportsFields.forEach {
+                        DropdownMenuItem(
+                            text = { Text("${it.nome} (${it.citta}, ${it.nazione})") },
+                            onClick = {
+                                pitch = CampoSportivo(
+                                    idCampo = it.idCampo,
+                                    nazione = it.nazione,
+                                    provincia = it.provincia,
+                                    citta = it.citta,
+                                    via = it.via,
+                                    civico = it.civico,
+                                    nome = it.nome
+                                )
+                                pitchExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(0.dp, 20.dp).width(330.dp).align(Alignment.CenterHorizontally)
+            ) {
+                Divider(
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .weight(1f),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Text(
+                    text = localizedContext.getString(R.string.oppure),
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Divider(
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .weight(1f),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+
             ExposedDropdownMenuBox(
                 expanded = nationExpanded,
                 onExpandedChange = { nationExpanded = !nationExpanded },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 OutlinedTextField(
-                    value = nation,
+                    value = newPitchNation,
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier
@@ -225,7 +313,7 @@ fun CreaPartita(navController: NavHostController) {
                         DropdownMenuItem(
                             text = { Text(it) },
                             onClick = {
-                                nation = it
+                                newPitchNation = it
                                 nationExpanded = false
                             }
                         )
@@ -233,9 +321,9 @@ fun CreaPartita(navController: NavHostController) {
                 }
             }
             Spacer(Modifier.height(16.dp))
-            LaunchedEffect(nation) {
-                if (nation.isNotBlank()) {
-                    provinces = fetchProvincesByCountry(httpClient, nation)
+            LaunchedEffect(newPitchNation) {
+                if (newPitchNation.isNotBlank()) {
+                    provinces = fetchProvincesByCountry(httpClient, newPitchNation)
                 }
             }
             ExposedDropdownMenuBox(
@@ -244,7 +332,7 @@ fun CreaPartita(navController: NavHostController) {
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 OutlinedTextField(
-                    value = province,
+                    value = newPitchProvince,
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier
@@ -273,7 +361,7 @@ fun CreaPartita(navController: NavHostController) {
                                 )
                             },
                             onClick = {
-                                province = it
+                                newPitchProvince = it
                                 provinceExpanded = false
                             }
                         )
@@ -282,8 +370,8 @@ fun CreaPartita(navController: NavHostController) {
             }
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
-                value = city,
-                onValueChange = { city = it },
+                value = newPitchCity,
+                onValueChange = { newPitchCity = it },
                 placeholder = { Text(localizedContext.getString(R.string.citta)) },
                 singleLine = true,
                 modifier = Modifier
@@ -291,33 +379,35 @@ fun CreaPartita(navController: NavHostController) {
                     .align(Alignment.CenterHorizontally)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            ExposedDropdownMenuBox(
-                expanded = pitchExpanded,
-                onExpandedChange = { pitchExpanded = !pitchExpanded },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                OutlinedTextField(
-                    value = pitch,
-                    onValueChange = {},
-                    readOnly = true,
-                    modifier = Modifier
-                        .menuAnchor(
-                            type = MenuAnchorType.PrimaryEditable,
-                            enabled = true
-                        )
-                        .width(330.dp),
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(pitchExpanded)
-                    },
-                    placeholder = { Text(localizedContext.getString(R.string.campo_sportivo)) }
-                )
-                ExposedDropdownMenu(
-                    expanded = pitchExpanded,
-                    onDismissRequest = { pitchExpanded = false }
-                ) {
-                    //menu items campi sportivi
-                }
-            }
+            OutlinedTextField(
+                value = newPitchStreet,
+                onValueChange = { newPitchStreet = it },
+                placeholder = { Text(localizedContext.getString(R.string.via)) },
+                singleLine = true,
+                modifier = Modifier
+                    .width(330.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                value = newPitchHouseNumber,
+                onValueChange = { newPitchHouseNumber = it },
+                placeholder = { Text(localizedContext.getString(R.string.civico)) },
+                singleLine = true,
+                modifier = Modifier
+                    .width(330.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                value = newPitchName,
+                onValueChange = { newPitchName = it },
+                modifier = Modifier
+                    .width(330.dp)
+                    .align(Alignment.CenterHorizontally),
+                placeholder = { Text(localizedContext.getString(R.string.campo_sportivo)) },
+                singleLine = true
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = buildAnnotatedString {
@@ -594,18 +684,28 @@ fun CreaPartita(navController: NavHostController) {
             ) {
                 Button(
                     onClick = {
-//                        validaCampi() {
-//                            profileViewModel.editProfile(
-//                                name,
-//                                lastName,
-//                                nation,
-//                                province,
-//                                city,
-//                                street,
-//                                houseNumber
-//                            )
-//                            navController.navigateUp()
-//                        }
+                        validaCampi(
+                            localizedContext,
+                            coroutineScope,
+                            snackbarHostState,
+                            type,
+                            pitch,
+                            newPitchNation,
+                            newPitchProvince,
+                            newPitchCity,
+                            newPitchStreet,
+                            newPitchHouseNumber,
+                            newPitchName,
+                            gameDate,
+                            gameTime,
+                            expiringDate,
+                            expiringTime,
+                            expectedAmount,
+                            team1Name,
+                            team2Name
+                        ) {
+
+                        }
                     },
                     modifier = Modifier.width(150.dp).height(42.dp),
                     shape = RoundedCornerShape(50),
@@ -641,6 +741,88 @@ fun CreaPartita(navController: NavHostController) {
                     )
                 }
             }
+        }
+    }
+}
+
+fun validaCampi(
+    localizedContext: Context,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    type: String,
+    pitch: CampoSportivo?,
+    newPitchNation: String,
+    newPitchProvince: String,
+    newPitchCity: String,
+    newPitchStreet: String,
+    newPitchHouseNumber: String,
+    newPitchName: String,
+    gameDate: String,
+    gameTime: String,
+    expiringDate: String,
+    expiringTime: String,
+    amount: String,
+    team1: String,
+    team2: String,
+    onSuccess: () -> Unit
+) {
+    scope.launch {
+        try {
+            // 1. Campi vuoti
+            val campi = listOf(
+                localizedContext.getString(R.string.tipo_partita) to type,
+                localizedContext.getString(R.string.data) to gameDate,
+                localizedContext.getString(R.string.ore) to gameTime,
+                localizedContext.getString(R.string.data_scadenza) to expiringDate,
+                localizedContext.getString(R.string.orario_scadenza) to expiringTime,
+                localizedContext.getString(R.string.importo) to amount,
+                localizedContext.getString(R.string.nome_squadra_1) to team1,
+                localizedContext.getString(R.string.nome_squadra_2) to team2
+            )
+            campi.forEach { (nomeCampo, valore) ->
+                if (valore.isBlank()) {
+                    val message =
+                        localizedContext.getString(R.string.campo_non_vuoto, nomeCampo)
+                    throw Exception(message)
+                }
+            }
+
+            // 2. Campo sportivo selezionato
+            val campiNuovoLuogo = listOf(
+                localizedContext.getString(R.string.stato) to newPitchNation,
+                localizedContext.getString(R.string.provincia) to newPitchProvince,
+                localizedContext.getString(R.string.citta) to newPitchCity,
+                localizedContext.getString(R.string.via) to newPitchStreet,
+                localizedContext.getString(R.string.civico) to newPitchHouseNumber,
+                localizedContext.getString(R.string.campo_sportivo) to newPitchName,
+            )
+            campiNuovoLuogo.forEach { (nomeCampo, valore) ->
+                if (valore.isBlank() && pitch == null) {
+                    val message =
+                        localizedContext.getString(R.string.campo_non_vuoto, nomeCampo)
+                    throw Exception(message)
+                }
+            }
+
+            // 3. Data di gioco > data di oggi
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            val date = LocalDate.parse(gameDate, formatter)
+            if (!date.isAfter(LocalDate.now())) throw Exception(localizedContext.getString(R.string.data_non_valida))
+
+            // 4. Data scadenza iscrizione < data di gioco
+            val expDate = LocalDate.parse(expiringDate, formatter)
+            if (expDate.isBefore(date)) throw Exception(localizedContext.getString(R.string.data_iscrizione_non_valida))
+
+            // 5. Se le due date coincidono, orario scadenza < orario di gioco
+            val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+            val hour = LocalTime.parse(gameTime, timeFormatter)
+            val expHour = LocalTime.parse(expiringTime, timeFormatter)
+            if (expDate.isEqual(date) && !expHour.isBefore(hour)) throw Exception(localizedContext.getString(R.string.orario_scadenza_non_valido))
+
+            onSuccess()
+        } catch (e: Exception) {
+            snackbarHostState.showSnackbar(
+                e.message ?: localizedContext.getString(R.string.errore_validazione))
         }
     }
 }

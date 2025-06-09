@@ -46,7 +46,9 @@
     <string name="civico_fuori_range">Il civico deve essere compreso tra 1 e 100000.</string>
     <string name="checkbox_non_accettata">Devi accettare i termini e la privacy.</string>
     <string name="mostra_nascondi_pw">Mostra/Nascondi password.</string>
-
+    <string name="data_non_valida">La partita può giocarsi da domani in poi.</string>
+    <string name="data_iscrizione_non_valida">Data di iscrizione non valida.</string>
+    <string name="orario_scadenza_non_valido">La scadenza non può coincidere con l\'inizio della partita.</string>
 
     <!-- LOGIN -->
     <string name="login_successo">Login effettuato con successo</string>
@@ -216,6 +218,7 @@
     <!-- CREA PARTITA -->
     <string name="crea_partita">Crea partita</string>
     <string name="seleziona_tipo">Seleziona la tipologia</string>
+    <string name="seleziona_campo">Seleziona il campo sportivo</string>
     <string name="campo_sportivo">Campo sportivo</string>
     <string name="data_scadenza">Data scadenza iscrizione</string>
     <string name="orario_scadenza">Orario scadenza iscrizione</string>
@@ -224,6 +227,8 @@
     <string name="nome_squadra_2">Nome squadra 2</string>
     <string name="ins_nome_squadra_2">Inserisci il nome della squadra 2</string>
     <string name="crea">Crea</string>
+    <string name="oppure">oppure</string>
+    <string name="spiegazione_campo">(Inserisci un nuovo campo oppure selezionane uno tra quelli già salvati nel sistema)</string>
 
     <!-- SINGOLA PARTITA -->
     <string name="partita">Partita</string>

@@ -49,6 +49,9 @@
     <string name="civico_fuori_range">House number must be between 1 and 100000.</string>
     <string name="checkbox_non_accettata">You must accept the terms and privacy policy.</string>
     <string name="mostra_nascondi_pw">Show/Hide password.</string>
+    <string name="data_non_valida">The match can be played from tomorrow onwards.</string>
+    <string name="data_iscrizione_non_valida">Expiring date not valid.</string>
+    <string name="orario_scadenza_non_valido">The deadline cannot coincide with the start of the match.</string>
 
     <!-- LOGIN -->
     <string name="login_successo">Login successful</string>
@@ -215,6 +218,7 @@
     <!-- CREA PARTITA -->
     <string name="crea_partita">Create match</string>
     <string name="seleziona_tipo">Select the type</string>
+    <string name="seleziona_campo">Select the sports field</string>
     <string name="campo_sportivo">Sports field</string>
     <string name="data_scadenza">Registration deadline</string>
     <string name="orario_scadenza">Registration deadline time</string>
@@ -223,6 +227,8 @@
     <string name="nome_squadra_2">Second team name</string>
     <string name="ins_nome_squadra_2">Enter the second team name</string>
     <string name="crea">Create</string>
+    <string name="oppure">or</string>
+    <string name="spiegazione_campo">(Enter a new sports field or select one from those already saved in the system)</string>
 
     <!-- SINGOLA PARTITA -->
     <string name="partita">Match</string>

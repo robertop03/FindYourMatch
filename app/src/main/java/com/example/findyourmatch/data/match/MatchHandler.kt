@@ -109,6 +109,32 @@ suspend fun getPartiteConCampo(context: Context): List<PartitaConCampo> = withCo
     }
 }
 
+suspend fun getSportsFields(context: Context): List<CampoSportivo> = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext listOf()
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/campi_sportivi?select=*")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Accept", "application/json")
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext listOf()
+        }
+        val json = response.body?.string() ?: return@withContext listOf()
+        Log.d("JSON", json)
+        val pitches = Json.decodeFromString(ListSerializer(CampoSportivo.serializer()), json)
+        return@withContext pitches
+    }
+}
+
 suspend fun getMatch(context: Context, id: Int) : PartitaMostrata? = withContext(Dispatchers.IO) {
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext null
