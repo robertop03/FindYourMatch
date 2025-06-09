@@ -215,6 +215,15 @@
 
     <!-- CREA PARTITA -->
     <string name="crea_partita">Crea partita</string>
+    <string name="seleziona_tipo">Seleziona la tipologia</string>
+    <string name="campo_sportivo">Campo sportivo</string>
+    <string name="data_scadenza">Data scadenza iscrizione</string>
+    <string name="orario_scadenza">Orario scadenza iscrizione</string>
+    <string name="nome_squadra_1">Nome squadra 1</string>
+    <string name="ins_nome_squadra_1">Inserisci il nome della squadra 1</string>
+    <string name="nome_squadra_2">Nome squadra 2</string>
+    <string name="ins_nome_squadra_2">Inserisci il nome della squadra 2</string>
+    <string name="crea">Crea</string>
 
     <!-- SINGOLA PARTITA -->
     <string name="partita">Partita</string>

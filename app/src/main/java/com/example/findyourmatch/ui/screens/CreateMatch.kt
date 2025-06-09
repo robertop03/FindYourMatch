@@ -1,28 +1,75 @@
 package com.example.findyourmatch.ui.screens
 
+import android.annotation.SuppressLint
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.widget.TimePicker
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Euro
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
+import com.example.findyourmatch.data.remote.api.createHttpClient
+import com.example.findyourmatch.data.remote.api.fetchEUCountries
+import com.example.findyourmatch.data.remote.api.fetchProvincesByCountry
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.ui.theme.Red
+import com.example.findyourmatch.ui.theme.White
+import java.util.Calendar
 
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
 @Composable
 fun CreaPartita(navController: NavHostController) {
-
     val context = LocalContext.current
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
@@ -30,16 +77,43 @@ fun CreaPartita(navController: NavHostController) {
         LocaleHelper.updateLocale(context, language)
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondaryContainer)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val httpClient = remember { createHttpClient() }
+    var typeExpanded by remember { mutableStateOf(false) }
+    var type by remember { mutableStateOf("") }
+    var nationExpanded by remember { mutableStateOf(false) }
+    var nation by remember { mutableStateOf("") }
+    var provinceExpanded by remember { mutableStateOf(false) }
+    var province by remember { mutableStateOf("") }
+    var city by remember { mutableStateOf("") }
+    var pitchExpanded by remember { mutableStateOf(false) }
+    var pitch by remember { mutableStateOf("") }
+    var showDatePickerDialog by remember { mutableStateOf(false) }
+    var gameDate by remember { mutableStateOf("") }
+    var showTimePickerDialog by remember { mutableStateOf(false) }
+    var gameTime by remember { mutableStateOf("") }
+    var showExpiringDatePickerDialog by remember { mutableStateOf(false) }
+    var expiringDate by remember { mutableStateOf("") }
+    var showExpringTimePickerDialog by remember { mutableStateOf(false) }
+    var expiringTime by remember { mutableStateOf("") }
+    var expectedAmount by remember { mutableStateOf("") }
+    var team1Name by remember { mutableStateOf("") }
+    var team2Name by remember { mutableStateOf("") }
+
+    var euNations by remember { mutableStateOf(listOf<String>()) }
+    var provinces by remember { mutableStateOf(listOf<String>()) }
+
+    Scaffold(
+        snackbarHost = { androidx.compose.material3.SnackbarHost(snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.secondaryContainer
     ) {
         val showBackButton = navController.previousBackStackEntry != null
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .background(MaterialTheme.colorScheme.secondaryContainer)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Top,
@@ -50,6 +124,523 @@ fun CreaPartita(navController: NavHostController) {
                 title = localizedContext.getString(R.string.crea_partita),
                 showBackButton = showBackButton
             )
+
+            Text(
+                text = buildAnnotatedString {
+                    append(localizedContext.getString(R.string.tipo_partita))
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+            )
+            ExposedDropdownMenuBox(
+                expanded = typeExpanded,
+                onExpandedChange = { typeExpanded = !typeExpanded },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                OutlinedTextField(
+                    value = type,
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .menuAnchor(
+                            type = MenuAnchorType.PrimaryEditable,
+                            enabled = true
+                        )
+                        .width(330.dp),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded)
+                    },
+                    placeholder = {
+                        Text(
+                            localizedContext.getString(R.string.seleziona_tipo),
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                )
+                ExposedDropdownMenu(
+                    expanded = typeExpanded,
+                    onDismissRequest = { typeExpanded = false }
+                ) {
+                    val types = arrayOf("5vs5", "7vs7", "8vs8", "11vs11")
+                    types.forEach {
+                        DropdownMenuItem(
+                            text = { Text(it) },
+                            onClick = {
+                                type = it
+                                typeExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = buildAnnotatedString {
+                    append(localizedContext.getString(R.string.luogo))
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+            )
+            ExposedDropdownMenuBox(
+                expanded = nationExpanded,
+                onExpandedChange = { nationExpanded = !nationExpanded },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                OutlinedTextField(
+                    value = nation,
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .menuAnchor(
+                            type = MenuAnchorType.PrimaryEditable,
+                            enabled = true
+                        )
+                        .width(330.dp),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            nationExpanded
+                        )
+                    },
+                    placeholder = {
+                        Text(
+                            localizedContext.getString(R.string.stato),
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                )
+                LaunchedEffect(Unit) {
+                    euNations = fetchEUCountries(httpClient)
+                }
+                ExposedDropdownMenu(
+                    expanded = nationExpanded,
+                    onDismissRequest = { nationExpanded = false }
+                ) {
+                    euNations.forEach {
+                        DropdownMenuItem(
+                            text = { Text(it) },
+                            onClick = {
+                                nation = it
+                                nationExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+            LaunchedEffect(nation) {
+                if (nation.isNotBlank()) {
+                    provinces = fetchProvincesByCountry(httpClient, nation)
+                }
+            }
+            ExposedDropdownMenuBox(
+                expanded = provinceExpanded,
+                onExpandedChange = { provinceExpanded = !provinceExpanded },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                OutlinedTextField(
+                    value = province,
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .menuAnchor(
+                            type = MenuAnchorType.PrimaryEditable,
+                            enabled = true
+                        )
+                        .width(330.dp),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            provinceExpanded
+                        )
+                    },
+                    placeholder = { Text(localizedContext.getString(R.string.provincia)) }
+                )
+                ExposedDropdownMenu(
+                    expanded = provinceExpanded,
+                    onDismissRequest = { provinceExpanded = false }
+                ) {
+                    provinces.forEach {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    it,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            },
+                            onClick = {
+                                province = it
+                                provinceExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                value = city,
+                onValueChange = { city = it },
+                placeholder = { Text(localizedContext.getString(R.string.citta)) },
+                singleLine = true,
+                modifier = Modifier
+                    .width(330.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            ExposedDropdownMenuBox(
+                expanded = pitchExpanded,
+                onExpandedChange = { pitchExpanded = !pitchExpanded },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                OutlinedTextField(
+                    value = pitch,
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .menuAnchor(
+                            type = MenuAnchorType.PrimaryEditable,
+                            enabled = true
+                        )
+                        .width(330.dp),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(pitchExpanded)
+                    },
+                    placeholder = { Text(localizedContext.getString(R.string.campo_sportivo)) }
+                )
+                ExposedDropdownMenu(
+                    expanded = pitchExpanded,
+                    onDismissRequest = { pitchExpanded = false }
+                ) {
+                    //menu items campi sportivi
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = buildAnnotatedString {
+                    append(localizedContext.getString(R.string.data))
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+            )
+            TextField(
+                value = gameDate,
+                readOnly = true,
+                placeholder = { Text(localizedContext.getString(R.string.data_placeholder))},
+                onValueChange = {},
+                singleLine = true,
+                interactionSource = remember { MutableInteractionSource() }
+                    .also { interactionSource ->
+                        LaunchedEffect(interactionSource) {
+                            interactionSource.interactions.collect {
+                                if (it is PressInteraction.Release) {
+                                    showDatePickerDialog = true
+                                }
+                            }
+                        }
+                    },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(330.dp)
+            )
+
+            if (showDatePickerDialog) {
+                val contextData = LocalContext.current
+                val calendar = Calendar.getInstance()
+                val dialog = DatePickerDialog(
+                    contextData,
+                    { _, year, month, dayOfMonth ->
+                        gameDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                        showDatePickerDialog = false
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                )
+                dialog.setOnCancelListener {
+                    showDatePickerDialog = false
+                }
+                dialog.show()
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = buildAnnotatedString {
+                    append(localizedContext.getString(R.string.ore))
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+            )
+            TextField(
+                value = gameTime,
+                readOnly = true,
+                placeholder = { Text("HH:mm") },
+                onValueChange = {},
+                singleLine = true,
+                interactionSource = remember { MutableInteractionSource() }
+                    .also { interactionSource ->
+                        LaunchedEffect(interactionSource) {
+                            interactionSource.interactions.collect {
+                                if (it is PressInteraction.Release) {
+                                    showTimePickerDialog = true
+                                }
+                            }
+                        }
+                    },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(330.dp)
+            )
+
+            if (showTimePickerDialog) {
+                LaunchedEffect (Unit) {
+                    val calendar = Calendar.getInstance()
+                    val dialog = TimePickerDialog(
+                        context,
+                        { _: TimePicker, hour: Int, minute: Int ->
+                            gameTime = String.format("%02d:%02d", hour, minute)
+                            showTimePickerDialog = false
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    )
+                    dialog.setOnCancelListener {
+                        showTimePickerDialog = false
+                    }
+                    dialog.show()
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = buildAnnotatedString {
+                    append(localizedContext.getString(R.string.data_scadenza))
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+            )
+            TextField(
+                value = expiringDate,
+                readOnly = true,
+                placeholder = { Text(localizedContext.getString(R.string.data_placeholder))},
+                onValueChange = {},
+                singleLine = true,
+                interactionSource = remember { MutableInteractionSource() }
+                    .also { interactionSource ->
+                        LaunchedEffect(interactionSource) {
+                            interactionSource.interactions.collect {
+                                if (it is PressInteraction.Release) {
+                                    showExpiringDatePickerDialog = true
+                                }
+                            }
+                        }
+                    },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(330.dp)
+            )
+
+            if (showExpiringDatePickerDialog) {
+                val contextData = LocalContext.current
+                val calendar = Calendar.getInstance()
+                val dialog = DatePickerDialog(
+                    contextData,
+                    { _, year, month, dayOfMonth ->
+                        expiringDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                        showExpiringDatePickerDialog = false
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                )
+                dialog.setOnCancelListener {
+                    showExpiringDatePickerDialog = false
+                }
+                dialog.show()
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = buildAnnotatedString {
+                    append(localizedContext.getString(R.string.orario_scadenza))
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+            )
+            TextField(
+                value = expiringTime,
+                readOnly = true,
+                placeholder = { Text("HH:mm") },
+                onValueChange = {},
+                singleLine = true,
+                interactionSource = remember { MutableInteractionSource() }
+                    .also { interactionSource ->
+                        LaunchedEffect(interactionSource) {
+                            interactionSource.interactions.collect {
+                                if (it is PressInteraction.Release) {
+                                    showExpringTimePickerDialog = true
+                                }
+                            }
+                        }
+                    },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(330.dp)
+            )
+
+            if (showExpringTimePickerDialog) {
+                LaunchedEffect (Unit) {
+                    val calendar = Calendar.getInstance()
+                    val dialog = TimePickerDialog(
+                        context,
+                        { _: TimePicker, hour: Int, minute: Int ->
+                            expiringTime = String.format("%02d:%02d", hour, minute)
+                            showExpringTimePickerDialog = false
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    )
+                    dialog.setOnCancelListener {
+                        showExpringTimePickerDialog = false
+                    }
+                    dialog.show()
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = buildAnnotatedString {
+                    append(localizedContext.getString(R.string.importo))
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+            )
+            OutlinedTextField(
+                value = expectedAmount,
+                onValueChange = { expectedAmount = it },
+                placeholder = { Text("0.0") },
+                singleLine = true,
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Euro,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        contentDescription = null
+                    )
+                },
+                modifier = Modifier
+                    .width(330.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = buildAnnotatedString {
+                    append(localizedContext.getString(R.string.nome_squadra_1))
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+            )
+            OutlinedTextField(
+                value = team1Name,
+                onValueChange = { team1Name = it },
+                placeholder = { Text(localizedContext.getString(R.string.ins_nome_squadra_1)) },
+                singleLine = true,
+                modifier = Modifier
+                    .width(330.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = buildAnnotatedString {
+                    append(localizedContext.getString(R.string.nome_squadra_2))
+                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                },
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+            )
+            OutlinedTextField(
+                value = team2Name,
+                onValueChange = { team2Name = it },
+                placeholder = { Text(localizedContext.getString(R.string.ins_nome_squadra_2)) },
+                singleLine = true,
+                modifier = Modifier
+                    .width(330.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = {
+//                        validaCampi() {
+//                            profileViewModel.editProfile(
+//                                name,
+//                                lastName,
+//                                nation,
+//                                province,
+//                                city,
+//                                street,
+//                                houseNumber
+//                            )
+//                            navController.navigateUp()
+//                        }
+                    },
+                    modifier = Modifier.width(150.dp).height(42.dp),
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Text(
+                        localizedContext.getString(R.string.crea),
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.width(30.dp))
+                Button(
+                    onClick = {
+                        navController.navigateUp()
+                    },
+                    modifier = Modifier.width(150.dp).height(42.dp),
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Red,
+                        contentColor = White
+                    )
+                ) {
+                    Text(
+                        localizedContext.getString(R.string.annulla),
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
 }
