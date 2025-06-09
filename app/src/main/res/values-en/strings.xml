@@ -214,6 +214,15 @@
 
     <!-- CREA PARTITA -->
     <string name="crea_partita">Create match</string>
+    <string name="seleziona_tipo">Select the type</string>
+    <string name="campo_sportivo">Sports field</string>
+    <string name="data_scadenza">Registration deadline</string>
+    <string name="orario_scadenza">Registration deadline time</string>
+    <string name="nome_squadra_1">First team name</string>
+    <string name="ins_nome_squadra_1">Enter the first team name</string>
+    <string name="nome_squadra_2">Second team name</string>
+    <string name="ins_nome_squadra_2">Enter the second team name</string>
+    <string name="crea">Create</string>
 
     <!-- SINGOLA PARTITA -->
     <string name="partita">Match</string>
