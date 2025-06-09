@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
@@ -120,7 +121,7 @@ fun Footer(navController: NavHostController, sessionViewModel: SessionViewModel,
                  }) {
                 Icon(
                     imageVector = if (isCreateMatchSelected)
-                        Icons.Filled.AddCircle else Icons.Outlined.AddCircle,
+                        Icons.Filled.AddCircle else Icons.Filled.AddCircleOutline,
                     contentDescription = localizedContext.getString(R.string.aggiungi),
                     modifier = Modifier.size(45.dp)
                 )
