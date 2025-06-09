@@ -49,6 +49,7 @@
     <string name="data_non_valida">La partita può giocarsi da domani in poi.</string>
     <string name="data_iscrizione_non_valida">Data di iscrizione non valida.</string>
     <string name="orario_scadenza_non_valido">La scadenza non può coincidere con l\'inizio della partita.</string>
+    <string name="importo_non_valido">L\'importo previsto inserito non è valido.</string>
 
     <!-- LOGIN -->
     <string name="login_successo">Login effettuato con successo</string>

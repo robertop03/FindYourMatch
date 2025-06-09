@@ -246,6 +246,12 @@ fun CreaPartita(navController: NavHostController) {
                                     nome = it.nome
                                 )
                                 pitchExpanded = false
+                                newPitchNation = ""
+                                newPitchProvince = ""
+                                newPitchCity = ""
+                                newPitchStreet = ""
+                                newPitchHouseNumber = ""
+                                newPitchName = ""
                             }
                         )
                     }
@@ -804,21 +810,43 @@ fun validaCampi(
                 }
             }
 
-            // 3. Data di gioco > data di oggi
+            // 3. Se si sta inserendo un nuovo campo sportivo, la città, la via e il numero civico devono essere validi
+            if (pitch == null) {
+                val noNumeriRegex = Regex(".*\\d.*")
+                if (noNumeriRegex.containsMatchIn(newPitchCity)) throw Exception(
+                    localizedContext.getString(
+                        R.string.citta_con_numeri
+                    )
+                )
+                if (noNumeriRegex.containsMatchIn(newPitchStreet)) throw Exception(
+                    localizedContext.getString(
+                        R.string.via_con_numeri
+                    )
+                )
+                val civicoInt = newPitchHouseNumber.toIntOrNull() ?: throw Exception(localizedContext.getString(R.string.civico_non_numero))
+                if (civicoInt !in 1..100000) throw Exception(localizedContext.getString(R.string.civico_fuori_range))
+            }
+
+            // 4. Data di gioco > data di oggi
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val date = LocalDate.parse(gameDate, formatter)
             if (!date.isAfter(LocalDate.now())) throw Exception(localizedContext.getString(R.string.data_non_valida))
 
-            // 4. Data scadenza iscrizione < data di gioco
+            // 5. Data scadenza iscrizione < data di gioco
             val expDate = LocalDate.parse(expiringDate, formatter)
-            if (expDate.isBefore(date)) throw Exception(localizedContext.getString(R.string.data_iscrizione_non_valida))
+            if (expDate.isAfter(date)) throw Exception(localizedContext.getString(R.string.data_iscrizione_non_valida))
 
-            // 5. Se le due date coincidono, orario scadenza < orario di gioco
+            // 6. Se le due date coincidono, orario scadenza < orario di gioco
             val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             val hour = LocalTime.parse(gameTime, timeFormatter)
             val expHour = LocalTime.parse(expiringTime, timeFormatter)
             if (expDate.isEqual(date) && !expHour.isBefore(hour)) throw Exception(localizedContext.getString(R.string.orario_scadenza_non_valido))
 
+            // 7. Valore dell'importo valido
+            val expAmount = if (amount.contains(",")) amount.replace(",", ".") else amount
+            if (expAmount.toDoubleOrNull() == null) throw Exception(localizedContext.getString(R.string.importo_non_valido))
+
+            // Tutto ok
             onSuccess()
         } catch (e: Exception) {
             snackbarHostState.showSnackbar(

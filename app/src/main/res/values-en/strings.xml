@@ -52,6 +52,7 @@
     <string name="data_non_valida">The match can be played from tomorrow onwards.</string>
     <string name="data_iscrizione_non_valida">Expiring date not valid.</string>
     <string name="orario_scadenza_non_valido">The deadline cannot coincide with the start of the match.</string>
+    <string name="importo_non_valido">The expected amount entered is not valid.</string>
 
     <!-- LOGIN -->
     <string name="login_successo">Login successful</string>
