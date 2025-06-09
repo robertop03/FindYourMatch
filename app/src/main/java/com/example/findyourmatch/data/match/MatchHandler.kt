@@ -188,7 +188,6 @@ suspend fun addNewSportsField(
         "civico" to houseNumber,
     )
     val placeBody = Json.encodeToString(newPlace).toRequestBody("application/json".toMediaType())
-    Log.d("NEW PLACE", Json.encodeToString(newPlace))
     val request = Request.Builder()
         .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/campi_sportivi")
         .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
@@ -208,7 +207,6 @@ suspend fun addNewSportsField(
 
             val jsonArray = Json.decodeFromString<List<Map<String, JsonElement>>>(responseBody!!)
             val id = jsonArray.firstOrNull()?.get("idCampo")?.jsonPrimitive?.intOrNull
-            Log.d("ID NUOVO", id.toString())
 
             return@withContext id
         }
