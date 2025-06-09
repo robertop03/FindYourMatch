@@ -67,9 +67,7 @@ import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.HomeViewModel
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.google.android.gms.location.LocationServices
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import java.time.OffsetDateTime
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -549,8 +547,7 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel, h
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun PartitaCard(partita: PartitaConCampo, sessionViewModel: SessionViewModel, onLoginRequired: () -> Unit, navController: NavHostController) {
-    val instant = Instant.parse(partita.dataOraInizio)
-    val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    val dateTime = OffsetDateTime.parse(partita.dataOraInizio).toLocalDateTime()
     val context = LocalContext.current
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
