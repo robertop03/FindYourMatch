@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.match.InserimentoStatsGiocatore
+import com.example.findyourmatch.data.match.insertStatsMatch
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.ui.theme.Red
@@ -248,7 +249,17 @@ fun InserisciDettagli(navController: NavHostController, matchViewModel: MatchVie
                                     playersTeam2Stats,
                                     match!!.creatore
                                 ) {
-
+                                    coroutineScope.launch {
+                                        insertStatsMatch(
+                                            context,
+                                            matchViewModel.id!!,
+                                            match!!,
+                                            team1Goals.toInt(),
+                                            team2Goals.toInt(),
+                                            playersTeam1Stats,
+                                            playersTeam2Stats
+                                        )
+                                    }
                                 }
                             }
                         },

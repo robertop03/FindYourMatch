@@ -40,6 +40,7 @@ class MatchViewModel(application: Application) : AndroidViewModel(application) {
     val inRequestState = _inRequestState
     val scorers = _scorers
     val ownGoalsScorers = _ownGoalsScorers
+    var id: Int? = null
 
     fun loadMatch(idMatch: Int) {
         viewModelScope.launch {
@@ -50,6 +51,7 @@ class MatchViewModel(application: Application) : AndroidViewModel(application) {
             _inRequestState.value = isUserInRequestState(application, _currentUser.value!!, _match.value!!.creatore, idMatch)
             _scorers.value = getScorers(application, idMatch)
             _ownGoalsScorers.value = getOwnGoalsScorers(application, idMatch)
+            id = idMatch
         }
     }
 
