@@ -23,8 +23,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
+import java.time.OffsetDateTime
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
     var partiteFiltrate by mutableStateOf<List<PartitaConCampo>>(emptyList())
@@ -37,7 +36,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private var ultimaUserEmail: String? = null
     private var errore: String? = null
     private var partiteCached: List<PartitaConCampo>? = null
-
 
     fun loadPartite(
         isLoggedIn: Boolean,
@@ -52,7 +50,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         dataInizioFiltro: LocalDate? = null,
         dataFineFiltro: LocalDate? = null
     ) {
-        val shouldReload = forzaRicarica || ultimaMaxDistance != maxDistance || trovaTesto != ultimoTrovaTesto ||  userEmail != ultimaUserEmail
+        val shouldReload = forzaRicarica || ultimaMaxDistance != maxDistance || trovaTesto != ultimoTrovaTesto || userEmail != ultimaUserEmail
 
         if (!shouldReload && partiteCached != null) {
             partiteFiltrate = partiteCached!!
@@ -69,7 +67,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 ultimaUserEmail = userEmail
 
                 val tuttePartite = getPartiteConCampo(context).filter { it.visibile }
-
                 val indirizzoUtente = if (isLoggedIn) getIndirizzoUtente(context) else null
 
                 val partiteFiltrateUtente = tuttePartite.filter { partita ->
@@ -102,11 +99,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                         true
                     } else {
                         try {
-                            val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                            val dataPartita = ZonedDateTime.parse(partita.dataOraInizio, formatter).toLocalDate()
+                            val dataPartita = OffsetDateTime.parse(partita.dataOraInizio).toLocalDate()
                             (dataInizioFiltro == null || !dataPartita.isBefore(dataInizioFiltro)) &&
                                     (dataFineFiltro == null || !dataPartita.isAfter(dataFineFiltro))
                         } catch (e: Exception) {
+                            Log.e("LOAD_PARTITE", "Errore parsing data: ${partita.dataOraInizio}", e)
                             false
                         }
                     }
@@ -114,12 +111,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     tipoOk && prezzoOk && dataOk
                 }
 
-
                 partiteFiltrate = when {
                     isLoggedIn && indirizzoUtente != null -> {
                         partiteFiltrateTipoPrezzo.map { partita ->
                             async {
                                 val distanzaKm = calcolaDistanzaTraIndirizzi(
+
                                     indirizzo1 = "${indirizzoUtente.via}, ${indirizzoUtente.civico}, ${indirizzoUtente.citta}, ${indirizzoUtente.provincia}, ${indirizzoUtente.stato}",
                                     indirizzo2 = "${partita.campo.via}, ${partita.campo.civico}, ${partita.campo.citta}, ${partita.campo.provincia}, ${partita.campo.nazione}"
                                 )
@@ -150,13 +147,16 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                                 } else null
                             }
                         }.awaitAll().filterNotNull()
-
                     }
 
-                    else -> emptyList()
+                    else -> {
+                        emptyList()
+                    }
                 }
+
                 partiteCached = partiteFiltrate
             } catch (e: Exception) {
+                Log.e("LOAD_PARTITE", "Errore generale nel caricamento", e)
                 errore = e.message
                 partiteFiltrate = emptyList()
             } finally {
@@ -164,6 +164,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
 
     fun refreshPartite(
         isLoggedIn: Boolean,
