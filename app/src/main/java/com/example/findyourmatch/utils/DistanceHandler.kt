@@ -1,5 +1,6 @@
 package com.example.findyourmatch.utils
 
+import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,11 +18,15 @@ import java.util.regex.Pattern
 
 suspend fun geocodeAddress(address: String): Pair<Double, Double>? = withContext(Dispatchers.IO) {
 
-    val url = "https://api.openrouteservice.org/geocode/search?api_key=5b3ce3597851110001cf62481dce0cc3e0604d79abbf05952d0d6c86&text=${address.replace(" ", "+")}"
+    val url = "https://api.openrouteservice.org/geocode/search?api_key=5b3ce3597851110001cf624873b4da21bbd14d4ba52baa81b26f94f7dd060dd879c55769818eb503&text=${address.replace(" ", "+")}"
     val request = Request.Builder().url(url).get().build()
 
     OkHttpClient().newCall(request).execute().use { response ->
-        if (!response.isSuccessful) return@withContext null
+        if (!response.isSuccessful) {
+            Log.e("GEOCODE", "Errore geocoding: ${response.code} - indirizzo: $address")
+            return@withContext null
+        }
+
 
         val body = response.body?.string() ?: return@withContext null
         val json = Json.parseToJsonElement(body).jsonObject
@@ -53,7 +58,7 @@ suspend fun geocodeAddress(address: String): Pair<Double, Double>? = withContext
     val requestBody = bodyJson.toRequestBody("application/json".toMediaType())
     val request = Request.Builder()
         .url("https://api.openrouteservice.org/v2/directions/driving-car")
-        .addHeader("Authorization", "5b3ce3597851110001cf62481dce0cc3e0604d79abbf05952d0d6c86")
+        .addHeader("Authorization", "5b3ce3597851110001cf624873b4da21bbd14d4ba52baa81b26f94f7dd060dd879c55769818eb503")
         .post(requestBody)
         .build()
 
