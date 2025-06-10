@@ -3,6 +3,9 @@ package com.example.findyourmatch.data.match
 import kotlinx.serialization.Serializable
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import com.example.findyourmatch.data.user.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -123,9 +126,9 @@ data class OrganizzatoreInSquadra(
 data class InserimentoStatsGiocatore(
     val email: String,
     val nomeCognome: String,
-    val gol: String = "0",
-    val autogol: String = "0",
-    val rating: Int = 0
+    var gol: MutableState<String> = mutableStateOf("0"),
+    var autogol: MutableState<String> = mutableStateOf("0"),
+    var rating: MutableState<Int> = mutableIntStateOf(0)
 )
 
 suspend fun getPartiteConCampo(context: Context): List<PartitaConCampo> = withContext(Dispatchers.IO) {
