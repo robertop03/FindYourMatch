@@ -256,6 +256,6 @@
     <string name="autogol_s">Own Goal</string>
 
     <!-- INSERIMENTO DETTAGLI PARTITA -->
-
+    <string name="inserisci_risultato">Enter the final result:</string>
 
 </resources>

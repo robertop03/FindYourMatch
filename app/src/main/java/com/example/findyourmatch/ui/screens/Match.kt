@@ -214,7 +214,7 @@ fun Partita(navController: NavHostController, idPartita: Int, matchViewModel: Ma
 //                )
                 Spacer(modifier = Modifier.height(12.dp))
                 MatchButton(localizedContext.getString(R.string.btn_vedi_stats), 8.dp, navController, true)
-                if (isCreator && !match!!.visibile) {
+                if (isCreator && !match!!.visibile && match!!.golSquadra1 == null && match!!.golSquadra2 == null) {
                     MatchButton(localizedContext.getString(R.string.btn_ins_dettagli), 0.dp, navController, false)
                 }
             }

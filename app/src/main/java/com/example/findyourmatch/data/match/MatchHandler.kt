@@ -119,6 +119,15 @@ data class OrganizzatoreInSquadra(
     val partita: Int
 )
 
+@Serializable
+data class InserimentoStatsGiocatore(
+    val email: String,
+    val nomeCognome: String,
+    val gol: String = "0",
+    val autogol: String = "0",
+    val rating: Int = 0
+)
+
 suspend fun getPartiteConCampo(context: Context): List<PartitaConCampo> = withContext(Dispatchers.IO) {
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext emptyList()
