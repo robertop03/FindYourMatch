@@ -6,7 +6,15 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import com.example.findyourmatch.data.notifications.aggiungiNotificaRecensione
+import com.example.findyourmatch.data.notifications.aggiungiNotificaRichiesta
+import com.example.findyourmatch.data.rewards.addAchievement
+import com.example.findyourmatch.data.rewards.caricaRaggiungimenti
 import com.example.findyourmatch.data.user.SessionManager
+import com.example.findyourmatch.data.user.StatsUtente
+import com.example.findyourmatch.data.user.addReview
+import com.example.findyourmatch.data.user.getMaxRewards
+import com.example.findyourmatch.data.user.getStats
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
@@ -630,19 +638,19 @@ suspend fun updateUserStats(context: Context, player: String, numGoals: Int, num
 
     val jsonBody = """
         {
-            "partiteGiocate": "partiteGiocate + 1",
-            "golFatti": "golFatti + $numGoals",
-            "autogol": "autogol + $numOwnGoals",
-            "vittorie": "vittorie + ${if (win) 1 else 0}"
+            "email": "$player",
+            "numero_gol": $numGoals,
+            "numero_autogol": $numOwnGoals,
+            "vittoria": $win
         }
     """.trimIndent()
     val body = jsonBody.toRequestBody("application/json".toMediaType())
     val request = Request.Builder()
-        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/statistiche_utente?utente=eq.$player")
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/rpc/update_stats")
         .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
         .addHeader("Authorization", "Bearer $token")
         .addHeader("Content-Type", "application/json")
-        .patch(body)
+        .post(body)
         .build()
 
     client.newCall(request).execute().use { response ->
@@ -651,6 +659,85 @@ suspend fun updateUserStats(context: Context, player: String, numGoals: Int, num
             return@withContext false
         }
         true
+    }
+}
+
+suspend fun sendReviewNotification(
+    context: Context,
+    destinatario: String,
+    idPartita: Int,
+    destinatarioRecensione: String,
+    autoreRecensione: String
+) {
+    aggiungiNotificaRecensione(
+        context = context,
+        titolo = "Recensione ricevuta",
+        testo = "Hai appena ricevuto una nuova recensione",
+        destinatario = destinatario,
+        titoloEn = "Review received",
+        testoEn = "You just received a new review",
+        idPartita = idPartita,
+        destinatarioRecensione = destinatarioRecensione,
+        autoreRecensione = autoreRecensione
+    )
+}
+
+fun getValueToCompare(count: Int): Int {
+    Log.d("COUNT", count.toString())
+    return when (count) {
+        0 -> 10
+        1 -> 15
+        2 -> 20
+        else -> -1
+    }
+}
+
+fun getColor(value: Int): String {
+    return when (value) {
+        in 10..14 -> "bronzo"
+        in 15..19 -> "argento"
+        else -> "oro"
+    }
+}
+
+suspend fun checkNewRewards(context: Context, user: String) = withContext(Dispatchers.IO) {
+    val rewardsAchieved = caricaRaggiungimenti(context, user)
+    if (user == "vincenzorossi665@gmail.com")
+        Log.d("REWARDS", rewardsAchieved.toString())
+    val userStats = getStats(context, user)
+    if (user == "vincenzorossi665@gmail.com")
+        Log.d("STATS", userStats.toString())
+
+    if (rewardsAchieved.size < 9) {
+        val valuePGToCompare = getValueToCompare(rewardsAchieved.count { it.tipologia == "partite_giocate" })
+        if (user == "vincenzorossi665@gmail.com")
+            Log.d("GIOCATE v", valuePGToCompare.toString())
+        if (userStats!!.partiteGiocate == valuePGToCompare && valuePGToCompare != -1) {
+            val color = getColor(valuePGToCompare)
+            if (user == "vincenzorossi665@gmail.com")
+                Log.d("COLORE GIOCATE", color)
+            addAchievement(context, user, "partite_giocate", color)
+        }
+
+        val valueGToCompare = getValueToCompare(rewardsAchieved.count { it.tipologia == "goal_fatti" })
+        if (user == "vincenzorossi665@gmail.com")
+            Log.d("GOAL v", valueGToCompare.toString())
+        if (userStats.golFatti >= valueGToCompare && valueGToCompare != -1) {
+            val color = getColor(valueGToCompare)
+            if (user == "vincenzorossi665@gmail.com")
+                Log.d("COLORE GOL", color)
+            addAchievement(context, user, "goal_fatti", color)
+        }
+
+        val valueWToCompare = getValueToCompare(rewardsAchieved.count { it.tipologia == "partite_vinte" })
+        if (user == "vincenzorossi665@gmail.com")
+            Log.d("VINTE v", valueWToCompare.toString())
+        if (userStats.vittorie == valueWToCompare && valueWToCompare != -1) {
+            val color = getColor(valueWToCompare)
+            if (user == "vincenzorossi665@gmail.com")
+                Log.d("COLORE VINTE", color)
+            addAchievement(context, user, "partite_vinte", color)
+        }
     }
 }
 
@@ -663,9 +750,6 @@ suspend fun insertStatsMatch(
     players1Stats: List<InserimentoStatsGiocatore>,
     players2Stats: List<InserimentoStatsGiocatore>
 ): Boolean = withContext(Dispatchers.IO) {
-//    val client = OkHttpClient()
-//    val token = SessionManager.getAccessToken(context) ?: return@withContext false
-
     if (!insertTeamGoals(context, match.squadra1, team1Goals, idMatch) || !insertTeamGoals(context, match.squadra2, team2Goals, idMatch))
         return@withContext false
 
@@ -675,6 +759,15 @@ suspend fun insertStatsMatch(
         if (it.autogol.value.toInt() > 0)
             insertOwnGoalScorer(context, it.email, idMatch, it.autogol.value.toInt())
         updateUserStats(context, it.email, it.gol.value.toInt(), it.autogol.value.toInt(), team1Goals > team2Goals)
+        if (addReview(context, it.email, match.creatore, idMatch, it.rating.value))
+            sendReviewNotification(
+                context,
+                it.email,
+                idMatch,
+                it.email,
+                match.creatore
+            )
+        checkNewRewards(context, it.email)
     }
     players2Stats.forEach {
         if (it.gol.value.toInt() > 0)
@@ -682,6 +775,15 @@ suspend fun insertStatsMatch(
         if (it.autogol.value.toInt() > 0)
             insertOwnGoalScorer(context, it.email, idMatch, it.autogol.value.toInt())
         updateUserStats(context, it.email, it.gol.value.toInt(), it.autogol.value.toInt(), team2Goals > team1Goals)
+        if (addReview(context, it.email, match.creatore, idMatch, it.rating.value))
+            sendReviewNotification(
+                context,
+                it.email,
+                idMatch,
+                it.email,
+                match.creatore
+            )
+        checkNewRewards(context, it.email)
     }
 
     return@withContext true
