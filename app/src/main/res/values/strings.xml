@@ -257,5 +257,9 @@
 
     <!-- INSERIMENTO DETTAGLI PARTITA -->
     <string name="inserisci_risultato">Inserisci il risultato finale:</string>
+    <string name="tutte_recensioni">Devi inserire obbligatoriamente tutte le recensioni.</string>
+    <string name="gol_non_validi">Il risultato finale e il numero di gol/autogol inseriti non corrispondono.</string>
+    <string name="risultato_non_valido">Il risultato finale inserito non è valido.</string>
+    <string name="stats_non_valide">Devi inserire le statistiche per ogni giocatore.</string>
 
 </resources>

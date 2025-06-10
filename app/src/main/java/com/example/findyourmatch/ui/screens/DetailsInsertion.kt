@@ -55,6 +55,7 @@ import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.White
 import com.example.findyourmatch.viewmodel.MatchViewModel
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -237,10 +238,19 @@ fun InserisciDettagli(navController: NavHostController, matchViewModel: MatchVie
                 ) {
                     Button(
                         onClick = {
-//                            coroutineScope.launch {
-//                                snackbarHostState.showSnackbar("stocazzo")
-//                            }
-                            validation(playersTeam1Stats, playersTeam2Stats) {}
+                            coroutineScope.launch {
+                                validation(
+                                    snackbarHostState,
+                                    localizedContext,
+                                    team1Goals.toIntOrNull(),
+                                    team2Goals.toIntOrNull(),
+                                    playersTeam1Stats,
+                                    playersTeam2Stats,
+                                    match!!.creatore
+                                ) {
+
+                                }
+                            }
                         },
                         modifier = Modifier.width(150.dp).height(42.dp),
                         shape = RoundedCornerShape(50),
@@ -382,6 +392,50 @@ fun GenerateRow(player: InserimentoStatsGiocatore, matchOrganizer: String) {
     Spacer(modifier = Modifier.height(10.dp))
 }
 
-fun validation(players1: List<InserimentoStatsGiocatore>, players2: List<InserimentoStatsGiocatore>, onSuccess: () -> Unit) {
-    
+suspend fun validation(
+    snackbarHostState: SnackbarHostState,
+    localizedContext: Context,
+    team1NumGoals: Int?,
+    team2NumGoals: Int?,
+    players1: List<InserimentoStatsGiocatore>,
+    players2: List<InserimentoStatsGiocatore>,
+    organizer: String,
+    onSuccess: () -> Unit) {
+    try {
+        // Risultato valido
+        if (team1NumGoals == null || team1NumGoals < 0 || team2NumGoals == null || team2NumGoals < 0)
+            throw Exception(localizedContext.getString(R.string.risultato_non_valido))
+
+        // Il numero di gol di una squadra deve corrispondere alla somma dei gol dei suoi giocatori e degli autogol dei giocatori avversari
+        var numGoals1Entered = 0
+        var numGoals2Entered = 0
+        players1.forEach {
+            // Stats non vuote
+            if (it.gol.value.isBlank() || it.autogol.value.isBlank())
+                throw Exception(localizedContext.getString(R.string.stats_non_valide))
+            numGoals1Entered += it.gol.value.toInt()
+            numGoals2Entered += it.autogol.value.toInt()
+        }
+        players2.forEach {
+            // Stats non vuote
+            if (it.gol.value.isBlank() || it.autogol.value.isBlank())
+                throw Exception(localizedContext.getString(R.string.stats_non_valide))
+            numGoals2Entered += it.gol.value.toInt()
+            numGoals1Entered += it.autogol.value.toInt()
+        }
+        if (numGoals1Entered != team1NumGoals || numGoals2Entered != team2NumGoals)
+            throw Exception(localizedContext.getString(R.string.gol_non_validi))
+
+        // Devono essere state inserite tutte le recensioni (tranne quella del creatore della partita)
+        if (players1.filter { it.email != organizer }.count { it.rating.value == 0 } > 0
+            || players2.filter { it.email != organizer }.count { it.rating.value == 0 } > 0) {
+            throw Exception(localizedContext.getString(R.string.tutte_recensioni))
+        }
+
+        onSuccess()
+    } catch (e: Exception) {
+        snackbarHostState.showSnackbar(
+            e.message ?: localizedContext.getString(R.string.errore_validazione)
+        )
+    }
 }
