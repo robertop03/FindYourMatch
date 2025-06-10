@@ -319,10 +319,6 @@ fun ModificaProfilo(navController: NavHostController, profileViewModel: ProfileV
                         )
                         onSuccess()
                     } catch (e: Exception) {
-                        Log.e(
-                            "ERRORE DIOCAN",
-                            e.message ?: localizedContext.getString(R.string.errore_validazione)
-                        )
                         snackbarHostState.showSnackbar(
                             e.message ?: localizedContext.getString(R.string.errore_validazione)
                         )
@@ -338,13 +334,13 @@ fun ModificaProfilo(navController: NavHostController, profileViewModel: ProfileV
                     onClick = {
                         validaCampi() {
                             profileViewModel.editProfile(
-                                name,
-                                lastName,
+                                name.trim(),
+                                lastName.trim(),
                                 nation,
                                 province,
-                                city,
-                                street,
-                                houseNumber
+                                city.trim(),
+                                street.trim(),
+                                houseNumber.trim()
                             )
                             navController.navigateUp()
                         }
