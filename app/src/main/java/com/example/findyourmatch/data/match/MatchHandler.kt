@@ -539,4 +539,150 @@ suspend fun getOwnGoalsScorers(context: Context, idMatch: Int): List<AutoreAutog
     }
 }
 
-suspend fun
+suspend fun insertTeamGoals(context: Context, teamName: String, teamGoals: Int, idMatch: Int): Boolean = withContext(Dispatchers.IO){
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext false
+
+    val jsonBody = """
+        {
+            "golFatti": $teamGoals
+        }
+    """.trimIndent()
+    val body = jsonBody.toRequestBody("application/json".toMediaType())
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/squadre?nome=eq.$teamName&partita=eq.$idMatch")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .patch(body)
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext false
+        }
+        true
+    }
+}
+
+suspend fun insertScorer(context: Context, player: String, idMatch: Int, numGoals: Int): Boolean = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext false
+
+    val jsonBody = """
+        {
+            "utente": "$player",
+            "partita": $idMatch,
+            "numeroGol": $numGoals
+        }
+    """.trimIndent()
+    val body = jsonBody.toRequestBody("application/json".toMediaType())
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/marcatori")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .post(body)
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext false
+        }
+        true
+    }
+}
+
+suspend fun insertOwnGoalScorer(context: Context, player: String, idMatch: Int, numOwnGoals: Int): Boolean = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext false
+
+    val jsonBody = """
+        {
+            "utente": "$player",
+            "partita": $idMatch,
+            "numeroAutogol": $numOwnGoals
+        }
+    """.trimIndent()
+    val body = jsonBody.toRequestBody("application/json".toMediaType())
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/autori_autogol")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .post(body)
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext false
+        }
+        true
+    }
+}
+
+suspend fun updateUserStats(context: Context, player: String, numGoals: Int, numOwnGoals: Int, win: Boolean) = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext false
+
+    val jsonBody = """
+        {
+            "partiteGiocate": "partiteGiocate + 1",
+            "golFatti": "golFatti + $numGoals",
+            "autogol": "autogol + $numOwnGoals",
+            "vittorie": "vittorie + ${if (win) 1 else 0}"
+        }
+    """.trimIndent()
+    val body = jsonBody.toRequestBody("application/json".toMediaType())
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/statistiche_utente?utente=eq.$player")
+        .addHeader("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0")
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .patch(body)
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext false
+        }
+        true
+    }
+}
+
+suspend fun insertStatsMatch(
+    context: Context,
+    idMatch: Int,
+    match: PartitaMostrata,
+    team1Goals: Int,
+    team2Goals: Int,
+    players1Stats: List<InserimentoStatsGiocatore>,
+    players2Stats: List<InserimentoStatsGiocatore>
+): Boolean = withContext(Dispatchers.IO) {
+//    val client = OkHttpClient()
+//    val token = SessionManager.getAccessToken(context) ?: return@withContext false
+
+    if (!insertTeamGoals(context, match.squadra1, team1Goals, idMatch) || !insertTeamGoals(context, match.squadra2, team2Goals, idMatch))
+        return@withContext false
+
+    players1Stats.forEach {
+        if (it.gol.value.toInt() > 0)
+            insertScorer(context, it.email, idMatch, it.gol.value.toInt())
+        if (it.autogol.value.toInt() > 0)
+            insertOwnGoalScorer(context, it.email, idMatch, it.autogol.value.toInt())
+        updateUserStats(context, it.email, it.gol.value.toInt(), it.autogol.value.toInt(), team1Goals > team2Goals)
+    }
+    players2Stats.forEach {
+        if (it.gol.value.toInt() > 0)
+            insertScorer(context, it.email, idMatch, it.gol.value.toInt())
+        if (it.autogol.value.toInt() > 0)
+            insertOwnGoalScorer(context, it.email, idMatch, it.autogol.value.toInt())
+        updateUserStats(context, it.email, it.gol.value.toInt(), it.autogol.value.toInt(), team2Goals > team1Goals)
+    }
+
+    return@withContext true
+}

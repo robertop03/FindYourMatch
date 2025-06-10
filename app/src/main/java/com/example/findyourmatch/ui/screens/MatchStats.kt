@@ -245,6 +245,7 @@ fun TeamRows(teamPlayers: List<GiocatoreWrapper>?, scorers: List<Marcatore>?, ow
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(5.dp))
         }
     }
 }
