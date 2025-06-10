@@ -19,6 +19,7 @@ import okhttp3.Request
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.util.concurrent.TimeUnit
 
 @Serializable
 data class Notifica(
@@ -464,7 +465,12 @@ fun creaCanaleNotifiche(context: Context) {
 }
 
 suspend fun inviaNotificaPush(titolo: String, testo: String, fcmToken: String): Boolean = withContext(Dispatchers.IO) {
-    val client = OkHttpClient()
+    val client = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .writeTimeout(15, TimeUnit.SECONDS)
+        .build()
+
 
     val bodyJson = """
     {
