@@ -77,6 +77,7 @@ import com.example.findyourmatch.ui.theme.LightGreen
 import com.example.findyourmatch.ui.theme.LightGrey
 import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.Silver
+import com.example.findyourmatch.ui.theme.White
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -412,7 +413,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                     modifier = Modifier.width(140.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = LightGreen)
                                 ) {
-                                    Text(localizedContext.getString(R.string.accetta), color = Color.White)
+                                    Text(localizedContext.getString(R.string.accetta), color = White)
                                 }
 
                                 Button(
@@ -420,7 +421,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                     modifier = Modifier.width(140.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = Red)
                                 ) {
-                                    Text(localizedContext.getString(R.string.rifiuta), color = Black)
+                                    Text(localizedContext.getString(R.string.rifiuta), color = White)
                                 }
                             }
                         } else {
@@ -436,7 +437,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                         if (showDialogAccetta) {
                             AlertDialog(
                                 onDismissRequest = { showDialogAccetta = false },
-                                title = { Text(localizedContext.getString(R.string.scegli_squadra), color = Black) },
+                                title = { Text(localizedContext.getString(R.string.scegli_squadra), color = MaterialTheme.colorScheme.onSecondaryContainer) },
                                 text = {
                                     Column {
                                         Row(
@@ -481,7 +482,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                                         Text(
                                                             squadra1,
                                                             maxLines = 1,
-                                                            color = Black,
+                                                            color = White,
                                                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                                         )
                                                     }
@@ -489,7 +490,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                             }
 
                                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                Text("$squadra2: $partecipantiSquadra2 / $maxPartecipantiPerSquadra", color = Black)
+                                                Text("$squadra2: $partecipantiSquadra2 / $maxPartecipantiPerSquadra", color = MaterialTheme.colorScheme.onSecondaryContainer)
                                                 if (partecipantiSquadra2 >= maxPartecipantiPerSquadra) {
                                                     Text(localizedContext.getString(R.string.squadra_completa), color = Color.Red)
                                                 } else {
@@ -524,7 +525,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                                         Text(
                                                             squadra2,
                                                             maxLines = 1,
-                                                            color = Black,
+                                                            color = White,
                                                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                                         )
                                                     }
@@ -534,7 +535,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
 
                                         if (partecipantiSquadra1 >= maxPartecipantiPerSquadra && partecipantiSquadra2 >= maxPartecipantiPerSquadra) {
                                             Spacer(Modifier.height(16.dp))
-                                            Text(localizedContext.getString(R.string.squadre_al_completo), color = Black)
+                                            Text(localizedContext.getString(R.string.squadre_al_completo), color = MaterialTheme.colorScheme.onSecondaryContainer)
                                         }
                                     }
                                 },
@@ -544,7 +545,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                         modifier = Modifier
                                             .clickable { showDialogAccetta = false }
                                             .padding(8.dp),
-                                        color = Black
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                 }
                             )
@@ -553,9 +554,9 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                         if (showDialogRifiuta) {
                             AlertDialog(
                                 onDismissRequest = { showDialogRifiuta = false },
-                                title = { Text(localizedContext.getString(R.string.conferma_rifiuto), color = Black) },
+                                title = { Text(localizedContext.getString(R.string.conferma_rifiuto), color = MaterialTheme.colorScheme.onSecondaryContainer) },
                                 text = {
-                                    Text("${localizedContext.getString(R.string.rifiutare_richiesta_partecipazione)} $nome $cognome?", color = Black)
+                                    Text("${localizedContext.getString(R.string.rifiutare_richiesta_partecipazione)} $nome $cognome?", color = MaterialTheme.colorScheme.onSecondaryContainer)
                                 },
                                 confirmButton = {
                                     Text(

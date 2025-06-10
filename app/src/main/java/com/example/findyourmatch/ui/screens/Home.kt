@@ -130,6 +130,8 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel, h
 
     val maxDistanceState = userSettings.maxDistance.collectAsState(initial = null)
     val maxDistance = maxDistanceState.value
+    Log.d("DEBUG", "maxDistance: $maxDistance")
+
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
