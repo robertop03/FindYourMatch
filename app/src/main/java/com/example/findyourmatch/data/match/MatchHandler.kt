@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.application
 import com.example.findyourmatch.data.notifications.aggiungiNotificaNuovoObiettivo
 import com.example.findyourmatch.data.notifications.aggiungiNotificaRecensione
 import com.example.findyourmatch.data.notifications.inviaNotificaPush
@@ -182,7 +181,6 @@ suspend fun getSportsFields(context: Context): List<CampoSportivo> = withContext
             return@withContext listOf()
         }
         val json = response.body?.string() ?: return@withContext listOf()
-        Log.d("JSON", json)
         val pitches = Json.decodeFromString(ListSerializer(CampoSportivo.serializer()), json)
         return@withContext pitches
     }
@@ -224,8 +222,6 @@ suspend fun addNewSportsField(
             return@withContext null
         } else {
             val responseBody = response.body?.string()
-            Log.d("Supabase", "Response: $responseBody")
-
             val jsonArray = Json.decodeFromString<List<Map<String, JsonElement>>>(responseBody!!)
             val id = jsonArray.firstOrNull()?.get("idCampo")?.jsonPrimitive?.intOrNull
 
@@ -361,8 +357,6 @@ suspend fun insertNewMatch(
             return@withContext Result.failure(Exception("Inserimento fallito: (${response.code}): ${response.body?.string()}"))
         } else {
             val responseBody = response.body?.string()
-            Log.d("Supabase", "Response: $responseBody")
-
             val jsonArray = Json.decodeFromString<List<Map<String, JsonElement>>>(responseBody!!)
             val id = jsonArray.firstOrNull()?.get("idPartita")?.jsonPrimitive?.intOrNull
             if (id?.let { insertNewTeam(context, team1Name, it) } == true && insertNewTeam(context, team2Name, id) == true) {
@@ -420,7 +414,6 @@ suspend fun getTeamPlayers(context: Context, team: String, idMatch: Int) : List<
             return@withContext null
         }
         val json = response.body?.string() ?: return@withContext null
-        Log.d("JSON", json)
         val players = Json.decodeFromString(ListSerializer(GiocatoreWrapper.serializer()), json)
         return@withContext players
     }
@@ -492,8 +485,6 @@ suspend fun deleteMatch(context: Context, idMatch: Int) = withContext(Dispatcher
         if (!response.isSuccessful) {
             Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
             return@withContext null
-        } else {
-            Log.d("SUCCESSO", "Cancellazione avvenuta con successo")
         }
     }
 }

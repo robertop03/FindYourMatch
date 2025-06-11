@@ -16,7 +16,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,9 +40,7 @@ import com.example.findyourmatch.data.match.GiocatoreWrapper
 import com.example.findyourmatch.data.match.Marcatore
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
-import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.LightRed
-import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.viewmodel.MatchViewModel
 
 @Composable

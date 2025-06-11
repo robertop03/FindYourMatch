@@ -1,6 +1,9 @@
 package com.example.findyourmatch.ui.screens
 
+import android.annotation.SuppressLint
+import android.net.Uri
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
@@ -47,13 +51,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.findyourmatch.R
 import com.example.findyourmatch.data.notifications.Notifica
 import com.example.findyourmatch.data.notifications.aggiungiGiocatoreAllaSquadra
@@ -69,6 +78,7 @@ import com.example.findyourmatch.data.notifications.prendiTokenFCMDaEmail
 import com.example.findyourmatch.data.notifications.segnaNotificaComeGestita
 import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
+import com.example.findyourmatch.data.user.checkIfImageExists
 import com.example.findyourmatch.navigation.NavigationRoute
 import com.example.findyourmatch.ui.theme.Black
 import com.example.findyourmatch.ui.theme.Bronze
@@ -83,6 +93,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun Notifica(notifica: Notifica, navController: NavHostController) {
     val context = LocalContext.current
@@ -102,6 +113,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
     var voto by remember { mutableIntStateOf(0) }
     var showDialogAccetta by remember { mutableStateOf(false) }
     var showDialogRifiuta by remember { mutableStateOf(false) }
+    var profileImageUri by remember { mutableStateOf<Uri?>(null) }
 
     Box(
         modifier = Modifier
@@ -246,6 +258,29 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                             }
                         }
 
+                        Row (
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            coroutineScope.launch {
+                                val url = Uri.parse("https://ugtxgylfzblkvudpnagi.supabase.co/storage/v1/object/public/profilephotos/${notifica.autoreRecensione}.jpg")
+                                profileImageUri = if (checkIfImageExists(url.toString())) url else null
+                            }
+                            val imageRequest = ImageRequest.Builder(context)
+                                .data(profileImageUri)
+                                .diskCachePolicy(CachePolicy.DISABLED)
+                                .memoryCachePolicy(CachePolicy.DISABLED)
+                                .build()
+                            Image(
+                                painter = if (profileImageUri != null && profileImageUri != Uri.EMPTY) rememberAsyncImagePainter(imageRequest) else painterResource(id = R.drawable.no_profile_image),
+                                contentDescription = "Foto Profilo",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = "${localizedContext.getString(R.string.autore)}: $nome $cognome",
                             fontSize = 16.sp,
@@ -393,7 +428,29 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                 partecipantiSquadra2 = partecipanti2
                             }
                         }
-
+                        Row (
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            coroutineScope.launch {
+                                val url = Uri.parse("https://ugtxgylfzblkvudpnagi.supabase.co/storage/v1/object/public/profilephotos/${notifica.richiedente}.jpg")
+                                profileImageUri = if (checkIfImageExists(url.toString())) url else null
+                            }
+                            val imageRequest = ImageRequest.Builder(context)
+                                .data(profileImageUri)
+                                .diskCachePolicy(CachePolicy.DISABLED)
+                                .memoryCachePolicy(CachePolicy.DISABLED)
+                                .build()
+                            Image(
+                                painter = if (profileImageUri != null && profileImageUri != Uri.EMPTY) rememberAsyncImagePainter(imageRequest) else painterResource(id = R.drawable.no_profile_image),
+                                contentDescription = "Foto Profilo",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = "${localizedContext.getString(R.string.richiedente)}: $nome $cognome",
                             fontSize = 16.sp,

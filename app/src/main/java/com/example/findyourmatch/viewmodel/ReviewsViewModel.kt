@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import com.example.findyourmatch.data.user.Recensione
-import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.data.user.getReviews
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
