@@ -20,6 +20,8 @@ import com.example.findyourmatch.data.match.isUserInRequestState
 import com.example.findyourmatch.data.match.unsubscribePlayerFromMatch
 import com.example.findyourmatch.data.notifications.aggiungiNotificaEliminazioneDaAdmin
 import com.example.findyourmatch.data.notifications.aggiungiNotificaRichiesta
+import com.example.findyourmatch.data.notifications.inviaNotificaPush
+import com.example.findyourmatch.data.notifications.prendiTokenFCMDaEmail
 import com.example.findyourmatch.data.user.getLoggedUserEmail
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -72,6 +74,14 @@ class MatchViewModel(application: Application) : AndroidViewModel(application) {
                 idPartita = idMatch,
                 richiedente = _currentUser.value!!
             )
+            val fcmToken = prendiTokenFCMDaEmail(application, _currentUser.value!!)
+            if (fcmToken != null) {
+                inviaNotificaPush(
+                    "Richiesta ricevuta",
+                    "Hai ricevuto una nuova richiesta di partecipazione",
+                    fcmToken
+                )
+            }
         }
     }
 
@@ -87,7 +97,6 @@ class MatchViewModel(application: Application) : AndroidViewModel(application) {
         val data = _match.value!!.dataOra.toLocalDateTime()
         players.forEach {
             if (it.utente.email != _currentUser.value) {
-                Log.d("INVIO", "Notifica inviata a ${it.utente.email}")
                 aggiungiNotificaEliminazioneDaAdmin(
                     context = application,
                     titolo = "Partita annullata",
@@ -98,6 +107,15 @@ class MatchViewModel(application: Application) : AndroidViewModel(application) {
                     testoEn = "The match on ${data.date} at ${data.hour} at ${_match.value!!.nomeCampo} " +
                             "(${_match.value!!.citta}) has been cancelled by the administrator."
                 )
+                val fcmToken = prendiTokenFCMDaEmail(application, it.utente.email)
+                if (fcmToken != null) {
+                    inviaNotificaPush(
+                        "Partita annullata",
+                        "La partita del ${data.date} alle ${data.hour} presso ${_match.value!!.nomeCampo} " +
+                                "(${_match.value!!.citta}) è stata cancellata dall'amministratore.",
+                        fcmToken
+                    )
+                }
             }
         }
     }
