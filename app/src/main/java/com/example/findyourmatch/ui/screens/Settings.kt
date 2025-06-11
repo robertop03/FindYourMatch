@@ -68,6 +68,11 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,6 +99,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
 
     var showNotificationsDisabledDialog by remember { mutableStateOf(false) }
     var selectedLanguage by remember(savedLanguage) { mutableStateOf(savedLanguage) }
+    var pendingNotificationToggle by remember { mutableStateOf(false) }
     var notificationsEnabled by remember(savedNotificationsEnabled) { mutableStateOf(savedNotificationsEnabled) }
     var fingerprintEnabled by remember(savedFingerprintEnabled) { mutableStateOf(savedFingerprintEnabled) }
     var maxDistance by remember(savedMaxDistance) { mutableFloatStateOf(savedMaxDistance) }
@@ -112,7 +118,10 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
 
     LaunchedEffect(Unit) {
         isLoggedIn = SessionManager.isLoggedIn(sessionViewModel)
+        val systemEnabled = areSystemNotificationsEnabled(context)
+        notificationsEnabled = savedNotificationsEnabled && systemEnabled
     }
+
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -401,6 +410,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                 confirmButton = {
                     Button(onClick = {
                         showNotificationsDisabledDialog = false
+                        pendingNotificationToggle = true
                         val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                             putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
                         }
@@ -410,13 +420,44 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                     }
                 },
                 dismissButton = {
-                    Button(onClick = { showNotificationsDisabledDialog = false }) {
+                    Button(onClick = {
+                        showNotificationsDisabledDialog = false
+                        notificationsEnabled = false
+                    }) {
                         Text(localizedContext.getString(R.string.annulla), color = White)
                     }
                 }
             )
         }
     }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                val enabled = areSystemNotificationsEnabled(context)
+                notificationsEnabled = enabled
+                if (pendingNotificationToggle) {
+                    if (!enabled) {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                localizedContext.getString(R.string.notifiche_non_abilitate_avviso)
+                            )
+                        }
+                    }
+                    pendingNotificationToggle = false
+                }
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+
 }
 
 fun areSystemNotificationsEnabled(context: Context): Boolean {

@@ -106,6 +106,7 @@
     <string name="lingua">Language</string>
     <string name="notifiche_disabilitate">Notifications disabled</string>
     <string name="attiva_notifiche_nelle_impostazioni">System notifications are turned off. Do you want to open the app settings to enable them?</string>
+    <string name="notifiche_non_abilitate_avviso">System notifications are off. Enable them in settings.</string>
 
     <!-- HOME -->
     <string name="miei_calcetti">My futsal games…</string>
