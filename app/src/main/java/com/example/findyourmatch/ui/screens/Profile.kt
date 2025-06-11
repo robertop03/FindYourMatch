@@ -103,6 +103,7 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
     val profileImageUri by profileViewModel.profileImageUri.collectAsState()
     val numRewardsAchieved by profileViewModel.numRewardsAchieved.collectAsState()
     val rewardsAchieved by profileViewModel.maxRewardsAchieved.collectAsState()
+    val gamesToPlay by profileViewModel.gamesToPlay.collectAsState()
     val playedGames by profileViewModel.playedGames.collectAsState()
     var infoMap: Map<String, String>? = null
 
@@ -320,6 +321,40 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                     }
                 }
             }
+            Spacer(Modifier.height(20.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(NavigationRoute.GamesToPlay)
+                    }
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = localizedContext.getString(R.string.prossime_partite),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Vedi prossime partite",
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+
+            if (gamesToPlay == null || gamesToPlay!!.isEmpty()) {
+                Text(localizedContext.getString(R.string.no_da_giocare),
+                    textAlign = TextAlign.Center,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp))
+            } else {
+                gamesToPlay!!.take(3).forEach {
+                    GameCard(it, navController, localizedContext, utente!!.email)
+                }
+            }
 
             Spacer(Modifier.height(20.dp))
             Row(
@@ -333,7 +368,7 @@ fun Profile(navController: NavHostController, profileViewModel: ProfileViewModel
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = localizedContext.getString(R.string.ultime_partite),
+                    text = localizedContext.getString(R.string.partite_giocate),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
