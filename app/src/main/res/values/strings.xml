@@ -237,6 +237,7 @@
     <string name="oppure">oppure</string>
     <string name="spiegazione_campo">(Inserisci un nuovo campo oppure selezionane uno tra quelli già salvati nel sistema)</string>
     <string name="creazione_completata">Creazione della partita completata.</string>
+    <string name="creazione_in_corso">Creazione partita in corso…</string>
 
     <!-- SINGOLA PARTITA -->
     <string name="partita">Partita</string>
