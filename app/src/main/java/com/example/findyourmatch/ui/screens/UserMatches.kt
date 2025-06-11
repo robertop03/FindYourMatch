@@ -29,7 +29,7 @@ import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.viewmodel.ProfileViewModel
 
 @Composable
-fun PartiteGiocate(navController: NavHostController, profileViewModel: ProfileViewModel) {
+fun ListaPartite(navController: NavHostController, profileViewModel: ProfileViewModel, isPlayedGames: Boolean) {
     val context = LocalContext.current
     val userSettings = remember { UserSettings(context) }
     val language by userSettings.language.collectAsState(initial = "it")
@@ -38,7 +38,7 @@ fun PartiteGiocate(navController: NavHostController, profileViewModel: ProfileVi
     }
 
     val user by profileViewModel.user.collectAsState()
-    val games by profileViewModel.playedGames.collectAsState()
+    val games by if (isPlayedGames) profileViewModel.playedGames.collectAsState() else profileViewModel.gamesToPlay.collectAsState()
 
     LaunchedEffect(Unit) {
         profileViewModel.ricaricaUtente()
@@ -63,13 +63,16 @@ fun PartiteGiocate(navController: NavHostController, profileViewModel: ProfileVi
 
             TopBarWithBackButton(
                 navController = navController,
-                title = localizedContext.getString(R.string.partite_giocate),
+                title = if (isPlayedGames) localizedContext.getString(R.string.partite_giocate)
+                else localizedContext.getString(R.string.prossime_partite),
                 showBackButton = showBackButton
             )
 
             user?.let {
                 if (games == null || games!!.isEmpty()) {
-                    Text(localizedContext.getString(R.string.no_partite),
+                    Text(
+                        text = if (isPlayedGames) localizedContext.getString(R.string.no_partite)
+                            else localizedContext.getString(R.string.no_da_giocare),
                         textAlign = TextAlign.Center,
                         fontStyle = FontStyle.Italic,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,

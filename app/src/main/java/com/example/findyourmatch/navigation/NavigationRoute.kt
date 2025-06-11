@@ -53,6 +53,8 @@ sealed interface NavigationRoute {
     @Serializable
     data object PlayedGames : NavigationRoute
     @Serializable
+    data object GamesToPlay : NavigationRoute
+    @Serializable
     data object EditProfile : NavigationRoute
     @Serializable
     data object PersonalStats : NavigationRoute
@@ -122,7 +124,10 @@ fun NavGraph(
             Rewards(navController)
         }
         composable<NavigationRoute.PlayedGames> {
-            PartiteGiocate(navController, profileViewModel)
+            ListaPartite(navController, profileViewModel, true)
+        }
+        composable<NavigationRoute.GamesToPlay> {
+            ListaPartite(navController, profileViewModel, false)
         }
         composable(
             route = "partita/{idPartita}",

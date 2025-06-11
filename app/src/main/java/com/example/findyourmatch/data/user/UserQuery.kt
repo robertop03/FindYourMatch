@@ -287,6 +287,38 @@ suspend fun getMaxRewards(context: Context, userEMail: String): List<MaxObiettiv
     }
 }
 
+suspend fun getGamesToPlay(context: Context, userEMail: String) : List<PartiteGiocateUtente>? = withContext(Dispatchers.IO) {
+    val client = OkHttpClient()
+    val token = SessionManager.getAccessToken(context) ?: return@withContext null
+
+    val request = Request.Builder()
+        .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/rpc/get_partite_da_giocare")
+        .addHeader(
+            "apikey",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVndHhneWxmemJsa3Z1ZHBuYWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODI4NTUsImV4cCI6MjA2MjQ1ODg1NX0.cc0z6qkcWktvnh83Um4imlCBSfPlh7TelMNFIhxmjm0"
+        )
+        .addHeader("Authorization", "Bearer $token")
+        .addHeader("Content-Type", "application/json")
+        .post(
+            """{"email_input":"$userEMail"}"""
+                .toRequestBody("application/json".toMediaTypeOrNull())
+        )
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
+            return@withContext null
+        }
+        val json = response.body?.string() ?: return@withContext null
+        val toPlay = Json.decodeFromString(
+            kotlinx.serialization.builtins.ListSerializer(PartiteGiocateUtente.serializer()),
+            json
+        )
+        return@withContext toPlay
+    }
+}
+
 suspend fun getPlayedGames(context: Context, userEMail: String) : List<PartiteGiocateUtente>? = withContext(Dispatchers.IO) {
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext null

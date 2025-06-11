@@ -200,6 +200,8 @@
     <string name="organizzatore">Organizzatore</string>
     <string name="tu">Tu</string>
     <string name="da_inserire">Da inserire</string>
+    <string name="prossime_partite">Prossime partite</string>
+    <string name="no_da_giocare">Al momento non sei iscritto a nessuna partita.</string>
 
     <!-- STATISTICHE PERSONALI -->
     <string name="stats_personali">Statistiche</string>

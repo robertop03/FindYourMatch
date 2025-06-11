@@ -19,6 +19,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val _profileImageUri = MutableStateFlow<Uri?>(null)
     private val _numRewardsAchieved = MutableStateFlow<Int?>(null)
     private val _maxRewardsAchieved = MutableStateFlow<List<MaxObiettivoRaggiunto>?>(null)
+    private val _gamesToPlay = MutableStateFlow<List<PartiteGiocateUtente>?>(null)
     private val _playedGames = MutableStateFlow<List<PartiteGiocateUtente>?>(null)
     private val _stats = MutableStateFlow<StatsUtente?>(null)
     private val _gamesStats = MutableStateFlow<LinkedHashMap<String, StatsUtentePartita?>>(LinkedHashMap())
@@ -29,6 +30,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val profileImageUri: StateFlow<Uri?> = _profileImageUri
     val numRewardsAchieved = _numRewardsAchieved
     val maxRewardsAchieved = _maxRewardsAchieved
+    val gamesToPlay = _gamesToPlay
     val playedGames = _playedGames
     val stats = _stats
     val gamesStatsMap = _gamesStats
@@ -51,6 +53,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 if (_numRewardsAchieved.value != null) {
                     _maxRewardsAchieved.value = getMaxRewards(application, email)
                 }
+                _gamesToPlay.value = getGamesToPlay(application, email)
                 _playedGames.value = getPlayedGames(application, email)
                 _stats.value = getStats(application, email)
                 _gamesStats.value.clear()
