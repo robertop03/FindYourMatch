@@ -261,5 +261,7 @@
     <string name="gol_non_validi">Il risultato finale e il numero di gol/autogol inseriti non corrispondono.</string>
     <string name="risultato_non_valido">Il risultato finale inserito non è valido.</string>
     <string name="stats_non_valide">Devi inserire le statistiche per ogni giocatore.</string>
+    <string name="stats_successo">Statistiche inserite con successo.</string>
+    <string name="caricamento_dati">Caricamento delle statistiche in corso…</string>
 
 </resources>

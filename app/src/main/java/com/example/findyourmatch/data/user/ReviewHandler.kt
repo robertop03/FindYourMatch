@@ -13,7 +13,7 @@ suspend fun addReview(context: Context, recevier: String, author: String, idMatc
     val client = OkHttpClient()
     val token = SessionManager.getAccessToken(context) ?: return@withContext false
 
-    if (author != recevier) {
+    return@withContext if (author != recevier) {
         val jsonBody = """
             {
                 "autore": "$author",
@@ -38,6 +38,5 @@ suspend fun addReview(context: Context, recevier: String, author: String, idMatc
             }
             true
         }
-    }
-    false
+    } else false
 }
