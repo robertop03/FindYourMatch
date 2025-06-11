@@ -6,14 +6,12 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import com.example.findyourmatch.data.notifications.aggiungiNotificaNuovoObiettivo
 import com.example.findyourmatch.data.notifications.aggiungiNotificaRecensione
-import com.example.findyourmatch.data.notifications.aggiungiNotificaRichiesta
 import com.example.findyourmatch.data.rewards.addAchievement
 import com.example.findyourmatch.data.rewards.caricaRaggiungimenti
 import com.example.findyourmatch.data.user.SessionManager
-import com.example.findyourmatch.data.user.StatsUtente
 import com.example.findyourmatch.data.user.addReview
-import com.example.findyourmatch.data.user.getMaxRewards
 import com.example.findyourmatch.data.user.getStats
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -668,7 +666,7 @@ suspend fun sendReviewNotification(
     idPartita: Int,
     destinatarioRecensione: String,
     autoreRecensione: String
-) {
+) = withContext(Dispatchers.IO) {
     aggiungiNotificaRecensione(
         context = context,
         titolo = "Recensione ricevuta",
@@ -682,9 +680,26 @@ suspend fun sendReviewNotification(
     )
 }
 
-fun getValueToCompare(count: Int): Int {
-    Log.d("COUNT", count.toString())
-    return when (count) {
+suspend fun sendRewardsNotification(
+    context: Context,
+    destinatario: String,
+    obiettivo: String,
+    colore: String
+) = withContext(Dispatchers.IO) {
+    aggiungiNotificaNuovoObiettivo(
+        context = context,
+        titolo = "Obiettivo raggiunto!",
+        testo = "Complimenti, hai raggiunto un nuovo obiettivo e sbloccato un nuovo badge",
+        destinatario = destinatario,
+        titoloEn = "Goal achieved",
+        testoEn = "Congratulations! You have reached a new goal and unlocked a new badge",
+        obiettivo = obiettivo,
+        colore = colore
+    )
+}
+
+suspend fun getValueToCompare(count: Int): Int = withContext(Dispatchers.IO) {
+    return@withContext when (count) {
         0 -> 10
         1 -> 15
         2 -> 20
@@ -692,8 +707,8 @@ fun getValueToCompare(count: Int): Int {
     }
 }
 
-fun getColor(value: Int): String {
-    return when (value) {
+suspend fun getColor(value: Int): String = withContext(Dispatchers.IO) {
+    return@withContext when (value) {
         in 10..14 -> "bronzo"
         in 15..19 -> "argento"
         else -> "oro"
@@ -701,42 +716,32 @@ fun getColor(value: Int): String {
 }
 
 suspend fun checkNewRewards(context: Context, user: String) = withContext(Dispatchers.IO) {
+    val gamesPlayedString = "partite_giocate"
+    val goalsScoredString = "goal_fatti"
+    val gamesWonString = "partite_vinte"
     val rewardsAchieved = caricaRaggiungimenti(context, user)
-    if (user == "vincenzorossi665@gmail.com")
-        Log.d("REWARDS", rewardsAchieved.toString())
     val userStats = getStats(context, user)
-    if (user == "vincenzorossi665@gmail.com")
-        Log.d("STATS", userStats.toString())
 
     if (rewardsAchieved.size < 9) {
-        val valuePGToCompare = getValueToCompare(rewardsAchieved.count { it.tipologia == "partite_giocate" })
-        if (user == "vincenzorossi665@gmail.com")
-            Log.d("GIOCATE v", valuePGToCompare.toString())
+        val valuePGToCompare = getValueToCompare(rewardsAchieved.count { it.tipologia == gamesPlayedString })
         if (userStats!!.partiteGiocate == valuePGToCompare && valuePGToCompare != -1) {
             val color = getColor(valuePGToCompare)
-            if (user == "vincenzorossi665@gmail.com")
-                Log.d("COLORE GIOCATE", color)
-            addAchievement(context, user, "partite_giocate", color)
+            addAchievement(context, user, gamesPlayedString, color)
+            sendRewardsNotification(context, user, gamesPlayedString, color)
         }
 
-        val valueGToCompare = getValueToCompare(rewardsAchieved.count { it.tipologia == "goal_fatti" })
-        if (user == "vincenzorossi665@gmail.com")
-            Log.d("GOAL v", valueGToCompare.toString())
+        val valueGToCompare = getValueToCompare(rewardsAchieved.count { it.tipologia == goalsScoredString })
         if (userStats.golFatti >= valueGToCompare && valueGToCompare != -1) {
             val color = getColor(valueGToCompare)
-            if (user == "vincenzorossi665@gmail.com")
-                Log.d("COLORE GOL", color)
-            addAchievement(context, user, "goal_fatti", color)
+            addAchievement(context, user, goalsScoredString, color)
+            sendRewardsNotification(context, user, goalsScoredString, color)
         }
 
-        val valueWToCompare = getValueToCompare(rewardsAchieved.count { it.tipologia == "partite_vinte" })
-        if (user == "vincenzorossi665@gmail.com")
-            Log.d("VINTE v", valueWToCompare.toString())
+        val valueWToCompare = getValueToCompare(rewardsAchieved.count { it.tipologia == gamesWonString })
         if (userStats.vittorie == valueWToCompare && valueWToCompare != -1) {
             val color = getColor(valueWToCompare)
-            if (user == "vincenzorossi665@gmail.com")
-                Log.d("COLORE VINTE", color)
-            addAchievement(context, user, "partite_vinte", color)
+            addAchievement(context, user, gamesWonString, color)
+            sendRewardsNotification(context, user, gamesWonString, color)
         }
     }
 }
@@ -769,6 +774,7 @@ suspend fun insertStatsMatch(
             )
         checkNewRewards(context, it.email)
     }
+
     players2Stats.forEach {
         if (it.gol.value.toInt() > 0)
             insertScorer(context, it.email, idMatch, it.gol.value.toInt())

@@ -261,5 +261,7 @@
     <string name="gol_non_validi">The final result and the number of goals/own goals entered do not match.</string>
     <string name="risultato_non_valido">The final result entered is not valid.</string>
     <string name="stats_non_valide">You must enter the stats for every player.</string>
+    <string name="stats_successo">Stats entered successfully.</string>
+    <string name="caricamento_dati">Loading stats…</string>
 
 </resources>

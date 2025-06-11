@@ -208,23 +208,24 @@ fun TeamRows(teamPlayers: List<GiocatoreWrapper>?, scorers: List<Marcatore>?, ow
                 modifier = Modifier.padding(7.dp, 0.dp),
                 verticalAlignment = Alignment.CenterVertically
             ){
-                scorers?.let {
-                    scorers.forEach { s ->
-                        if (p.utente.email == s.utente) {
-                            Text(
-                                p.utente.nome + " " + p.utente.cognome,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                if (scorers!!.any { it.utente == p.utente.email } || ownGoalsScorers!!.any { it.utente == p.utente.email })
+                {
+                    Text(
+                        p.utente.nome + " " + p.utente.cognome,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.width(20.dp))
+                }
+                scorers.forEach { s ->
+                    if (p.utente.email == s.utente) {
+                        for (i in 0 until s.numeroGol) {
+                            Icon(
+                                imageVector = Icons.Default.SportsSoccer,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.size(25.dp)
                             )
-                            Spacer(modifier = Modifier.width(20.dp))
-                            for (i in 0 until s.numeroGol) {
-                                Icon(
-                                    imageVector = Icons.Default.SportsSoccer,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    modifier = Modifier.size(25.dp)
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-                            }
+                            Spacer(modifier = Modifier.width(10.dp))
                         }
                     }
                 }
