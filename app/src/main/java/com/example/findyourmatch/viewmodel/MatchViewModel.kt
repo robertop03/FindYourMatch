@@ -74,7 +74,7 @@ class MatchViewModel(application: Application) : AndroidViewModel(application) {
                 idPartita = idMatch,
                 richiedente = _currentUser.value!!
             )
-            val fcmToken = prendiTokenFCMDaEmail(application, _currentUser.value!!)
+            val fcmToken = prendiTokenFCMDaEmail(application, _match.value!!.creatore)
             if (fcmToken != null) {
                 inviaNotificaPush(
                     "Richiesta ricevuta",
