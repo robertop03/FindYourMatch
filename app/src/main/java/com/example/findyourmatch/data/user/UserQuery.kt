@@ -109,7 +109,6 @@ suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatch
                 val json = Json { ignoreUnknownKeys = true }
                 val jsonObject = json.parseToJsonElement(body).jsonObject
                 val email = jsonObject["email"]?.jsonPrimitive?.content
-                Log.d("EMAIL LOGGATO", email.toString())
                 if (email != null) {
                     return@withContext email
                 }
@@ -124,9 +123,7 @@ suspend fun getLoggedUserEmail(context: Context): String? = withContext(Dispatch
 
 suspend fun getIndirizzoUtente(context: Context): IndirizzoUtente? = withContext(Dispatchers.IO) {
     val email = getLoggedUserEmail(context) ?: return@withContext null
-    Log.d("EMAIL", email)
     val token = SessionManager.getAccessToken(context) ?: return@withContext null
-    Log.d("TOKEN", token)
     val client = OkHttpClient()
     val request = Request.Builder()
         .url("https://ugtxgylfzblkvudpnagi.supabase.co/rest/v1/utenti?email=eq.${email}&select=stato,provincia,citta,via,civico")

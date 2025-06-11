@@ -1,4 +1,4 @@
-package com.example.findyourmatch.ui.screens
+Log.dpackage com.example.findyourmatch.ui.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
