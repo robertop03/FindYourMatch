@@ -465,7 +465,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                                                 )
                                                                 segnaNotificaComeGestita(context, notifica.idNotifica)
 
-                                                                val tokenFcm = prendiTokenFCMDaEmail(context, notifica.destinatario)
+                                                                val tokenFcm = prendiTokenFCMDaEmail(context, notifica.richiedente)
                                                                 if(tokenFcm != null){
                                                                     inviaNotificaPush("Richiesta accettata", "Sei stato accettato alla partita", tokenFcm)
                                                                 }
@@ -508,7 +508,7 @@ fun Notifica(notifica: Notifica, navController: NavHostController) {
                                                                     idPartita = notifica.partita
                                                                 )
                                                                 segnaNotificaComeGestita(context, notifica.idNotifica)
-                                                                val tokenFcm = prendiTokenFCMDaEmail(context, notifica.destinatario)
+                                                                val tokenFcm = prendiTokenFCMDaEmail(context, notifica.richiedente)
                                                                 if(tokenFcm != null){
                                                                     inviaNotificaPush("Richiesta accettata", "Sei stato accettato alla partita", tokenFcm)
                                                                 }
