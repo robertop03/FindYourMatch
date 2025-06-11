@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Euro
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -68,6 +69,7 @@ import com.example.findyourmatch.data.user.LocaleHelper
 import com.example.findyourmatch.data.user.UserSettings
 import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.navigation.NavigationRoute
+import com.example.findyourmatch.ui.theme.Green
 import com.example.findyourmatch.ui.theme.Red
 import com.example.findyourmatch.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
@@ -91,6 +93,7 @@ fun CreaPartita(navController: NavHostController) {
     var currentUser by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    var isLoading by remember { mutableStateOf(false) }
     val httpClient = remember { createHttpClient() }
     var typeExpanded by remember { mutableStateOf(false) }
     var type by remember { mutableStateOf("") }
@@ -145,651 +148,671 @@ fun CreaPartita(navController: NavHostController) {
                 showBackButton = showBackButton
             )
 
-            Text(
-                text = buildAnnotatedString {
-                    append(localizedContext.getString(R.string.tipo_partita))
-                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
-                },
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
-            )
-            ExposedDropdownMenuBox(
-                expanded = typeExpanded,
-                onExpandedChange = { typeExpanded = !typeExpanded },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                OutlinedTextField(
-                    value = type,
-                    onValueChange = {},
-                    readOnly = true,
-                    modifier = Modifier
-                        .menuAnchor(
-                            type = MenuAnchorType.PrimaryEditable,
-                            enabled = true
-                        )
-                        .width(330.dp),
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded)
-                    },
-                    placeholder = {
-                        Text(
-                            localizedContext.getString(R.string.seleziona_tipo),
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
-                )
-                ExposedDropdownMenu(
-                    expanded = typeExpanded,
-                    onDismissRequest = { typeExpanded = false }
+            if (isLoading) {
+                Spacer(modifier = Modifier.height(20.dp))
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    val types = arrayOf("5vs5", "7vs7", "8vs8", "11vs11")
-                    types.forEach {
-                        DropdownMenuItem(
-                            text = { Text(it) },
-                            onClick = {
-                                type = it
-                                typeExpanded = false
-                            }
+                    Column (
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = localizedContext.getString(R.string.creazione_in_corso),
+                            color = Green
                         )
                     }
                 }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = buildAnnotatedString {
-                    append(localizedContext.getString(R.string.luogo) + " " + localizedContext.getString(R.string.spiegazione_campo))
-                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
-                },
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
-            )
-            LaunchedEffect (Unit) {
-                sportsFields = getSportsFields(context)
-            }
-            ExposedDropdownMenuBox(
-                expanded = pitchExpanded,
-                onExpandedChange = { pitchExpanded = !pitchExpanded },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
+            } else {
+                Text(
+                    text = buildAnnotatedString {
+                        append(localizedContext.getString(R.string.tipo_partita))
+                        withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                    },
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+                )
+                ExposedDropdownMenuBox(
+                    expanded = typeExpanded,
+                    onExpandedChange = { typeExpanded = !typeExpanded },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    OutlinedTextField(
+                        value = type,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .menuAnchor(
+                                type = MenuAnchorType.PrimaryEditable,
+                                enabled = true
+                            )
+                            .width(330.dp),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded)
+                        },
+                        placeholder = {
+                            Text(
+                                localizedContext.getString(R.string.seleziona_tipo),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = typeExpanded,
+                        onDismissRequest = { typeExpanded = false }
+                    ) {
+                        val types = arrayOf("5vs5", "7vs7", "8vs8", "11vs11")
+                        types.forEach {
+                            DropdownMenuItem(
+                                text = { Text(it) },
+                                onClick = {
+                                    type = it
+                                    typeExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        append(localizedContext.getString(R.string.luogo) + " " + localizedContext.getString(R.string.spiegazione_campo))
+                        withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                    },
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+                )
+                LaunchedEffect (Unit) {
+                    sportsFields = getSportsFields(context)
+                }
+                ExposedDropdownMenuBox(
+                    expanded = pitchExpanded,
+                    onExpandedChange = { pitchExpanded = !pitchExpanded },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    OutlinedTextField(
+                        value = if (pitch != null) pitch?.nome + " (${pitch?.citta}, ${pitch?.nazione})" else "",
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .menuAnchor(
+                                type = MenuAnchorType.PrimaryEditable,
+                                enabled = true
+                            )
+                            .width(330.dp),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(pitchExpanded)
+                        },
+                        placeholder = {
+                            Text(
+                                localizedContext.getString(R.string.seleziona_campo),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        },
+                        singleLine = true
+                    )
+                    ExposedDropdownMenu(
+                        expanded = pitchExpanded,
+                        onDismissRequest = { pitchExpanded = false }
+                    ) {
+                        sportsFields.forEach {
+                            DropdownMenuItem(
+                                text = { Text("${it.nome} (${it.citta}, ${it.nazione})") },
+                                onClick = {
+                                    pitch = CampoSportivo(
+                                        idCampo = it.idCampo,
+                                        nazione = it.nazione,
+                                        provincia = it.provincia,
+                                        citta = it.citta,
+                                        via = it.via,
+                                        civico = it.civico,
+                                        nome = it.nome
+                                    )
+                                    pitchExpanded = false
+                                    newPitchNation = ""
+                                    newPitchProvince = ""
+                                    newPitchCity = ""
+                                    newPitchStreet = ""
+                                    newPitchHouseNumber = ""
+                                    newPitchName = ""
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(0.dp, 20.dp).width(330.dp).align(Alignment.CenterHorizontally)
+                ) {
+                    Divider(
+                        thickness = 1.dp,
+                        modifier = Modifier
+                            .weight(1f),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        text = localizedContext.getString(R.string.oppure),
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Divider(
+                        thickness = 1.dp,
+                        modifier = Modifier
+                            .weight(1f),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+
+                ExposedDropdownMenuBox(
+                    expanded = nationExpanded,
+                    onExpandedChange = { nationExpanded = !nationExpanded },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    OutlinedTextField(
+                        value = newPitchNation,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .menuAnchor(
+                                type = MenuAnchorType.PrimaryEditable,
+                                enabled = true
+                            )
+                            .width(330.dp),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                nationExpanded
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                localizedContext.getString(R.string.stato),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    )
+                    LaunchedEffect(Unit) {
+                        euNations = fetchEUCountries(httpClient)
+                    }
+                    ExposedDropdownMenu(
+                        expanded = nationExpanded,
+                        onDismissRequest = { nationExpanded = false }
+                    ) {
+                        euNations.forEach {
+                            DropdownMenuItem(
+                                text = { Text(it) },
+                                onClick = {
+                                    newPitchNation = it
+                                    nationExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+                LaunchedEffect(newPitchNation) {
+                    if (newPitchNation.isNotBlank()) {
+                        provinces = fetchProvincesByCountry(httpClient, newPitchNation)
+                    }
+                }
+                ExposedDropdownMenuBox(
+                    expanded = provinceExpanded,
+                    onExpandedChange = { provinceExpanded = !provinceExpanded },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    OutlinedTextField(
+                        value = newPitchProvince,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .menuAnchor(
+                                type = MenuAnchorType.PrimaryEditable,
+                                enabled = true
+                            )
+                            .width(330.dp),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                provinceExpanded
+                            )
+                        },
+                        placeholder = { Text(localizedContext.getString(R.string.provincia)) }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = provinceExpanded,
+                        onDismissRequest = { provinceExpanded = false }
+                    ) {
+                        provinces.forEach {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        it,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                },
+                                onClick = {
+                                    newPitchProvince = it
+                                    provinceExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
-                    value = if (pitch != null) pitch?.nome + " (${pitch?.citta}, ${pitch?.nazione})" else "",
-                    onValueChange = {},
-                    readOnly = true,
+                    value = newPitchCity,
+                    onValueChange = { newPitchCity = it },
+                    placeholder = { Text(localizedContext.getString(R.string.citta)) },
+                    singleLine = true,
                     modifier = Modifier
-                        .menuAnchor(
-                            type = MenuAnchorType.PrimaryEditable,
-                            enabled = true
-                        )
-                        .width(330.dp),
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(pitchExpanded)
-                    },
-                    placeholder = {
-                        Text(
-                            localizedContext.getString(R.string.seleziona_campo),
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    },
+                        .width(330.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = newPitchStreet,
+                    onValueChange = { newPitchStreet = it },
+                    placeholder = { Text(localizedContext.getString(R.string.via)) },
+                    singleLine = true,
+                    modifier = Modifier
+                        .width(330.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = newPitchHouseNumber,
+                    onValueChange = { newPitchHouseNumber = it },
+                    placeholder = { Text(localizedContext.getString(R.string.civico)) },
+                    singleLine = true,
+                    modifier = Modifier
+                        .width(330.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = newPitchName,
+                    onValueChange = { newPitchName = it },
+                    modifier = Modifier
+                        .width(330.dp)
+                        .align(Alignment.CenterHorizontally),
+                    placeholder = { Text(localizedContext.getString(R.string.campo_sportivo)) },
                     singleLine = true
                 )
-                ExposedDropdownMenu(
-                    expanded = pitchExpanded,
-                    onDismissRequest = { pitchExpanded = false }
-                ) {
-                    sportsFields.forEach {
-                        DropdownMenuItem(
-                            text = { Text("${it.nome} (${it.citta}, ${it.nazione})") },
-                            onClick = {
-                                pitch = CampoSportivo(
-                                    idCampo = it.idCampo,
-                                    nazione = it.nazione,
-                                    provincia = it.provincia,
-                                    citta = it.citta,
-                                    via = it.via,
-                                    civico = it.civico,
-                                    nome = it.nome
-                                )
-                                pitchExpanded = false
-                                newPitchNation = ""
-                                newPitchProvince = ""
-                                newPitchCity = ""
-                                newPitchStreet = ""
-                                newPitchHouseNumber = ""
-                                newPitchName = ""
-                            }
-                        )
-                    }
-                }
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(0.dp, 20.dp).width(330.dp).align(Alignment.CenterHorizontally)
-            ) {
-                Divider(
-                    thickness = 1.dp,
-                    modifier = Modifier
-                        .weight(1f),
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = localizedContext.getString(R.string.oppure),
-                    modifier = Modifier.padding(horizontal = 4.dp),
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    text = buildAnnotatedString {
+                        append(localizedContext.getString(R.string.data))
+                        withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                    },
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
                 )
-                Divider(
-                    thickness = 1.dp,
-                    modifier = Modifier
-                        .weight(1f),
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            }
-
-            ExposedDropdownMenuBox(
-                expanded = nationExpanded,
-                onExpandedChange = { nationExpanded = !nationExpanded },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                OutlinedTextField(
-                    value = newPitchNation,
-                    onValueChange = {},
+                TextField(
+                    value = gameDate,
                     readOnly = true,
-                    modifier = Modifier
-                        .menuAnchor(
-                            type = MenuAnchorType.PrimaryEditable,
-                            enabled = true
-                        )
-                        .width(330.dp),
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            nationExpanded
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            localizedContext.getString(R.string.stato),
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
-                )
-                LaunchedEffect(Unit) {
-                    euNations = fetchEUCountries(httpClient)
-                }
-                ExposedDropdownMenu(
-                    expanded = nationExpanded,
-                    onDismissRequest = { nationExpanded = false }
-                ) {
-                    euNations.forEach {
-                        DropdownMenuItem(
-                            text = { Text(it) },
-                            onClick = {
-                                newPitchNation = it
-                                nationExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-            Spacer(Modifier.height(16.dp))
-            LaunchedEffect(newPitchNation) {
-                if (newPitchNation.isNotBlank()) {
-                    provinces = fetchProvincesByCountry(httpClient, newPitchNation)
-                }
-            }
-            ExposedDropdownMenuBox(
-                expanded = provinceExpanded,
-                onExpandedChange = { provinceExpanded = !provinceExpanded },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                OutlinedTextField(
-                    value = newPitchProvince,
+                    placeholder = { Text(localizedContext.getString(R.string.data_placeholder))},
                     onValueChange = {},
-                    readOnly = true,
-                    modifier = Modifier
-                        .menuAnchor(
-                            type = MenuAnchorType.PrimaryEditable,
-                            enabled = true
-                        )
-                        .width(330.dp),
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            provinceExpanded
-                        )
-                    },
-                    placeholder = { Text(localizedContext.getString(R.string.provincia)) }
-                )
-                ExposedDropdownMenu(
-                    expanded = provinceExpanded,
-                    onDismissRequest = { provinceExpanded = false }
-                ) {
-                    provinces.forEach {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    it,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
-                            },
-                            onClick = {
-                                newPitchProvince = it
-                                provinceExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                value = newPitchCity,
-                onValueChange = { newPitchCity = it },
-                placeholder = { Text(localizedContext.getString(R.string.citta)) },
-                singleLine = true,
-                modifier = Modifier
-                    .width(330.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                value = newPitchStreet,
-                onValueChange = { newPitchStreet = it },
-                placeholder = { Text(localizedContext.getString(R.string.via)) },
-                singleLine = true,
-                modifier = Modifier
-                    .width(330.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                value = newPitchHouseNumber,
-                onValueChange = { newPitchHouseNumber = it },
-                placeholder = { Text(localizedContext.getString(R.string.civico)) },
-                singleLine = true,
-                modifier = Modifier
-                    .width(330.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(
-                value = newPitchName,
-                onValueChange = { newPitchName = it },
-                modifier = Modifier
-                    .width(330.dp)
-                    .align(Alignment.CenterHorizontally),
-                placeholder = { Text(localizedContext.getString(R.string.campo_sportivo)) },
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = buildAnnotatedString {
-                    append(localizedContext.getString(R.string.data))
-                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
-                },
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
-            )
-            TextField(
-                value = gameDate,
-                readOnly = true,
-                placeholder = { Text(localizedContext.getString(R.string.data_placeholder))},
-                onValueChange = {},
-                singleLine = true,
-                interactionSource = remember { MutableInteractionSource() }
-                    .also { interactionSource ->
-                        LaunchedEffect(interactionSource) {
-                            interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    showDatePickerDialog = true
-                                }
-                            }
-                        }
-                    },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(330.dp)
-            )
-
-            if (showDatePickerDialog) {
-                val contextData = LocalContext.current
-                val calendar = Calendar.getInstance()
-                val dialog = DatePickerDialog(
-                    contextData,
-                    { _, year, month, dayOfMonth ->
-                        gameDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
-                        showDatePickerDialog = false
-                    },
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)
-                )
-                dialog.setOnCancelListener {
-                    showDatePickerDialog = false
-                }
-                dialog.show()
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = buildAnnotatedString {
-                    append(localizedContext.getString(R.string.ore))
-                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
-                },
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
-            )
-            TextField(
-                value = gameTime,
-                readOnly = true,
-                placeholder = { Text("HH:mm") },
-                onValueChange = {},
-                singleLine = true,
-                interactionSource = remember { MutableInteractionSource() }
-                    .also { interactionSource ->
-                        LaunchedEffect(interactionSource) {
-                            interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    showTimePickerDialog = true
-                                }
-                            }
-                        }
-                    },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(330.dp)
-            )
-
-            if (showTimePickerDialog) {
-                LaunchedEffect (Unit) {
-                    val calendar = Calendar.getInstance()
-                    val dialog = TimePickerDialog(
-                        context,
-                        { _: TimePicker, hour: Int, minute: Int ->
-                            gameTime = String.format("%02d:%02d", hour, minute)
-                            showTimePickerDialog = false
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    )
-                    dialog.setOnCancelListener {
-                        showTimePickerDialog = false
-                    }
-                    dialog.show()
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = buildAnnotatedString {
-                    append(localizedContext.getString(R.string.data_scadenza))
-                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
-                },
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
-            )
-            TextField(
-                value = expiringDate,
-                readOnly = true,
-                placeholder = { Text(localizedContext.getString(R.string.data_placeholder))},
-                onValueChange = {},
-                singleLine = true,
-                interactionSource = remember { MutableInteractionSource() }
-                    .also { interactionSource ->
-                        LaunchedEffect(interactionSource) {
-                            interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    showExpiringDatePickerDialog = true
-                                }
-                            }
-                        }
-                    },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(330.dp)
-            )
-
-            if (showExpiringDatePickerDialog) {
-                val contextData = LocalContext.current
-                val calendar = Calendar.getInstance()
-                val dialog = DatePickerDialog(
-                    contextData,
-                    { _, year, month, dayOfMonth ->
-                        expiringDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
-                        showExpiringDatePickerDialog = false
-                    },
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)
-                )
-                dialog.setOnCancelListener {
-                    showExpiringDatePickerDialog = false
-                }
-                dialog.show()
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = buildAnnotatedString {
-                    append(localizedContext.getString(R.string.orario_scadenza))
-                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
-                },
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
-            )
-            TextField(
-                value = expiringTime,
-                readOnly = true,
-                placeholder = { Text("HH:mm") },
-                onValueChange = {},
-                singleLine = true,
-                interactionSource = remember { MutableInteractionSource() }
-                    .also { interactionSource ->
-                        LaunchedEffect(interactionSource) {
-                            interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    showExpringTimePickerDialog = true
-                                }
-                            }
-                        }
-                    },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(330.dp)
-            )
-
-            if (showExpringTimePickerDialog) {
-                LaunchedEffect (Unit) {
-                    val calendar = Calendar.getInstance()
-                    val dialog = TimePickerDialog(
-                        context,
-                        { _: TimePicker, hour: Int, minute: Int ->
-                            expiringTime = String.format("%02d:%02d", hour, minute)
-                            showExpringTimePickerDialog = false
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    )
-                    dialog.setOnCancelListener {
-                        showExpringTimePickerDialog = false
-                    }
-                    dialog.show()
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = buildAnnotatedString {
-                    append(localizedContext.getString(R.string.importo))
-                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
-                },
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
-            )
-            OutlinedTextField(
-                value = expectedAmount,
-                onValueChange = { expectedAmount = it },
-                placeholder = { Text("0.0") },
-                singleLine = true,
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Euro,
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                        contentDescription = null
-                    )
-                },
-                modifier = Modifier
-                    .width(330.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = buildAnnotatedString {
-                    append(localizedContext.getString(R.string.nome_squadra_1))
-                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
-                },
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
-            )
-            OutlinedTextField(
-                value = team1Name,
-                onValueChange = { team1Name = it },
-                placeholder = { Text(localizedContext.getString(R.string.ins_nome_squadra_1)) },
-                singleLine = true,
-                modifier = Modifier
-                    .width(330.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = buildAnnotatedString {
-                    append(localizedContext.getString(R.string.nome_squadra_2))
-                    withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
-                },
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
-            )
-            OutlinedTextField(
-                value = team2Name,
-                onValueChange = { team2Name = it },
-                placeholder = { Text(localizedContext.getString(R.string.ins_nome_squadra_2)) },
-                singleLine = true,
-                modifier = Modifier
-                    .width(330.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    onClick = {
-                        validaCampi(
-                            localizedContext,
-                            coroutineScope,
-                            snackbarHostState,
-                            type,
-                            pitch,
-                            newPitchNation,
-                            newPitchProvince,
-                            newPitchCity,
-                            newPitchStreet,
-                            newPitchHouseNumber,
-                            newPitchName,
-                            gameDate,
-                            gameTime,
-                            expiringDate,
-                            expiringTime,
-                            expectedAmount,
-                            team1Name,
-                            team2Name
-                        ) {
-                            if (pitch != null) {
-                                newPitchNation = ""
-                                newPitchProvince = ""
-                                newPitchCity = ""
-                                newPitchStreet = ""
-                                newPitchHouseNumber = ""
-                                newPitchName = ""
-                            }
-                            coroutineScope.launch {
-                                currentUser?.let {
-                                    kotlinx.coroutines.delay(100)
-                                    val result = insertNewMatch(
-                                        context = context,
-                                        type = type,
-                                        existingPitch = pitch,
-                                        newPitchNation = newPitchNation,
-                                        newPitchProvince = newPitchProvince,
-                                        newPitchCity = newPitchCity.trim(),
-                                        newPitchStreet = newPitchStreet.trim(),
-                                        newPitchHouseNumber = newPitchHouseNumber.trim(),
-                                        newPitchName = newPitchName.trim(),
-                                        gameDate = gameDate,
-                                        gameTime = gameTime,
-                                        expiringDate = expiringDate,
-                                        expiringTime = expiringTime,
-                                        expectedAmount = expectedAmount.trim(),
-                                        team1Name = team1Name.trim(),
-                                        team2Name = team2Name.trim(),
-                                        organizer = currentUser!!
-                                    )
-                                    if (result.isSuccess) {
-                                        snackbarHostState.showSnackbar(localizedContext.getString(R.string.creazione_completata))
-                                        navController.navigate(NavigationRoute.Home)
-                                    } else {
-                                        snackbarHostState.showSnackbar("${localizedContext.getString(R.string.errore_registrazione)}: ${result.exceptionOrNull()?.message}")
+                    singleLine = true,
+                    interactionSource = remember { MutableInteractionSource() }
+                        .also { interactionSource ->
+                            LaunchedEffect(interactionSource) {
+                                interactionSource.interactions.collect {
+                                    if (it is PressInteraction.Release) {
+                                        showDatePickerDialog = true
                                     }
                                 }
                             }
-                        }
-                    },
-                    modifier = Modifier.width(150.dp).height(42.dp),
-                    shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .width(330.dp)
+                )
+
+                if (showDatePickerDialog) {
+                    val contextData = LocalContext.current
+                    val calendar = Calendar.getInstance()
+                    val dialog = DatePickerDialog(
+                        contextData,
+                        { _, year, month, dayOfMonth ->
+                            gameDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                            showDatePickerDialog = false
+                        },
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
                     )
-                ) {
-                    Text(
-                        localizedContext.getString(R.string.crea),
-                        textAlign = TextAlign.Center,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    dialog.setOnCancelListener {
+                        showDatePickerDialog = false
+                    }
+                    dialog.show()
                 }
-                Spacer(modifier = Modifier.width(30.dp))
-                Button(
-                    onClick = {
-                        navController.navigateUp()
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        append(localizedContext.getString(R.string.ore))
+                        withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
                     },
-                    modifier = Modifier.width(150.dp).height(42.dp),
-                    shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Red,
-                        contentColor = White
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+                )
+                TextField(
+                    value = gameTime,
+                    readOnly = true,
+                    placeholder = { Text("HH:mm") },
+                    onValueChange = {},
+                    singleLine = true,
+                    interactionSource = remember { MutableInteractionSource() }
+                        .also { interactionSource ->
+                            LaunchedEffect(interactionSource) {
+                                interactionSource.interactions.collect {
+                                    if (it is PressInteraction.Release) {
+                                        showTimePickerDialog = true
+                                    }
+                                }
+                            }
+                        },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .width(330.dp)
+                )
+
+                if (showTimePickerDialog) {
+                    LaunchedEffect (Unit) {
+                        val calendar = Calendar.getInstance()
+                        val dialog = TimePickerDialog(
+                            context,
+                            { _: TimePicker, hour: Int, minute: Int ->
+                                gameTime = String.format("%02d:%02d", hour, minute)
+                                showTimePickerDialog = false
+                            },
+                            calendar.get(Calendar.HOUR_OF_DAY),
+                            calendar.get(Calendar.MINUTE),
+                            true
+                        )
+                        dialog.setOnCancelListener {
+                            showTimePickerDialog = false
+                        }
+                        dialog.show()
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        append(localizedContext.getString(R.string.data_scadenza))
+                        withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                    },
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+                )
+                TextField(
+                    value = expiringDate,
+                    readOnly = true,
+                    placeholder = { Text(localizedContext.getString(R.string.data_placeholder))},
+                    onValueChange = {},
+                    singleLine = true,
+                    interactionSource = remember { MutableInteractionSource() }
+                        .also { interactionSource ->
+                            LaunchedEffect(interactionSource) {
+                                interactionSource.interactions.collect {
+                                    if (it is PressInteraction.Release) {
+                                        showExpiringDatePickerDialog = true
+                                    }
+                                }
+                            }
+                        },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .width(330.dp)
+                )
+
+                if (showExpiringDatePickerDialog) {
+                    val contextData = LocalContext.current
+                    val calendar = Calendar.getInstance()
+                    val dialog = DatePickerDialog(
+                        contextData,
+                        { _, year, month, dayOfMonth ->
+                            expiringDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                            showExpiringDatePickerDialog = false
+                        },
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
                     )
+                    dialog.setOnCancelListener {
+                        showExpiringDatePickerDialog = false
+                    }
+                    dialog.show()
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        append(localizedContext.getString(R.string.orario_scadenza))
+                        withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                    },
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+                )
+                TextField(
+                    value = expiringTime,
+                    readOnly = true,
+                    placeholder = { Text("HH:mm") },
+                    onValueChange = {},
+                    singleLine = true,
+                    interactionSource = remember { MutableInteractionSource() }
+                        .also { interactionSource ->
+                            LaunchedEffect(interactionSource) {
+                                interactionSource.interactions.collect {
+                                    if (it is PressInteraction.Release) {
+                                        showExpringTimePickerDialog = true
+                                    }
+                                }
+                            }
+                        },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .width(330.dp)
+                )
+
+                if (showExpringTimePickerDialog) {
+                    LaunchedEffect (Unit) {
+                        val calendar = Calendar.getInstance()
+                        val dialog = TimePickerDialog(
+                            context,
+                            { _: TimePicker, hour: Int, minute: Int ->
+                                expiringTime = String.format("%02d:%02d", hour, minute)
+                                showExpringTimePickerDialog = false
+                            },
+                            calendar.get(Calendar.HOUR_OF_DAY),
+                            calendar.get(Calendar.MINUTE),
+                            true
+                        )
+                        dialog.setOnCancelListener {
+                            showExpringTimePickerDialog = false
+                        }
+                        dialog.show()
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        append(localizedContext.getString(R.string.importo))
+                        withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                    },
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+                )
+                OutlinedTextField(
+                    value = expectedAmount,
+                    onValueChange = { expectedAmount = it },
+                    placeholder = { Text("0.0") },
+                    singleLine = true,
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Euro,
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            contentDescription = null
+                        )
+                    },
+                    modifier = Modifier
+                        .width(330.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        append(localizedContext.getString(R.string.nome_squadra_1))
+                        withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                    },
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+                )
+                OutlinedTextField(
+                    value = team1Name,
+                    onValueChange = { team1Name = it },
+                    placeholder = { Text(localizedContext.getString(R.string.ins_nome_squadra_1)) },
+                    singleLine = true,
+                    modifier = Modifier
+                        .width(330.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        append(localizedContext.getString(R.string.nome_squadra_2))
+                        withStyle(style = SpanStyle(color = Color.Red)) { append("*") }
+                    },
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).width(330.dp)
+                )
+                OutlinedTextField(
+                    value = team2Name,
+                    onValueChange = { team2Name = it },
+                    placeholder = { Text(localizedContext.getString(R.string.ins_nome_squadra_2)) },
+                    singleLine = true,
+                    modifier = Modifier
+                        .width(330.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text(
-                        localizedContext.getString(R.string.annulla),
-                        textAlign = TextAlign.Center,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Button(
+                        onClick = {
+                            validaCampi(
+                                localizedContext,
+                                coroutineScope,
+                                snackbarHostState,
+                                type,
+                                pitch,
+                                newPitchNation,
+                                newPitchProvince,
+                                newPitchCity,
+                                newPitchStreet,
+                                newPitchHouseNumber,
+                                newPitchName,
+                                gameDate,
+                                gameTime,
+                                expiringDate,
+                                expiringTime,
+                                expectedAmount,
+                                team1Name,
+                                team2Name
+                            ) {
+                                if (pitch != null) {
+                                    newPitchNation = ""
+                                    newPitchProvince = ""
+                                    newPitchCity = ""
+                                    newPitchStreet = ""
+                                    newPitchHouseNumber = ""
+                                    newPitchName = ""
+                                }
+                                coroutineScope.launch {
+                                    currentUser?.let {
+                                        isLoading = true
+                                        val result = insertNewMatch(
+                                            context = context,
+                                            type = type,
+                                            existingPitch = pitch,
+                                            newPitchNation = newPitchNation,
+                                            newPitchProvince = newPitchProvince,
+                                            newPitchCity = newPitchCity.trim(),
+                                            newPitchStreet = newPitchStreet.trim(),
+                                            newPitchHouseNumber = newPitchHouseNumber.trim(),
+                                            newPitchName = newPitchName.trim(),
+                                            gameDate = gameDate,
+                                            gameTime = gameTime,
+                                            expiringDate = expiringDate,
+                                            expiringTime = expiringTime,
+                                            expectedAmount = expectedAmount.trim(),
+                                            team1Name = team1Name.trim(),
+                                            team2Name = team2Name.trim(),
+                                            organizer = currentUser!!
+                                        )
+                                        if (result.isSuccess) {
+                                            snackbarHostState.showSnackbar(localizedContext.getString(R.string.creazione_completata))
+                                            navController.navigate(NavigationRoute.Home)
+                                        } else {
+                                            isLoading = false
+                                            snackbarHostState.showSnackbar("${localizedContext.getString(R.string.errore_registrazione)}: ${result.exceptionOrNull()?.message}")
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier.width(150.dp).height(42.dp),
+                        shape = RoundedCornerShape(50),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(
+                            localizedContext.getString(R.string.crea),
+                            textAlign = TextAlign.Center,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(30.dp))
+                    Button(
+                        onClick = {
+                            navController.navigateUp()
+                        },
+                        modifier = Modifier.width(150.dp).height(42.dp),
+                        shape = RoundedCornerShape(50),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Red,
+                            contentColor = White
+                        )
+                    ) {
+                        Text(
+                            localizedContext.getString(R.string.annulla),
+                            textAlign = TextAlign.Center,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }

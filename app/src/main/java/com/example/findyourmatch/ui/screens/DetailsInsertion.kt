@@ -288,8 +288,8 @@ fun InserisciDettagli(navController: NavHostController, matchViewModel: MatchVie
                                             )
                                             navController.navigate(NavigationRoute.Profile)
                                         } else {
+                                            isLoading = false
                                             snackbarHostState.showSnackbar("ERRORE")
-                                            navController.navigate(NavigationRoute.Profile)
                                         }
                                     }
                                 }
