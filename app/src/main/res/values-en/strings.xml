@@ -104,6 +104,8 @@
     <string name="tema_chiaro">Light theme</string>
     <string name="tema_scuro">Dark theme</string>
     <string name="lingua">Language</string>
+    <string name="notifiche_disabilitate">Notifications disabled</string>
+    <string name="attiva_notifiche_nelle_impostazioni">System notifications are turned off. Do you want to open the app settings to enable them?</string>
 
     <!-- HOME -->
     <string name="miei_calcetti">My futsal games…</string>

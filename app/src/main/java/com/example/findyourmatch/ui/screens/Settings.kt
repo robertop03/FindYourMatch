@@ -1,6 +1,7 @@
 package com.example.findyourmatch.ui.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +64,9 @@ import com.example.findyourmatch.viewmodel.HomeViewModel
 import com.example.findyourmatch.viewmodel.SessionViewModel
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
+import android.content.Intent
+import android.provider.Settings
+import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.Dispatchers
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "DefaultLocale")
@@ -88,6 +92,7 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
     val savedFingerprintEnabled by userSettings.fingerprintEnabled.collectAsState(initial = true)
     val savedMaxDistance by userSettings.maxDistance.collectAsState(initial = 50f)
 
+    var showNotificationsDisabledDialog by remember { mutableStateOf(false) }
     var selectedLanguage by remember(savedLanguage) { mutableStateOf(savedLanguage) }
     var notificationsEnabled by remember(savedNotificationsEnabled) { mutableStateOf(savedNotificationsEnabled) }
     var fingerprintEnabled by remember(savedFingerprintEnabled) { mutableStateOf(savedFingerprintEnabled) }
@@ -229,24 +234,27 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                     Text(localizedContext.getString(R.string.notifiche), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSecondaryContainer)
                     Switch(checked = notificationsEnabled, onCheckedChange = {
                         notificationsEnabled = it
-                        if(!notificationsEnabled){
-                            // setto a null fcm_token se utente è loggato
-                            if (isLoggedIn){
+                        if (!notificationsEnabled) {
+                            if (isLoggedIn) {
                                 coroutineScope.launch {
                                     val email = getLoggedUserEmail(context)
                                     impostaFcmTokenNull(context, email!!)
                                 }
                             }
-                        }else{
-                            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    val token = task.result
-
-                                    CoroutineScope(Dispatchers.IO).launch {
-                                        aggiornaTokenFCMUtenteSeDiverso(context = context, nuovoToken = token)
+                        } else {
+                            val systemEnabled = areSystemNotificationsEnabled(context)
+                            if (!systemEnabled) {
+                                showNotificationsDisabledDialog = true
+                            } else {
+                                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        val token = task.result
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            aggiornaTokenFCMUtenteSeDiverso(context = context, nuovoToken = token)
+                                        }
+                                    } else {
+                                        Log.e("FCM", "Errore ottenimento token", task.exception)
                                     }
-                                } else {
-                                    Log.e("FCM", "Errore ottenimento token", task.exception)
                                 }
                             }
                         }
@@ -384,5 +392,34 @@ fun Settings(navController: NavHostController, sessionViewModel: SessionViewMode
                 }
             )
         }
+
+        if (showNotificationsDisabledDialog) {
+            AlertDialog(
+                onDismissRequest = { showNotificationsDisabledDialog = false },
+                title = { Text(localizedContext.getString(R.string.notifiche_disabilitate)) },
+                text = { Text(localizedContext.getString(R.string.attiva_notifiche_nelle_impostazioni)) },
+                confirmButton = {
+                    Button(onClick = {
+                        showNotificationsDisabledDialog = false
+                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                        }
+                        context.startActivity(intent)
+                    }) {
+                        Text(localizedContext.getString(R.string.apri_impostazioni), color = White)
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showNotificationsDisabledDialog = false }) {
+                        Text(localizedContext.getString(R.string.annulla), color = White)
+                    }
+                }
+            )
+        }
     }
 }
+
+fun areSystemNotificationsEnabled(context: Context): Boolean {
+    return NotificationManagerCompat.from(context).areNotificationsEnabled()
+}
+

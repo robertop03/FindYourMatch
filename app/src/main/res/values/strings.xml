@@ -101,6 +101,9 @@
     <string name="tema_chiaro">Tema chiaro</string>
     <string name="tema_scuro">Tema scuro</string>
     <string name="lingua">Lingua</string>
+    <string name="notifiche_disabilitate">Notifiche disabilitate</string>
+    <string name="attiva_notifiche_nelle_impostazioni">Le notifiche di sistema sono disattivate. Vuoi aprire le impostazioni dell'app per attivarle?</string>
+
 
 
     <!-- HOME -->
