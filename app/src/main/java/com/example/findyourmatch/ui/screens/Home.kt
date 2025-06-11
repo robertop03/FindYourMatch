@@ -88,7 +88,6 @@ import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import android.app.DatePickerDialog
-import android.util.Log
 import androidx.compose.material3.ModalBottomSheet
 import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.ui.theme.Red
@@ -130,7 +129,6 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel, h
 
     val maxDistanceState = userSettings.maxDistance.collectAsState(initial = null)
     val maxDistance = maxDistanceState.value
-    Log.d("DEBUG", "maxDistance: $maxDistance")
 
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -218,7 +216,6 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel, h
             (trovaTesto == localizedContext.getString(R.string.trova) ||
                     trovaTesto == localizedContext.getString(R.string.gestisci))
         ) {
-            Log.d("EMAIL", userEmail.toString())
             homeViewModel.loadPartite(
                 isLoggedIn = isLoggedIn,
                 isPermissionGranted = isPermissionGranted,

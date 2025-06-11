@@ -485,6 +485,8 @@ suspend fun deleteMatch(context: Context, idMatch: Int) = withContext(Dispatcher
         if (!response.isSuccessful) {
             Log.e("Errore Supabase: ${response.code}", " - ${response.body?.string()}")
             return@withContext null
+        } else {
+            Log.d("SUCCESSO", "Cancellazione avvenuta con successo")
         }
     }
 }
