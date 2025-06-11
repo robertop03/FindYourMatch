@@ -6,8 +6,11 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.application
 import com.example.findyourmatch.data.notifications.aggiungiNotificaNuovoObiettivo
 import com.example.findyourmatch.data.notifications.aggiungiNotificaRecensione
+import com.example.findyourmatch.data.notifications.inviaNotificaPush
+import com.example.findyourmatch.data.notifications.prendiTokenFCMDaEmail
 import com.example.findyourmatch.data.rewards.addAchievement
 import com.example.findyourmatch.data.rewards.caricaRaggiungimenti
 import com.example.findyourmatch.data.user.SessionManager
@@ -678,6 +681,14 @@ suspend fun sendReviewNotification(
         destinatarioRecensione = destinatarioRecensione,
         autoreRecensione = autoreRecensione
     )
+    val fcmToken = prendiTokenFCMDaEmail(context, destinatario)
+    if (fcmToken != null) {
+        inviaNotificaPush(
+            "Recensione ricevuta",
+            "Hai appena ricevuto una nuova recensione",
+            fcmToken
+        )
+    }
 }
 
 suspend fun sendRewardsNotification(
@@ -696,6 +707,14 @@ suspend fun sendRewardsNotification(
         obiettivo = obiettivo,
         colore = colore
     )
+    val fcmToken = prendiTokenFCMDaEmail(context, destinatario)
+    if (fcmToken != null) {
+        inviaNotificaPush(
+            "Obiettivo raggiunto!",
+            "Complimenti, hai raggiunto un nuovo obiettivo e sbloccato un nuovo badge",
+            fcmToken
+        )
+    }
 }
 
 suspend fun getValueToCompare(count: Int): Int = withContext(Dispatchers.IO) {
