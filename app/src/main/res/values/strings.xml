@@ -142,6 +142,8 @@
     <!-- NOTIFICHE -->
     <string name="notifiche">Notifiche</string>
     <string name="nuova">Nuova</string>
+    <string name="nessuna_notifica">Al momento non hai notifiche</string>
+
 
     <!-- SINGOLA NOTIFICA -->
     <string name="vedi_tuoi_obiettivi">Visualizza i tuoi obiettivi</string>

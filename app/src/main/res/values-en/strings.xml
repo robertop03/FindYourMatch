@@ -143,6 +143,7 @@
     <!-- NOTIFICHE -->
     <string name="notifiche">Notifications</string>
     <string name="nuova">New</string>
+    <string name="nessuna_notifica">You have no notifications at the moment</string>
 
     <!-- SINGOLA NOTIFICA -->
     <string name="vedi_tuoi_obiettivi">View your goals</string>

@@ -199,10 +199,18 @@ fun Notifiche(navController: NavHostController, notificheViewModel: NotificheVie
 
             Spacer(Modifier.height(16.dp))
 
-            notifiche.forEach {
-                CardNotifica(it, navController)
+            if (notifiche.isEmpty()) {
+                Text(
+                    text = localizedContext.getString(R.string.nessuna_notifica),
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            } else {
+                notifiche.forEach {
+                    CardNotifica(it, navController)
+                }
             }
-
         }
         PullRefreshIndicator(
             refreshing = isRefreshing,
