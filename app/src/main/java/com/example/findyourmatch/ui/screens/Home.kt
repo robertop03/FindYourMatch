@@ -88,6 +88,7 @@ import com.example.findyourmatch.data.user.getLoggedUserEmail
 import com.example.findyourmatch.navigation.NavigationRoute
 import kotlinx.coroutines.launch
 import android.app.DatePickerDialog
+import android.util.Log
 import androidx.compose.material3.ModalBottomSheet
 import com.example.findyourmatch.data.user.SessionManager
 import com.example.findyourmatch.ui.theme.Red
@@ -177,7 +178,21 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel, h
         contract = ActivityResultContracts.RequestPermission()
     ) { granted: Boolean ->
         isPermissionGranted = granted
-        if (!granted) showSettingsDialog.value = true
+        if (!granted) {
+            showSettingsDialog.value = true
+        } else {
+            if (maxDistance != null) {
+                homeViewModel.loadPartite(
+                    isLoggedIn = isLoggedIn,
+                    isPermissionGranted = true,
+                    maxDistance = maxDistance,
+                    fusedLocationClient = fusedLocationClient,
+                    trovaTesto = trovaTesto,
+                    userEmail = userEmail,
+                    forzaRicarica = true
+                )
+            }
+        }
     }
 
     var hasRequestedPermission by remember { mutableStateOf(false) }
@@ -204,13 +219,14 @@ fun Home(navController: NavHostController, sessionViewModel: SessionViewModel, h
     }
 
     // Caricamento iniziale
-    LaunchedEffect(language, maxDistance, trovaTesto) {
+    LaunchedEffect(language, maxDistance, trovaTesto, isPermissionGranted){
         userEmail = if(SessionManager.isLoggedIn(sessionViewModel)){
             getLoggedUserEmail(context)
         }else{
             null
         }
-
+        Log.d("MAX DISTANCE", maxDistance.toString())
+        Log.d("isPermissionGranted", isPermissionGranted.toString())
         if (
             maxDistance != null &&
             (trovaTesto == localizedContext.getString(R.string.trova) ||
